@@ -22,10 +22,6 @@ export default function Header() {
 
   return (
     <>
-      <div className="bg-brand-teal text-center text-xs sm:text-sm text-brand-cream py-2 px-4 tracking-wide">
-        Raksha Bandhan Special · Flat 20% Off · Use Code{" "}
-        <span className="font-semibold text-brand-gold-light">RK20</span>
-      </div>
       <header className="sticky top-0 z-40 border-b border-brand-teal/10 bg-brand-cream/95 backdrop-blur">
         <div className="container-px mx-auto flex h-16 sm:h-20 items-center justify-between">
           <button

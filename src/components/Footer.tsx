@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Phone, ShoppingBag } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 
 function InstagramIcon() {
   return (
@@ -19,9 +19,6 @@ function FacebookIcon() {
     </svg>
   );
 }
-
-const AMAZON_STORE_URL =
-  "https://www.amazon.in/stores/SAMYABYSAMISHTHA/page/25711CDD-7F40-4A8B-A316-496E24D9FE1B?lp_asin=B0FGJTTMDD&ref_=ast_bln&store_ref=bl_ast_dp_brandlogo_sto";
 
 export default function Footer() {
   return (
@@ -54,15 +51,6 @@ export default function Footer() {
             >
               <FacebookIcon />
             </a>
-            <a
-              href={AMAZON_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Amazon Store"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-brand-cream/30 hover:bg-brand-gold hover:text-brand-teal-dark hover:border-brand-gold transition-colors"
-            >
-              <ShoppingBag size={16} />
-            </a>
           </div>
         </div>
 
@@ -82,16 +70,6 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-brand-cream/80">
             <li><Link href="/about" className="hover:text-brand-gold-light">About Us</Link></li>
             <li><Link href="/shop" className="hover:text-brand-gold-light">Shop All</Link></li>
-            <li>
-              <a
-                href={AMAZON_STORE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-brand-gold-light"
-              >
-                Our Amazon Store
-              </a>
-            </li>
             <li><Link href="/contact" className="hover:text-brand-gold-light">Contact Us</Link></li>
           </ul>
         </div>

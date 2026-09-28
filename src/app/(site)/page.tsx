@@ -7,9 +7,6 @@ import type { ProductWithCategory } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-const AMAZON_STORE_URL =
-  "https://www.amazon.in/stores/SAMYABYSAMISHTHA/page/25711CDD-7F40-4A8B-A316-496E24D9FE1B?lp_asin=B0FGJTTMDD&ref_=ast_bln&store_ref=bl_ast_dp_brandlogo_sto";
-
 export default async function HomePage() {
   const [categories, featured, newArrivals, giftIdeas] = await Promise.all([
     prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
@@ -183,30 +180,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Amazon store CTA */}
-      <section className="pb-16 sm:pb-20">
-        <div className="container-px mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 rounded-2xl border border-brand-gold/30 bg-white px-6 py-8 sm:px-10">
-            <div className="text-center sm:text-left">
-              <h3 className="font-serif text-xl font-semibold text-brand-teal">
-                Also available on Amazon
-              </h3>
-              <p className="mt-1 text-sm text-brand-teal/70">
-                Shop the Samya By Samishtha official store on Amazon.in
-              </p>
-            </div>
-            <a
-              href={AMAZON_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-            >
-              Visit Amazon Store <ArrowRight size={16} />
-            </a>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

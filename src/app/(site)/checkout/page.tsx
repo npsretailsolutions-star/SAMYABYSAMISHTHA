@@ -24,13 +24,11 @@ export default function CheckoutPage() {
     state: "",
     pincode: "",
     notes: "",
-    couponCode: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const discount = form.couponCode.trim().toUpperCase() === "RK20" ? Math.round(subtotal * 0.2) : 0;
-  const total = subtotal - discount;
+  const total = subtotal;
 
   const onChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -162,28 +160,11 @@ export default function CheckoutPage() {
             ))}
           </div>
 
-          <div className="flex gap-2 mb-4">
-            <input
-              type="text"
-              placeholder="Coupon code"
-              name="couponCode"
-              value={form.couponCode}
-              onChange={onChange}
-              className="flex-1 rounded-full border border-brand-teal/20 px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
-            />
-          </div>
-
           <div className="space-y-2 border-t border-brand-teal/10 pt-4 text-sm">
             <div className="flex items-center justify-between text-brand-teal/70">
               <span>Subtotal</span>
               <span>{formatINR(subtotal)}</span>
             </div>
-            {discount > 0 && (
-              <div className="flex items-center justify-between text-emerald-700">
-                <span>Discount (RK20)</span>
-                <span>-{formatINR(discount)}</span>
-              </div>
-            )}
             <div className="flex items-center justify-between text-brand-teal/70">
               <span>Shipping</span>
               <span className="text-emerald-700 font-medium">Free</span>

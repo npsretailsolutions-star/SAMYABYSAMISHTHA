@@ -13,7 +13,6 @@ const orderSchema = z.object({
   state: z.string().min(2),
   pincode: z.string().min(4),
   notes: z.string().optional(),
-  couponCode: z.string().optional(),
   items: z
     .array(
       z.object({
@@ -59,12 +58,7 @@ export async function POST(req: NextRequest) {
     return sum + product.price * item.quantity;
   }, 0);
 
-  let discount = 0;
-  const code = data.couponCode?.trim().toUpperCase();
-  if (code === "RK20") {
-    discount = Math.round(subtotal * 0.2);
-  }
-  const total = subtotal - discount;
+  const total = subtotal;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -79,8 +73,6 @@ export async function POST(req: NextRequest) {
         pincode: data.pincode,
         notes: data.notes,
         subtotal,
-        discount,
-        couponCode: discount > 0 ? code : null,
         total,
         items: {
           create: data.items.map((item) => {
