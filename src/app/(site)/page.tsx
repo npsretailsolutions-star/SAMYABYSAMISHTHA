@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Gift, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 import type { ProductWithCategory } from "@/lib/types";
@@ -45,22 +45,22 @@ export default async function HomePage() {
             sizes="100vw"
           />
         </div>
-        <div className="container-px mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 py-6">
-          <div className="flex items-center gap-3 rounded-full bg-brand-teal/5 px-5 py-3">
-            <span className="text-sm text-brand-teal/70">Flat</span>
-            <span className="font-serif text-2xl font-bold text-brand-gold-dark">20% OFF</span>
-            <span className="rounded-full bg-brand-gold px-3 py-1 text-xs font-bold tracking-wide text-brand-teal-dark">
-              RK20
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/shop" className="btn-gold">
-              Shop Now <ArrowRight size={16} />
-            </Link>
-            <Link href="/shop/gifting" className="btn-outline">
-              Explore Gifting
-            </Link>
-          </div>
+      </section>
+
+      {/* Trust strip */}
+      <section className="border-b border-brand-teal/10 bg-white">
+        <div className="container-px mx-auto grid grid-cols-2 gap-6 py-6 sm:grid-cols-4">
+          {[
+            { icon: Sparkles, label: "Premium Finish" },
+            { icon: Truck, label: "Pan-India Delivery" },
+            { icon: ShieldCheck, label: "Skin Friendly" },
+            { icon: Gift, label: "Gift Ready Packaging" },
+          ].map(({ icon: Icon, label }) => (
+            <div key={label} className="flex flex-col items-center gap-2 text-center">
+              <Icon size={22} className="text-brand-gold-dark" />
+              <span className="text-xs sm:text-sm font-medium text-brand-teal">{label}</span>
+            </div>
+          ))}
         </div>
       </section>
 
