@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { blogSeedData } from "@/lib/blogSeedData";
 
 // One-time production bootstrap: creates categories/sample products (only if
 // the database is empty) and an admin user. Protected by SETUP_SECRET so it
@@ -117,5 +118,19 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return NextResponse.json({ ok: true, seededCatalog, adminCreated: parsed.data.adminEmail });
+  const existingBlogCount = await prisma.blogPost.count();
+  let seededBlog = false;
+  if (existingBlogCount === 0) {
+    for (const post of blogSeedData) {
+      await prisma.blogPost.create({ data: post });
+    }
+    seededBlog = true;
+  }
+
+  return NextResponse.json({
+    ok: true,
+    seededCatalog,
+    seededBlog,
+    adminCreated: parsed.data.adminEmail,
+  });
 }

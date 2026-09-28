@@ -12,6 +12,7 @@ import {
   Users,
   TicketPercent,
   BarChart3,
+  Newspaper,
   LogOut,
   Menu,
   X,
@@ -24,6 +25,7 @@ const LINKS = [
   { href: "/admin/categories", label: "Categories", icon: Tags },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/coupons", label: "Coupons", icon: TicketPercent },
+  { href: "/admin/blog", label: "Blog", icon: Newspaper },
   { href: "/admin/traffic", label: "Traffic", icon: BarChart3 },
 ];
 

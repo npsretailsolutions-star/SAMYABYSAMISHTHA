@@ -15,11 +15,38 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+const SITE_URL = "https://www.samyabysamishtha.com";
+const TITLE = "Samya By Samishtha | Premium Artificial & Fashion Jewellery";
+const DESCRIPTION =
+  "Shop premium artificial & fashion jewellery online — earrings, necklaces, bangles, pendants and gifting sets, handcrafted for everyday elegance and festive celebration. Free shipping across India.";
+
 export const metadata: Metadata = {
-  title: "Samya By Samishtha | Premium Artificial & Fashion Jewellery",
-  description:
-    "Shop premium artificial & fashion jewellery — earrings, necklaces, bangles, pendants and gifting sets from Samya By Samishtha.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: TITLE, template: "%s | Samya By Samishtha" },
+  description: DESCRIPTION,
+  keywords: [
+    "artificial jewellery",
+    "fashion jewellery online",
+    "imitation jewellery india",
+    "kundan jewellery",
+    "gold plated earrings",
+    "necklace set online",
+    "jewellery gifting",
+  ],
   icons: { icon: "/images/logo.png" },
+  openGraph: {
+    type: "website",
+    siteName: "Samya By Samishtha",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    images: [{ url: "/images/hero-banner.webp" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -9,6 +10,29 @@ import AddToCartButtons from "@/components/AddToCartButtons";
 import ProductCard from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const product = await prisma.product.findUnique({
+    where: { slug: params.slug },
+    include: { category: true },
+  });
+  if (!product) return {};
+
+  const images = parseImages(product.images);
+  const title = `${product.name} | ${product.category.name}`;
+  const description = product.description.slice(0, 155);
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: [{ url: images[0] }], type: "website" },
+    twitter: { card: "summary_large_image", title, description, images: [images[0]] },
+  };
+}
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const product = await prisma.product.findUnique({
@@ -33,8 +57,30 @@ export default async function ProductPage({ params }: { params: { slug: string }
     take: 4,
   });
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: images,
+    sku: product.sku || product.id,
+    brand: { "@type": "Brand", name: "Samya By Samishtha" },
+    offers: {
+      "@type": "Offer",
+      url: `https://www.samyabysamishtha.com/product/${product.slug}`,
+      priceCurrency: "INR",
+      price: (product.price / 100).toFixed(2),
+      availability:
+        product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
     <div className="container-px mx-auto section-y">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className="mb-6 text-xs text-brand-teal/60">
         <Link href="/" className="hover:text-brand-gold-dark">Home</Link>
         <span className="mx-1.5">/</span>

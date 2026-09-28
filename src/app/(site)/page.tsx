@@ -8,17 +8,11 @@ import type { ProductWithCategory } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [categories, featured, newArrivals, giftIdeas] = await Promise.all([
+  const [categories, featured, giftIdeas] = await Promise.all([
     prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.product.findMany({
       where: { isFeatured: true, isActive: true },
       include: { category: true },
-      take: 8,
-    }),
-    prisma.product.findMany({
-      where: { isActive: true },
-      include: { category: true },
-      orderBy: { createdAt: "desc" },
       take: 8,
     }),
     prisma.product.findMany({
@@ -46,16 +40,17 @@ export default async function HomePage() {
 
       {/* Trust strip */}
       <section className="border-b border-brand-teal/10 bg-white">
-        <div className="container-px mx-auto grid grid-cols-2 gap-6 py-6 sm:grid-cols-4">
+        <div className="container-px mx-auto grid grid-cols-2 gap-3 sm:gap-6 py-4 sm:py-6 sm:grid-cols-4">
           {[
             { icon: Sparkles, label: "Premium Finish" },
             { icon: Truck, label: "Pan-India Delivery" },
             { icon: ShieldCheck, label: "Skin Friendly" },
             { icon: Gift, label: "Gift Ready Packaging" },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex flex-col items-center gap-2 text-center">
-              <Icon size={22} className="text-brand-gold-dark" />
-              <span className="text-xs sm:text-sm font-medium text-brand-teal">{label}</span>
+            <div key={label} className="flex flex-col items-center gap-1 sm:gap-2 text-center">
+              <Icon size={16} className="text-brand-gold-dark sm:hidden" />
+              <Icon size={22} className="text-brand-gold-dark hidden sm:block" />
+              <span className="text-[11px] sm:text-sm font-medium text-brand-teal">{label}</span>
             </div>
           ))}
         </div>
@@ -99,14 +94,12 @@ export default async function HomePage() {
       {featured.length > 0 && (
         <section className="section-y bg-white">
           <div className="container-px mx-auto">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <span className="eyebrow">Handpicked</span>
-                <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
-                  Bestsellers
-                </h2>
-              </div>
-              <Link href="/shop" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-brand-teal hover:text-brand-gold-dark">
+            <div className="text-center mb-8">
+              <span className="eyebrow">Handpicked</span>
+              <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
+                Bestsellers
+              </h2>
+              <Link href="/shop" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-teal hover:text-brand-gold-dark">
                 View All <ArrowRight size={14} />
               </Link>
             </div>
@@ -136,28 +129,6 @@ export default async function HomePage() {
             <Link href="/shop/gifting" className="relative mt-6 inline-flex btn-gold">
               Shop Gifting Edit <ArrowRight size={16} />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* New arrivals */}
-      <section className="section-y bg-white">
-        <div className="container-px mx-auto">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <span className="eyebrow">Just Dropped</span>
-              <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
-                New Arrivals
-              </h2>
-            </div>
-            <Link href="/shop" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-brand-teal hover:text-brand-gold-dark">
-              View All <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-            {(newArrivals as ProductWithCategory[]).map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
           </div>
         </div>
       </section>
