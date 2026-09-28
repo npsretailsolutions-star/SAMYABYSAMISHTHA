@@ -34,4 +34,11 @@ body {
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.25em] text-brand-gold;
   }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

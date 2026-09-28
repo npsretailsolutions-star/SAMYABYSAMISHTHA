@@ -3,7 +3,6 @@ import Image from "next/image";
 import { ArrowRight, Gift, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
-import CategoryCard from "@/components/CategoryCard";
 import type { ProductWithCategory } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -35,55 +34,32 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-teal-gradient">
-        <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-brand-gold/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-brand-gold/10 blur-3xl" />
-        <div className="container-px relative mx-auto grid min-h-[480px] items-center gap-10 py-16 sm:py-20 lg:grid-cols-2">
-          <div className="text-center lg:text-left">
-            <span className="eyebrow">Raksha Bandhan Special Offer</span>
-            <h1 className="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.1] text-brand-cream text-balance">
-              Elegance Crafted for
-              <span className="block text-brand-gold-light">Every Celebration</span>
-            </h1>
-            <p className="mt-5 max-w-md mx-auto lg:mx-0 text-brand-cream/80 text-balance">
-              Discover handcrafted artificial &amp; fashion jewellery — earrings,
-              necklaces, bangles &amp; pendants designed to make every moment shine.
-            </p>
-            <div className="mt-7 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-              <div className="flex items-center gap-3 rounded-full bg-brand-cream/10 px-5 py-3 backdrop-blur">
-                <span className="text-sm text-brand-cream/80">Flat</span>
-                <span className="font-serif text-2xl font-bold text-brand-gold-light">20% OFF</span>
-                <span className="rounded-full bg-brand-gold px-3 py-1 text-xs font-bold tracking-wide text-brand-teal-dark">
-                  RK20
-                </span>
-              </div>
-            </div>
-            <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4">
-              <Link href="/shop" className="btn-gold">
-                Shop Now <ArrowRight size={16} />
-              </Link>
-              <Link href="/shop/gifting" className="btn-outline !border-brand-cream/40 !text-brand-cream hover:!bg-brand-cream hover:!text-brand-teal">
-                Explore Gifting
-              </Link>
-            </div>
+      <section className="relative overflow-hidden bg-brand-cream">
+        <div className="relative w-full aspect-[16/8] sm:aspect-[16/7] lg:aspect-[16/6]">
+          <Image
+            src="/images/hero-banner.webp"
+            alt="Samya By Samishtha — Timeless Beauty, Made For You"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+        </div>
+        <div className="container-px mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 py-6">
+          <div className="flex items-center gap-3 rounded-full bg-brand-teal/5 px-5 py-3">
+            <span className="text-sm text-brand-teal/70">Flat</span>
+            <span className="font-serif text-2xl font-bold text-brand-gold-dark">20% OFF</span>
+            <span className="rounded-full bg-brand-gold px-3 py-1 text-xs font-bold tracking-wide text-brand-teal-dark">
+              RK20
+            </span>
           </div>
-
-          <div className="relative mx-auto grid max-w-sm grid-cols-2 gap-4">
-            {[
-              "/images/products/necklace-1.svg",
-              "/images/products/earrings-2.svg",
-              "/images/products/bangles-3.svg",
-              "/images/products/pendants-4.svg",
-            ].map((src, i) => (
-              <div
-                key={src}
-                className={`relative aspect-square overflow-hidden rounded-2xl ring-1 ring-brand-gold/30 ${
-                  i % 2 === 1 ? "translate-y-6" : ""
-                }`}
-              >
-                <Image src={src} alt="Samya By Samishtha jewellery" fill className="object-cover" />
-              </div>
-            ))}
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link href="/shop" className="btn-gold">
+              Shop Now <ArrowRight size={16} />
+            </Link>
+            <Link href="/shop/gifting" className="btn-outline">
+              Explore Gifting
+            </Link>
           </div>
         </div>
       </section>
@@ -106,22 +82,34 @@ export default async function HomePage() {
       </section>
 
       {/* Shop by category */}
-      <section className="section-y">
+      <section className="pt-8 sm:pt-10 pb-4">
         <div className="container-px mx-auto">
-          <div className="text-center mb-10">
+          <div className="text-center mb-6">
             <span className="eyebrow">Curated For You</span>
-            <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
+            <h2 className="mt-2 font-serif text-xl sm:text-2xl font-semibold text-brand-teal">
               Shop by Category
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="flex gap-5 sm:gap-8 overflow-x-auto pb-2 scrollbar-hide justify-start sm:justify-center">
             {categories.map((cat) => (
-              <CategoryCard
+              <Link
                 key={cat.id}
-                name={cat.name}
-                slug={cat.slug}
-                image={cat.image || "/images/products/pendants-1.svg"}
-              />
+                href={`/shop/${cat.slug}`}
+                className="group flex shrink-0 flex-col items-center gap-2 w-20 sm:w-24"
+              >
+                <div className="relative h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-full bg-brand-teal/5 ring-1 ring-brand-gold/30 transition-shadow group-hover:shadow-gold">
+                  <Image
+                    src={cat.image || "/images/products/pendants-1.svg"}
+                    alt={cat.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    sizes="80px"
+                  />
+                </div>
+                <span className="text-xs sm:text-sm font-medium text-brand-teal text-center group-hover:text-brand-gold-dark">
+                  {cat.name}
+                </span>
+              </Link>
             ))}
           </div>
         </div>

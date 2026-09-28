@@ -8,6 +8,7 @@ import { useCart } from "@/components/CartProvider";
 import CartDrawer from "@/components/CartDrawer";
 
 const NAV_LINKS = [
+  { label: "Home", href: "/" },
   { label: "Necklaces", href: "/shop/necklaces" },
   { label: "Earrings", href: "/shop/earrings" },
   { label: "Bangles", href: "/shop/bangles" },
