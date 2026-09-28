@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #faf3e6;
+  --foreground: #0b3d3a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .container-px {
+    @apply px-4 sm:px-6 lg:px-10;
+  }
+  .section-y {
+    @apply py-12 sm:py-16;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-teal px-6 py-3 text-sm font-semibold uppercase tracking-wide text-brand-cream transition-colors hover:bg-brand-teal-light disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold-gradient px-6 py-3 text-sm font-semibold uppercase tracking-wide text-brand-teal-dark shadow-gold transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-brand-teal px-6 py-3 text-sm font-semibold uppercase tracking-wide text-brand-teal transition-colors hover:bg-brand-teal hover:text-brand-cream;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.25em] text-brand-gold;
+  }
+}
