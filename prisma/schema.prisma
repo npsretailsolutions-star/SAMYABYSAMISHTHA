@@ -83,3 +83,30 @@ model Admin {
   name      String
   createdAt DateTime @default(now())
 }
+
+model Coupon {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  type          String    @default("PERCENT") // PERCENT or FLAT
+  value         Int // percent (0-100) or flat amount in paise, depending on type
+  minOrderValue Int       @default(0) // paise
+  isActive      Boolean   @default(true)
+  expiresAt     DateTime?
+  usageLimit    Int? // null = unlimited
+  usedCount     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  country   String?
+  region    String?
+  city      String?
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([country])
+}

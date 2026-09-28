@@ -28,7 +28,43 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const total = subtotal;
+  const [couponInput, setCouponInput] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+
+  const discount = appliedCoupon?.discount ?? 0;
+  const total = subtotal - discount;
+
+  const applyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setApplying(true);
+    setCouponError(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponInput.trim(), subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCouponError(data.error || "Invalid coupon code");
+        setAppliedCoupon(null);
+        setApplying(false);
+        return;
+      }
+      setAppliedCoupon({ code: data.code, discount: data.discount });
+    } catch {
+      setCouponError("Could not validate coupon. Please try again.");
+    }
+    setApplying(false);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+  };
 
   const onChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -47,6 +83,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          couponCode: appliedCoupon?.code,
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         }),
       });
@@ -160,11 +197,53 @@ export default function CheckoutPage() {
             ))}
           </div>
 
+          <div className="mb-4">
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between rounded-full border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm">
+                <span className="font-medium text-emerald-700">
+                  {appliedCoupon.code} applied
+                </span>
+                <button
+                  type="button"
+                  onClick={removeCoupon}
+                  className="text-xs font-medium text-emerald-700 underline"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Coupon code"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  className="flex-1 rounded-full border border-brand-teal/20 px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
+                />
+                <button
+                  type="button"
+                  onClick={applyCoupon}
+                  disabled={applying}
+                  className="btn-outline !py-2 !px-5 text-xs"
+                >
+                  {applying ? "..." : "Apply"}
+                </button>
+              </div>
+            )}
+            {couponError && <p className="mt-2 text-xs text-red-600">{couponError}</p>}
+          </div>
+
           <div className="space-y-2 border-t border-brand-teal/10 pt-4 text-sm">
             <div className="flex items-center justify-between text-brand-teal/70">
               <span>Subtotal</span>
               <span>{formatINR(subtotal)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex items-center justify-between text-emerald-700">
+                <span>Discount</span>
+                <span>-{formatINR(discount)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between text-brand-teal/70">
               <span>Shipping</span>
               <span className="text-emerald-700 font-medium">Free</span>

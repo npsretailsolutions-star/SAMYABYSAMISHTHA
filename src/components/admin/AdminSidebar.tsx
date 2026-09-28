@@ -9,6 +9,9 @@ import {
   Package,
   ShoppingCart,
   Tags,
+  Users,
+  TicketPercent,
+  BarChart3,
   LogOut,
   Menu,
   X,
@@ -19,6 +22,9 @@ const LINKS = [
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { href: "/admin/categories", label: "Categories", icon: Tags },
+  { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/coupons", label: "Coupons", icon: TicketPercent },
+  { href: "/admin/traffic", label: "Traffic", icon: BarChart3 },
 ];
 
 export default function AdminSidebar({ adminName }: { adminName: string }) {

@@ -13,6 +13,7 @@ const orderSchema = z.object({
   state: z.string().min(2),
   pincode: z.string().min(4),
   notes: z.string().optional(),
+  couponCode: z.string().optional(),
   items: z
     .array(
       z.object({
@@ -58,7 +59,26 @@ export async function POST(req: NextRequest) {
     return sum + product.price * item.quantity;
   }, 0);
 
-  const total = subtotal;
+  let discount = 0;
+  let couponCode: string | null = null;
+  if (data.couponCode) {
+    const code = data.couponCode.trim().toUpperCase();
+    const coupon = await prisma.coupon.findUnique({ where: { code } });
+    if (
+      coupon &&
+      coupon.isActive &&
+      (!coupon.expiresAt || coupon.expiresAt >= new Date()) &&
+      (coupon.usageLimit === null || coupon.usedCount < coupon.usageLimit) &&
+      subtotal >= coupon.minOrderValue
+    ) {
+      discount =
+        coupon.type === "PERCENT"
+          ? Math.round((subtotal * coupon.value) / 100)
+          : Math.min(coupon.value, subtotal);
+      couponCode = coupon.code;
+    }
+  }
+  const total = subtotal - discount;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -73,6 +93,8 @@ export async function POST(req: NextRequest) {
         pincode: data.pincode,
         notes: data.notes,
         subtotal,
+        discount,
+        couponCode,
         total,
         items: {
           create: data.items.map((item) => {
@@ -94,6 +116,13 @@ export async function POST(req: NextRequest) {
       await tx.product.update({
         where: { id: item.productId },
         data: { stock: { decrement: item.quantity } },
+      });
+    }
+
+    if (couponCode) {
+      await tx.coupon.update({
+        where: { code: couponCode },
+        data: { usedCount: { increment: 1 } },
       });
     }
 
