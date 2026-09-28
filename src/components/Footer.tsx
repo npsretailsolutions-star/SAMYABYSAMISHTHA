@@ -23,7 +23,7 @@ function FacebookIcon() {
 export default function Footer() {
   return (
     <footer className="bg-teal-gradient text-brand-cream mt-16">
-      <div className="container-px mx-auto grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container-px mx-auto grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <Image
             src="/images/logo.png"
@@ -75,15 +75,27 @@ export default function Footer() {
         </div>
 
         <div>
+          <h4 className="eyebrow text-brand-gold-light mb-4">Policies</h4>
+          <ul className="space-y-2 text-sm text-brand-cream/80">
+            <li><Link href="/shipping-policy" className="hover:text-brand-gold-light">Shipping Policy</Link></li>
+            <li><Link href="/return-exchange-policy" className="hover:text-brand-gold-light">Return, Exchange &amp; Cancellation</Link></li>
+            <li><Link href="/privacy-policy" className="hover:text-brand-gold-light">Privacy Policy</Link></li>
+          </ul>
+        </div>
+
+        <div>
           <h4 className="eyebrow text-brand-gold-light mb-4">Get in Touch</h4>
           <ul className="space-y-3 text-sm text-brand-cream/80">
             <li className="flex items-center gap-2">
               <Mail size={16} className="text-brand-gold-light shrink-0" />
-              <span>hello@samyabysamishtha.com</span>
+              <span>care@samyabysamishtha.com</span>
             </li>
             <li className="flex items-center gap-2">
               <Phone size={16} className="text-brand-gold-light shrink-0" />
-              <span>+91 98765 43210</span>
+              <span>+91 80766 21656</span>
+            </li>
+            <li className="text-xs text-brand-cream/60">
+              Mon–Sat, 10:00 AM – 6:00 PM IST
             </li>
           </ul>
         </div>
