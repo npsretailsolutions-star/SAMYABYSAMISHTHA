@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Gift, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 import type { ProductWithCategory } from "@/lib/types";
@@ -64,23 +64,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Trust strip */}
-      <section className="border-b border-brand-teal/10 bg-white">
-        <div className="container-px mx-auto grid grid-cols-2 gap-6 py-6 sm:grid-cols-4">
-          {[
-            { icon: Sparkles, label: "Premium Finish" },
-            { icon: Truck, label: "Pan-India Delivery" },
-            { icon: ShieldCheck, label: "Skin Friendly" },
-            { icon: Gift, label: "Gift Ready Packaging" },
-          ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex flex-col items-center gap-2 text-center">
-              <Icon size={22} className="text-brand-gold-dark" />
-              <span className="text-xs sm:text-sm font-medium text-brand-teal">{label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Shop by category */}
       <section className="pt-8 sm:pt-10 pb-4">
         <div className="container-px mx-auto">
@@ -90,12 +73,12 @@ export default async function HomePage() {
               Shop by Category
             </h2>
           </div>
-          <div className="flex gap-5 sm:gap-8 overflow-x-auto pb-2 scrollbar-hide justify-start sm:justify-center">
+          <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide justify-start sm:grid sm:grid-cols-5 sm:gap-4 sm:overflow-visible">
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/shop/${cat.slug}`}
-                className="group flex shrink-0 flex-col items-center gap-2 w-20 sm:w-24"
+                className="group flex shrink-0 flex-col items-center gap-2 w-20 sm:w-auto"
               >
                 <div className="relative h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-full bg-brand-teal/5 ring-1 ring-brand-gold/30 transition-shadow group-hover:shadow-gold">
                   <Image
