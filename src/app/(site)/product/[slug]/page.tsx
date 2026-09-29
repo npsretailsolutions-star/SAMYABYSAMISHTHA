@@ -8,6 +8,8 @@ import { parseImages, type ProductWithCategory } from "@/lib/types";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButtons from "@/components/AddToCartButtons";
 import ProductCard from "@/components/ProductCard";
+import WishlistButton from "@/components/WishlistButton";
+import ShareButton from "@/components/ShareButton";
 import ReviewsList, { RatingSummary } from "@/components/ReviewsList";
 import ReviewForm from "@/components/ReviewForm";
 
@@ -167,6 +169,25 @@ export default async function ProductPage({ params }: { params: { slug: string }
               price={product.price}
               image={images[0]}
               stock={product.stock}
+            />
+          </div>
+
+          <div className="mt-4 flex items-center gap-3">
+            <WishlistButton
+              variant="inline"
+              item={{
+                productId: product.id,
+                name: product.name,
+                slug: product.slug,
+                price: product.price,
+                compareAtPrice: product.compareAtPrice,
+                image: images[0],
+                stock: product.stock,
+              }}
+            />
+            <ShareButton
+              name={product.name}
+              url={`https://www.samyabysamishtha.com/product/${product.slug}`}
             />
           </div>
 

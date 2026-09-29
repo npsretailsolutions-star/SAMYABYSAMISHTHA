@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
+import WishlistButton from "@/components/WishlistButton";
 import { formatINR } from "@/lib/format";
 import { parseImages, type ProductWithCategory } from "@/lib/types";
 
@@ -68,6 +69,17 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
           </span>
         )}
       </Link>
+      <WishlistButton
+        item={{
+          productId: product.id,
+          name: product.name,
+          slug: product.slug,
+          price: product.price,
+          compareAtPrice: product.compareAtPrice,
+          image: images[0],
+          stock: product.stock,
+        }}
+      />
       <div className="flex flex-1 flex-col gap-1 p-4">
         <span className="text-[11px] uppercase tracking-wide text-brand-gold-dark">
           {product.category.name}

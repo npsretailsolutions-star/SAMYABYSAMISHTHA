@@ -3,9 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, Search, ShoppingBag, X } from "lucide-react";
+import { Menu, Search, ShoppingBag, Heart, X } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
+import { useWishlist } from "@/components/WishlistProvider";
 import CartDrawer from "@/components/CartDrawer";
+import SearchOverlay from "@/components/SearchOverlay";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -19,7 +21,9 @@ const NAV_LINKS = [
 
 export default function Header() {
   const { count, openCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
@@ -56,13 +60,25 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-1 sm:gap-3">
-            <Link
-              href="/shop"
-              className="hidden sm:flex p-2 text-brand-teal hover:text-brand-gold-dark"
+          <div className="flex items-center gap-0.5 sm:gap-2">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="p-2 text-brand-teal hover:text-brand-gold-dark"
               aria-label="Search products"
             >
               <Search size={20} />
+            </button>
+            <Link
+              href="/wishlist"
+              className="relative p-2 text-brand-teal hover:text-brand-gold-dark"
+              aria-label="Open wishlist"
+            >
+              <Heart size={20} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-gold text-[10px] font-bold text-brand-teal-dark">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
             <button
               onClick={openCart}
@@ -121,10 +137,19 @@ export default function Header() {
               >
                 Shop All
               </Link>
+              <Link
+                href="/wishlist"
+                onClick={() => setMobileOpen(false)}
+                className="py-3 text-base font-medium uppercase tracking-wide text-brand-teal"
+              >
+                Wishlist
+              </Link>
             </nav>
           </div>
         </div>
       )}
+
+      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
 
       <CartDrawer />
     </>
