@@ -30,6 +30,7 @@ export default async function AdminOrdersPage() {
               <th className="px-4 py-3 font-medium">Customer</th>
               <th className="px-4 py-3 font-medium">Items</th>
               <th className="px-4 py-3 font-medium">Total</th>
+              <th className="px-4 py-3 font-medium">Payment</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Date</th>
             </tr>
@@ -50,6 +51,20 @@ export default async function AdminOrdersPage() {
                   {o.items.reduce((s, i) => s + i.quantity, 0)}
                 </td>
                 <td className="px-4 py-3 font-medium text-brand-teal">{formatINR(o.total)}</td>
+                <td className="px-4 py-3">
+                  <span className="text-brand-teal/70">{o.paymentMethod}</span>
+                  {o.paymentMethod === "RAZORPAY" && (
+                    <span
+                      className={`ml-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                        o.paymentStatus === "PAID"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {o.paymentStatus}
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${STATUS_STYLES[o.status] || ""}`}

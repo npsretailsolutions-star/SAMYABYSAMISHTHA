@@ -51,6 +51,29 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
         </div>
       </div>
 
+      <div className="rounded-2xl bg-white p-6 shadow-card mb-6">
+        <h2 className="font-serif text-base font-semibold text-brand-teal mb-3">Payment</h2>
+        <div className="flex items-center gap-3 text-sm">
+          <span className="text-brand-teal/70">
+            Method: <span className="font-medium text-brand-teal">{order.paymentMethod}</span>
+          </span>
+          <span
+            className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+              order.paymentStatus === "PAID"
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-amber-100 text-amber-700"
+            }`}
+          >
+            {order.paymentStatus}
+          </span>
+        </div>
+        {order.razorpayPaymentId && (
+          <p className="text-xs text-brand-teal/50 mt-2">
+            Razorpay Payment ID: {order.razorpayPaymentId}
+          </p>
+        )}
+      </div>
+
       <div className="rounded-2xl bg-white p-6 shadow-card">
         <h2 className="font-serif text-base font-semibold text-brand-teal mb-4">Items</h2>
         <div className="space-y-3 mb-4">
