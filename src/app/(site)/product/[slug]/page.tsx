@@ -8,6 +8,8 @@ import { parseImages, type ProductWithCategory } from "@/lib/types";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButtons from "@/components/AddToCartButtons";
 import ProductCard from "@/components/ProductCard";
+import ReviewsList, { RatingSummary } from "@/components/ReviewsList";
+import ReviewForm from "@/components/ReviewForm";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +59,15 @@ export default async function ProductPage({ params }: { params: { slug: string }
     take: 4,
   });
 
+  const reviews = await prisma.review.findMany({
+    where: { productId: product.id, isApproved: true },
+    orderBy: { createdAt: "desc" },
+  });
+  const avgRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -73,6 +84,13 @@ export default async function ProductPage({ params }: { params: { slug: string }
       availability:
         product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     },
+    ...(reviews.length > 0 && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: avgRating.toFixed(1),
+        reviewCount: reviews.length,
+      },
+    }),
   };
 
   return (
@@ -99,6 +117,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <h1 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal text-balance">
             {product.name}
           </h1>
+
+          <div className="mt-2">
+            <RatingSummary reviews={reviews} />
+          </div>
 
           <div className="mt-4 flex items-center gap-3">
             <span className="text-2xl font-semibold text-brand-teal">
@@ -161,6 +183,20 @@ export default async function ProductPage({ params }: { params: { slug: string }
               <RotateCcw size={18} className="text-brand-gold-dark" />
               <span className="text-[11px] text-brand-teal/70">Easy Returns</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-16 max-w-3xl">
+        <h2 className="font-serif text-xl font-semibold text-brand-teal mb-6">
+          Customer Reviews
+        </h2>
+        <div className="grid gap-8 sm:grid-cols-2">
+          <div>
+            <ReviewsList reviews={reviews} />
+          </div>
+          <div>
+            <ReviewForm productId={product.id} />
           </div>
         </div>
       </div>

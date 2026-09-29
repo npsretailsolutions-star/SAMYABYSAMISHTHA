@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatINR } from "@/lib/format";
@@ -17,16 +18,45 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
         )
       : 0;
 
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((i) => (i + 1) % images.length);
+    }, 2200);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images.length]);
+
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-card transition-shadow hover:shadow-lg">
       <Link href={`/product/${product.slug}`} className="relative block aspect-square overflow-hidden bg-brand-teal/5">
-        <Image
-          src={images[0]}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        />
+        {images.map((src, i) => (
+          <Image
+            key={src + i}
+            src={src}
+            alt={product.name}
+            fill
+            className={`object-cover transition-opacity duration-700 ease-in-out group-hover:scale-105 ${
+              i === activeIndex ? "opacity-100" : "opacity-0"
+            }`}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={i === 0}
+          />
+        ))}
+        {images.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
+            {images.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                  i === activeIndex ? "bg-brand-gold" : "bg-white/70"
+                }`}
+              />
+            ))}
+          </div>
+        )}
         {discount > 0 && (
           <span className="absolute left-3 top-3 rounded-full bg-brand-teal px-2.5 py-1 text-[11px] font-semibold text-brand-cream">
             {discount}% OFF
