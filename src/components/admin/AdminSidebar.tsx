@@ -70,7 +70,7 @@ export default function AdminSidebar({ adminName }: { adminName: string }) {
   return (
     <>
       <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-brand-teal/10 bg-brand-cream sticky top-0 z-30">
-        <Image src="/images/logo.png" alt="Samya" width={100} height={40} className="h-8 w-auto" />
+        <Image src="/images/logo.svg" alt="Samya" width={100} height={40} className="h-8 w-auto" />
         <button onClick={() => setOpen(true)} className="p-2 text-brand-teal" aria-label="Open menu">
           <Menu size={22} />
         </button>
@@ -78,7 +78,7 @@ export default function AdminSidebar({ adminName }: { adminName: string }) {
 
       <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col border-r border-brand-teal/10 bg-brand-cream p-6">
         <Image
-          src="/images/logo.png"
+          src="/images/logo.svg"
           alt="Samya By Samishtha"
           width={140}
           height={56}
@@ -102,7 +102,7 @@ export default function AdminSidebar({ adminName }: { adminName: string }) {
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-72 bg-brand-cream p-6 flex flex-col">
             <div className="flex items-center justify-between mb-8">
-              <Image src="/images/logo.png" alt="Samya" width={120} height={48} className="h-9 w-auto" />
+              <Image src="/images/logo.svg" alt="Samya" width={120} height={48} className="h-9 w-auto" />
               <button onClick={() => setOpen(false)} className="p-1 text-brand-teal" aria-label="Close menu">
                 <X size={22} />
               </button>

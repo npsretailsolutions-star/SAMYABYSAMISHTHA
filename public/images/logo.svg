@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 190" width="420" height="190">
+  <defs>
+    <style>
+      .brand-word { font-family: Georgia, 'Playfair Display', 'Times New Roman', serif; }
+    </style>
+  </defs>
+  <text x="210" y="95" text-anchor="middle" class="brand-word" font-size="62" font-weight="600" letter-spacing="6" fill="#0b3d3a">SAMYA</text>
+  <path d="M 80 108 C 140 140, 280 140, 340 108" fill="none" stroke="#0b3d3a" stroke-width="3" stroke-linecap="round" />
+  <path d="M 351 96 L 355 106 L 365 108 L 355 110 L 351 120 L 347 110 L 337 108 L 347 106 Z" fill="#0b3d3a" />
+  <text x="210" y="155" text-anchor="middle" class="brand-word" font-style="italic" font-size="24" letter-spacing="1" fill="#0b3d3a">By Samishtha</text>
+</svg>

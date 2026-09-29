@@ -26,7 +26,7 @@ export default function Footer() {
       <div className="container-px mx-auto grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <Image
-            src="/images/logo.png"
+            src="/images/logo.svg"
             alt="Samya By Samishtha"
             width={150}
             height={60}

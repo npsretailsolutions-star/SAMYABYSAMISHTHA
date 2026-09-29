@@ -35,7 +35,7 @@ export default function AdminLoginForm() {
   return (
     <div className="w-full max-w-sm rounded-2xl bg-brand-cream p-8 shadow-xl">
       <Image
-        src="/images/logo.png"
+        src="/images/logo.svg"
         alt="Samya By Samishtha"
         width={140}
         height={56}

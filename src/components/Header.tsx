@@ -35,7 +35,7 @@ export default function Header() {
 
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/images/logo.png"
+              src="/images/logo.svg"
               alt="Samya By Samishtha"
               width={140}
               height={56}
@@ -89,7 +89,7 @@ export default function Header() {
           <div className="absolute left-0 top-0 h-full w-72 bg-brand-cream shadow-xl p-6 flex flex-col">
             <div className="flex items-center justify-between mb-8">
               <Image
-                src="/images/logo.png"
+                src="/images/logo.svg"
                 alt="Samya By Samishtha"
                 width={120}
                 height={48}
