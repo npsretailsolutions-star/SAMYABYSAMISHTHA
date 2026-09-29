@@ -28,9 +28,9 @@ export default function Footer() {
           <Image
             src="/images/logo.svg"
             alt="Samya By Samishtha"
-            width={150}
-            height={60}
-            className="h-12 w-auto object-contain mb-4"
+            width={190}
+            height={76}
+            className="h-16 w-auto object-contain mb-4"
           />
           <p className="text-sm text-brand-cream/70 leading-relaxed">
             Premium artificial & fashion jewellery, handcrafted for everyday

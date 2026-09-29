@@ -37,9 +37,9 @@ export default function Header() {
             <Image
               src="/images/logo.svg"
               alt="Samya By Samishtha"
-              width={140}
-              height={56}
-              className="h-10 sm:h-12 w-auto object-contain"
+              width={180}
+              height={72}
+              className="h-14 sm:h-16 w-auto object-contain"
               priority
             />
           </Link>
@@ -91,9 +91,9 @@ export default function Header() {
               <Image
                 src="/images/logo.svg"
                 alt="Samya By Samishtha"
-                width={120}
-                height={48}
-                className="h-10 w-auto object-contain"
+                width={150}
+                height={60}
+                className="h-12 w-auto object-contain"
               />
               <button
                 onClick={() => setMobileOpen(false)}

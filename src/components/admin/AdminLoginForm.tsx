@@ -37,9 +37,9 @@ export default function AdminLoginForm() {
       <Image
         src="/images/logo.svg"
         alt="Samya By Samishtha"
-        width={140}
-        height={56}
-        className="h-12 w-auto object-contain mx-auto mb-6"
+        width={180}
+        height={72}
+        className="h-16 w-auto object-contain mx-auto mb-6"
       />
       <h1 className="font-serif text-xl font-semibold text-brand-teal text-center mb-1">
         Admin Portal
