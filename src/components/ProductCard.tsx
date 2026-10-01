@@ -80,21 +80,18 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
           stock: product.stock,
         }}
       />
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <span className="text-[11px] uppercase tracking-wide text-brand-gold-dark">
-          {product.category.name}
-        </span>
+      <div className="flex flex-1 flex-col gap-0.5 p-3">
         <Link href={`/product/${product.slug}`}>
-          <h3 className="font-serif text-sm sm:text-base font-medium text-brand-teal line-clamp-2 min-h-[2.5em] hover:text-brand-gold-dark">
+          <h3 className="font-serif text-xs sm:text-sm font-medium text-brand-teal line-clamp-2 min-h-[2.3em] hover:text-brand-gold-dark">
             {product.name}
           </h3>
         </Link>
-        <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm sm:text-base font-semibold text-brand-teal">
+        <div className="mt-0.5 flex items-center gap-1.5">
+          <span className="text-sm font-semibold text-brand-teal">
             {formatINR(product.price)}
           </span>
           {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <span className="text-xs text-brand-teal/50 line-through">
+            <span className="text-[11px] text-brand-teal/50 line-through">
               {formatINR(product.compareAtPrice)}
             </span>
           )}
@@ -112,10 +109,10 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
             })
           }
           disabled={product.stock <= 0}
-          className="mt-3 flex items-center justify-center gap-2 rounded-full border border-brand-teal py-2 text-xs font-semibold uppercase tracking-wide text-brand-teal transition-colors hover:bg-brand-teal hover:text-brand-cream disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-primary mt-2.5 !py-2 !px-3 text-[11px]"
         >
-          <ShoppingBag size={14} />
-          Add to Bag
+          <ShoppingBag size={13} />
+          {product.stock > 0 ? "Add to Cart" : "Sold Out"}
         </button>
       </div>
     </div>

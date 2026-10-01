@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { generateOrderNumber } from "@/lib/format";
+import { AUTO_DISCOUNT_PERCENT } from "@/lib/constants";
 import type { Product } from "@prisma/client";
 
 export class OrderValidationError extends Error {
@@ -40,7 +41,8 @@ export async function quoteOrder(items: CartItemInput[], couponCode?: string): P
     return sum + product.price * item.quantity;
   }, 0);
 
-  let discount = 0;
+  // Every order gets at least the sitewide auto-discount, no code needed.
+  let discount = Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100);
   let resolvedCouponCode: string | null = null;
   if (couponCode) {
     const code = couponCode.trim().toUpperCase();
@@ -52,11 +54,14 @@ export async function quoteOrder(items: CartItemInput[], couponCode?: string): P
       (coupon.usageLimit === null || coupon.usedCount < coupon.usageLimit) &&
       subtotal >= coupon.minOrderValue
     ) {
-      discount =
+      const couponDiscount =
         coupon.type === "PERCENT"
           ? Math.round((subtotal * coupon.value) / 100)
           : Math.min(coupon.value, subtotal);
-      resolvedCouponCode = coupon.code;
+      if (couponDiscount > discount) {
+        discount = couponDiscount;
+        resolvedCouponCode = coupon.code;
+      }
     }
   }
 

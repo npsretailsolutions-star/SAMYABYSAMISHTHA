@@ -1,8 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Gift, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import {
+  ArrowRight,
+  Feather,
+  Gem,
+  Gift,
+  Heart,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
+import NewsletterBox from "@/components/NewsletterBox";
 import type { ProductWithCategory } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -65,20 +75,20 @@ export default async function HomePage() {
               Shop by Category
             </h2>
           </div>
-          <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide justify-start sm:grid sm:grid-cols-5 sm:gap-4 sm:overflow-visible">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-start sm:grid sm:grid-cols-5 sm:gap-4 sm:overflow-visible">
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/shop/${cat.slug}`}
-                className="group flex shrink-0 flex-col items-center gap-2 w-20 sm:w-auto"
+                className="group flex shrink-0 flex-col items-center gap-2 w-24 sm:w-auto"
               >
-                <div className="relative h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-full bg-brand-teal/5 ring-1 ring-brand-gold/30 transition-shadow group-hover:shadow-gold">
+                <div className="relative aspect-square w-24 sm:w-full overflow-hidden rounded-2xl bg-brand-teal/5 ring-1 ring-brand-gold/20 transition-shadow group-hover:shadow-gold">
                   <Image
                     src={cat.image || "/images/products/pendants-1.svg"}
                     alt={cat.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    sizes="80px"
+                    sizes="160px"
                   />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-brand-teal text-center group-hover:text-brand-gold-dark">
@@ -103,7 +113,7 @@ export default async function HomePage() {
                 View All <ArrowRight size={14} />
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {(featured as ProductWithCategory[]).map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
@@ -143,7 +153,7 @@ export default async function HomePage() {
                 Ready-to-Gift Favourites
               </h2>
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-4">
               {(giftIdeas as ProductWithCategory[]).map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
@@ -151,6 +161,76 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Explore our collections */}
+      <section className="section-y bg-white">
+        <div className="container-px mx-auto">
+          <div className="text-center mb-8">
+            <span className="eyebrow">Shop The Look</span>
+            <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
+              Explore Our Collections
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-3">
+            {[
+              { name: "Earrings", slug: "earrings", tagline: "A touch of charm for every mood", image: "/images/products/earrings-2.svg" },
+              { name: "Necklaces", slug: "necklaces", tagline: "Grace in every detail", image: "/images/products/necklace-3.svg" },
+              { name: "Bangles", slug: "bangles", tagline: "Tradition meets trend", image: "/images/products/bangles-1.svg" },
+            ].map((c) => (
+              <Link
+                key={c.slug}
+                href={`/shop/${c.slug}`}
+                className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-brand-teal/5"
+              >
+                <Image
+                  src={c.image}
+                  alt={c.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6">
+                  <h3 className="font-serif text-xl font-semibold text-white">{c.name}</h3>
+                  <p className="text-xs text-white/80 mt-1">{c.tagline}</p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-brand-gold-light">
+                    Shop Now <ArrowRight size={13} />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why choose Samya */}
+      <section className="section-y">
+        <div className="container-px mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
+              Why Choose Samya
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-5 sm:gap-4">
+            {[
+              { icon: Gem, label: "Trendy & Timeless Designs" },
+              { icon: Feather, label: "Lightweight & Comfortable" },
+              { icon: Sparkles, label: "Premium Finish & Quality" },
+              { icon: Gift, label: "Perfect for Gifting" },
+              { icon: Heart, label: "Designed for Every Occasion" },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex flex-col items-center gap-3 text-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-brand-gold/40 text-brand-gold-dark">
+                  <Icon size={22} />
+                </div>
+                <span className="text-xs sm:text-sm font-medium text-brand-teal">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <NewsletterBox />
     </div>
   );
 }

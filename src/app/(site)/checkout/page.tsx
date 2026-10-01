@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import { formatINR } from "@/lib/format";
+import { AUTO_DISCOUNT_PERCENT, AUTO_DISCOUNT_LABEL } from "@/lib/constants";
 
 declare global {
   interface Window {
@@ -57,7 +58,12 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
 
-  const discount = appliedCoupon?.discount ?? 0;
+  const autoDiscount = Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100);
+  const discount = Math.max(appliedCoupon?.discount ?? 0, autoDiscount);
+  const discountLabel =
+    appliedCoupon && appliedCoupon.discount > autoDiscount
+      ? `${appliedCoupon.code} applied`
+      : AUTO_DISCOUNT_LABEL;
   const total = subtotal - discount;
 
   const applyCoupon = async () => {
@@ -387,7 +393,7 @@ export default function CheckoutPage() {
             </div>
             {discount > 0 && (
               <div className="flex items-center justify-between text-emerald-700">
-                <span>Discount</span>
+                <span>{discountLabel}</span>
                 <span>-{formatINR(discount)}</span>
               </div>
             )}
