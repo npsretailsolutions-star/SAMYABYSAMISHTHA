@@ -50,6 +50,20 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Samya By Samishtha",
+  url: SITE_URL,
+  logo: `${SITE_URL}/images/logo.png`,
+  sameAs: [
+    "https://www.instagram.com/samyabysamishtha/",
+    "https://www.facebook.com/share/1Ec6tfy2MU/",
+    "https://pin.it/cJZUqu5F9",
+    "https://www.youtube.com/@SAMYABYSAMISHTHA",
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -60,6 +74,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-brand-cream text-brand-teal-dark`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <WishlistProvider>
           <CartProvider>{children}</CartProvider>
         </WishlistProvider>

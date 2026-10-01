@@ -20,6 +20,24 @@ function FacebookIcon() {
   );
 }
 
+function PinterestIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 21c1-3 2-7 2.5-9.5M12 12a3 3 0 1 0-3-3c0 1 .3 1.8.8 2.3M12 12c0 2.5 1 4 2.5 4 2 0 3.5-2 3.5-5a4 4 0 0 0-4.2-4" />
+    </svg>
+  );
+}
+
+function YoutubeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="5" width="20" height="14" rx="4" />
+      <path d="M10 9.5v5l4.5-2.5z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export default function Footer() {
   return (
     <footer className="bg-teal-gradient text-brand-cream mt-16">
@@ -38,18 +56,40 @@ export default function Footer() {
           </p>
           <div className="flex gap-3 mt-5">
             <a
-              href="#"
+              href="https://www.instagram.com/samyabysamishtha/"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Instagram"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-brand-cream/30 hover:bg-brand-gold hover:text-brand-teal-dark hover:border-brand-gold transition-colors"
             >
               <InstagramIcon />
             </a>
             <a
-              href="#"
+              href="https://www.facebook.com/share/1Ec6tfy2MU/"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Facebook"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-brand-cream/30 hover:bg-brand-gold hover:text-brand-teal-dark hover:border-brand-gold transition-colors"
             >
               <FacebookIcon />
+            </a>
+            <a
+              href="https://pin.it/cJZUqu5F9"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Pinterest"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-brand-cream/30 hover:bg-brand-gold hover:text-brand-teal-dark hover:border-brand-gold transition-colors"
+            >
+              <PinterestIcon />
+            </a>
+            <a
+              href="https://www.youtube.com/@SAMYABYSAMISHTHA"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-brand-cream/30 hover:bg-brand-gold hover:text-brand-teal-dark hover:border-brand-gold transition-colors"
+            >
+              <YoutubeIcon />
             </a>
           </div>
         </div>
