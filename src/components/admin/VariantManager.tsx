@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 export type VariantRow = {
   id: string;
@@ -44,6 +45,8 @@ function VariantFields({
   const addImageField = () => onChange({ ...values, images: [...values.images, ""] });
   const removeImageField = (i: number) =>
     onChange({ ...values, images: values.images.filter((_, idx) => idx !== i) });
+  const addUploadedImages = (urls: string[]) =>
+    onChange({ ...values, images: [...values.images.filter((img) => img.trim()), ...urls] });
 
   return (
     <div className="space-y-3">
@@ -91,12 +94,23 @@ function VariantFields({
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-brand-teal mb-1">
-          Images for this variant (6–7 recommended)
-        </label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-xs font-medium text-brand-teal">
+            Images for this variant (6–7 recommended)
+          </label>
+          <ImageUploader onUploaded={addUploadedImages} />
+        </div>
         <div className="space-y-2">
           {values.images.map((img, i) => (
             <div key={i} className="flex items-center gap-2">
+              {img.trim() && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={img}
+                  alt=""
+                  className="h-9 w-9 shrink-0 rounded-lg object-cover bg-brand-teal/5"
+                />
+              )}
               <input
                 value={img}
                 onChange={(e) => updateImage(i, e.target.value)}

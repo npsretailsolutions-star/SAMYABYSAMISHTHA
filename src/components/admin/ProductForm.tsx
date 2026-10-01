@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 type Category = { id: string; name: string };
 
@@ -62,6 +63,11 @@ export default function ProductForm({
   const addImageField = () => setValues((v) => ({ ...v, images: [...v.images, ""] }));
   const removeImageField = (i: number) =>
     setValues((v) => ({ ...v, images: v.images.filter((_, idx) => idx !== i) }));
+  const addUploadedImages = (urls: string[]) =>
+    setValues((v) => ({
+      ...v,
+      images: [...v.images.filter((img) => img.trim()), ...urls],
+    }));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,12 +206,25 @@ export default function ProductForm({
       </div>
 
       <div className="rounded-2xl bg-white p-6 shadow-card space-y-3">
-        <h2 className="font-serif text-base font-semibold text-brand-teal">Images (URLs)</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-serif text-base font-semibold text-brand-teal">Images</h2>
+          <ImageUploader onUploaded={addUploadedImages} />
+        </div>
         <p className="text-xs text-brand-teal/60">
-          Use a path like <code>/images/products/necklace-1.svg</code> or a full image URL.
+          Upload photos directly, or paste a path like{" "}
+          <code>/images/products/necklace-1.svg</code> / a full image URL below. Uploads are
+          automatically converted to WebP.
         </p>
         {values.images.map((img, i) => (
           <div key={i} className="flex items-center gap-2">
+            {img.trim() && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={img}
+                alt=""
+                className="h-10 w-10 shrink-0 rounded-lg object-cover bg-brand-teal/5"
+              />
+            )}
             <input
               value={img}
               onChange={(e) => updateImage(i, e.target.value)}
