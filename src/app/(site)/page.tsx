@@ -23,11 +23,13 @@ export default async function HomePage() {
     prisma.product.findMany({
       where: { isFeatured: true, isActive: true },
       include: { category: true },
+      orderBy: { createdAt: "desc" },
       take: 8,
     }),
     prisma.product.findMany({
       where: { isGiftable: true, isActive: true },
       include: { category: true },
+      orderBy: { createdAt: "desc" },
       take: 4,
     }),
   ]);
