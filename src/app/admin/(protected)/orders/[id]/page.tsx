@@ -80,7 +80,11 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
           {order.items.map((item) => (
             <div key={item.id} className="flex items-center justify-between text-sm">
               <span className="text-brand-teal">
-                {item.name} × {item.quantity}
+                {item.name}
+                {item.variantLabel && (
+                  <span className="text-brand-teal/50"> ({item.variantLabel})</span>
+                )}{" "}
+                × {item.quantity}
               </span>
               <span className="font-medium text-brand-teal">
                 {formatINR(item.price * item.quantity)}

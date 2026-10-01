@@ -43,7 +43,7 @@ export default function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
             <div
-              key={item.productId}
+              key={item.productId + (item.variantId || "")}
               className="flex gap-4 rounded-2xl bg-white p-4 shadow-card"
             >
               <div className="relative h-24 w-24 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-brand-teal/5">
@@ -56,9 +56,14 @@ export default function CartPage() {
                     className="font-serif font-medium text-brand-teal hover:text-brand-gold-dark"
                   >
                     {item.name}
+                    {item.variantLabel && (
+                      <span className="block text-xs font-sans font-normal text-brand-teal/50">
+                        {item.variantLabel}
+                      </span>
+                    )}
                   </Link>
                   <button
-                    onClick={() => removeItem(item.productId)}
+                    onClick={() => removeItem(item.productId, item.variantId)}
                     aria-label="Remove item"
                     className="p-1 text-brand-teal/50 hover:text-red-600"
                   >
@@ -68,7 +73,7 @@ export default function CartPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3 rounded-full border border-brand-teal/20 px-3 py-1.5">
                     <button
-                      onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
                       disabled={item.quantity <= 1}
                       aria-label="Decrease quantity"
                       className="text-brand-teal disabled:opacity-30"
@@ -77,7 +82,7 @@ export default function CartPage() {
                     </button>
                     <span className="w-6 text-center text-sm">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
                       disabled={item.quantity >= item.stock}
                       aria-label="Increase quantity"
                       className="text-brand-teal disabled:opacity-30"

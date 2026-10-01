@@ -19,6 +19,7 @@ const orderSchema = z.object({
       z.object({
         productId: z.string(),
         quantity: z.number().int().positive(),
+        variantId: z.string().optional(),
       })
     )
     .min(1),

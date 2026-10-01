@@ -39,8 +39,26 @@ model Product {
   categoryId    String
   orderItems    OrderItem[]
   reviews       Review[]
+  variants      ProductVariant[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+}
+
+model ProductVariant {
+  id            String      @id @default(cuid())
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId     String
+  attributeName String      @default("Color") // "Color" or "Size"
+  label         String // e.g. "Red", "Antique Gold", "2.4 inch"
+  images        String // JSON-encoded array of image URLs for this variant
+  stock         Int         @default(0)
+  sku           String?     @unique
+  sortOrder     Int         @default(0)
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([productId])
 }
 
 model Order {
@@ -69,15 +87,18 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId   String
-  product   Product? @relation(fields: [productId], references: [id])
-  productId String?
-  name      String
-  price     Int
-  quantity  Int
-  image     String?
+  id           String          @id @default(cuid())
+  order        Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId      String
+  product      Product?        @relation(fields: [productId], references: [id])
+  productId    String?
+  variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variantId    String?
+  variantLabel String?
+  name         String
+  price        Int
+  quantity     Int
+  image        String?
 }
 
 model Admin {

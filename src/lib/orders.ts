@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { generateOrderNumber } from "@/lib/format";
 import { AUTO_DISCOUNT_PERCENT } from "@/lib/constants";
-import type { Product } from "@prisma/client";
+import type { Product, ProductVariant } from "@prisma/client";
 
 export class OrderValidationError extends Error {
   status: number;
@@ -11,10 +11,12 @@ export class OrderValidationError extends Error {
   }
 }
 
-export type CartItemInput = { productId: string; quantity: number };
+export type CartItemInput = { productId: string; quantity: number; variantId?: string };
+
+type ProductWithVariants = Product & { variants: ProductVariant[] };
 
 export type OrderQuote = {
-  products: Product[];
+  products: ProductWithVariants[];
   subtotal: number;
   discount: number;
   couponCode: string | null;
@@ -23,7 +25,10 @@ export type OrderQuote = {
 
 export async function quoteOrder(items: CartItemInput[], couponCode?: string): Promise<OrderQuote> {
   const productIds = items.map((i) => i.productId);
-  const products = await prisma.product.findMany({ where: { id: { in: productIds } } });
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    include: { variants: true },
+  });
 
   if (products.length !== productIds.length) {
     throw new OrderValidationError("Some products were not found");
@@ -31,8 +36,18 @@ export async function quoteOrder(items: CartItemInput[], couponCode?: string): P
 
   for (const item of items) {
     const product = products.find((p) => p.id === item.productId);
-    if (!product || product.stock < item.quantity) {
-      throw new OrderValidationError(`Insufficient stock for ${product?.name || "a product"}`);
+    if (!product) {
+      throw new OrderValidationError("A product was not found");
+    }
+    if (item.variantId) {
+      const variant = product.variants.find((v) => v.id === item.variantId);
+      if (!variant || variant.stock < item.quantity) {
+        throw new OrderValidationError(
+          `Insufficient stock for ${product.name} (${variant?.label || "selected option"})`
+        );
+      }
+    } else if (product.stock < item.quantity) {
+      throw new OrderValidationError(`Insufficient stock for ${product.name}`);
     }
   }
 
@@ -117,12 +132,20 @@ export async function createOrderRecord(
         items: {
           create: items.map((item) => {
             const product = products.find((p) => p.id === item.productId)!;
+            const variant = item.variantId
+              ? product.variants.find((v) => v.id === item.variantId)
+              : undefined;
+            const image = variant
+              ? JSON.parse(variant.images)[0]
+              : JSON.parse(product.images)[0];
             return {
               productId: product.id,
+              variantId: variant?.id || null,
+              variantLabel: variant?.label || null,
               name: product.name,
               price: product.price,
               quantity: item.quantity,
-              image: JSON.parse(product.images)[0] || null,
+              image: image || null,
             };
           }),
         },
@@ -131,10 +154,17 @@ export async function createOrderRecord(
     });
 
     for (const item of items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
-      });
+      if (item.variantId) {
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { decrement: item.quantity } },
+        });
+      } else {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        });
+      }
     }
 
     if (couponCode) {

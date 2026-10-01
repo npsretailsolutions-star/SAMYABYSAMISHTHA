@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 
 export default function AddToCartButtons({
   productId,
+  variantId,
+  variantLabel,
   name,
   slug,
   price,
@@ -14,6 +16,8 @@ export default function AddToCartButtons({
   stock,
 }: {
   productId: string;
+  variantId?: string;
+  variantLabel?: string;
   name: string;
   slug: string;
   price: number;
@@ -24,7 +28,11 @@ export default function AddToCartButtons({
   const router = useRouter();
   const [qty, setQty] = useState(1);
 
-  const item = { productId, name, slug, price, image, stock };
+  useEffect(() => {
+    setQty(1);
+  }, [variantId]);
+
+  const item = { productId, variantId, variantLabel, name, slug, price, image, stock };
 
   return (
     <div className="space-y-4">

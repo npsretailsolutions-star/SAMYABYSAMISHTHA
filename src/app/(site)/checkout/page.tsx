@@ -102,7 +102,11 @@ export default function CheckoutPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
-  const cartItems = items.map((i) => ({ productId: i.productId, quantity: i.quantity }));
+  const cartItems = items.map((i) => ({
+    productId: i.productId,
+    quantity: i.quantity,
+    variantId: i.variantId || undefined,
+  }));
 
   const payWithCOD = async () => {
     const res = await fetch("/api/orders", {

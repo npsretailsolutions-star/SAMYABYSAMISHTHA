@@ -10,6 +10,7 @@ import AddToCartButtons from "@/components/AddToCartButtons";
 import ProductCard from "@/components/ProductCard";
 import WishlistButton from "@/components/WishlistButton";
 import ShareButton from "@/components/ShareButton";
+import ProductDetailVariants from "@/components/ProductDetailVariants";
 import ReviewsList, { RatingSummary } from "@/components/ReviewsList";
 import ReviewForm from "@/components/ReviewForm";
 
@@ -41,9 +42,14 @@ export async function generateMetadata({
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
-    include: { category: true },
+    include: { category: true, variants: { orderBy: { sortOrder: "asc" } } },
   });
   if (!product || !product.isActive) notFound();
+
+  const hasVariants = product.variants.length > 0;
+  const effectiveStock = hasVariants
+    ? product.variants.reduce((sum, v) => sum + v.stock, 0)
+    : product.stock;
 
   const images = parseImages(product.images);
   const discount =
@@ -84,7 +90,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       priceCurrency: "INR",
       price: (product.price / 100).toFixed(2),
       availability:
-        product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        effectiveStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     },
     ...(reviews.length > 0 && {
       aggregateRating: {
@@ -111,102 +117,125 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <span className="text-brand-teal">{product.name}</span>
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-2">
-        <ProductGallery images={images} name={product.name} />
+      {hasVariants ? (
+        <ProductDetailVariants
+          productId={product.id}
+          name={product.name}
+          slug={product.slug}
+          price={product.price}
+          compareAtPrice={product.compareAtPrice}
+          discount={discount}
+          categoryName={product.category.name}
+          description={product.description}
+          material={product.material}
+          variants={product.variants.map((v) => ({
+            id: v.id,
+            attributeName: v.attributeName,
+            label: v.label,
+            images: v.images,
+            stock: v.stock,
+          }))}
+          ratingSummary={<RatingSummary reviews={reviews} />}
+          productUrl={`https://www.samyabysamishtha.com/product/${product.slug}`}
+        />
+      ) : (
+        <div className="grid gap-10 lg:grid-cols-2">
+          <ProductGallery images={images} name={product.name} />
 
-        <div>
-          <span className="eyebrow">{product.category.name}</span>
-          <h1 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal text-balance">
-            {product.name}
-          </h1>
+          <div>
+            <span className="eyebrow">{product.category.name}</span>
+            <h1 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal text-balance">
+              {product.name}
+            </h1>
 
-          <div className="mt-2">
-            <RatingSummary reviews={reviews} />
-          </div>
+            <div className="mt-2">
+              <RatingSummary reviews={reviews} />
+            </div>
 
-          <div className="mt-4 flex items-center gap-3">
-            <span className="text-2xl font-semibold text-brand-teal">
-              {formatINR(product.price)}
-            </span>
-            {product.compareAtPrice && product.compareAtPrice > product.price && (
-              <>
-                <span className="text-base text-brand-teal/50 line-through">
-                  {formatINR(product.compareAtPrice)}
-                </span>
-                <span className="rounded-full bg-brand-teal/10 px-2.5 py-1 text-xs font-semibold text-brand-teal">
-                  {discount}% OFF
-                </span>
-              </>
-            )}
-          </div>
-
-          <p className="mt-5 text-sm leading-relaxed text-brand-teal/70">
-            {product.description}
-          </p>
-
-          {product.material && (
-            <p className="mt-3 text-sm text-brand-teal/70">
-              <span className="font-medium text-brand-teal">Material: </span>
-              {product.material}
-            </p>
-          )}
-
-          <p className="mt-2 text-sm">
-            {product.stock > 0 ? (
-              <span className="text-emerald-700 font-medium">
-                In Stock {product.stock <= 5 ? `(Only ${product.stock} left)` : ""}
+            <div className="mt-4 flex items-center gap-3">
+              <span className="text-2xl font-semibold text-brand-teal">
+                {formatINR(product.price)}
               </span>
-            ) : (
-              <span className="text-red-600 font-medium">Out of Stock</span>
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <>
+                  <span className="text-base text-brand-teal/50 line-through">
+                    {formatINR(product.compareAtPrice)}
+                  </span>
+                  <span className="rounded-full bg-brand-teal/10 px-2.5 py-1 text-xs font-semibold text-brand-teal">
+                    {discount}% OFF
+                  </span>
+                </>
+              )}
+            </div>
+
+            <p className="mt-5 text-sm leading-relaxed text-brand-teal/70">
+              {product.description}
+            </p>
+
+            {product.material && (
+              <p className="mt-3 text-sm text-brand-teal/70">
+                <span className="font-medium text-brand-teal">Material: </span>
+                {product.material}
+              </p>
             )}
-          </p>
 
-          <div className="mt-6">
-            <AddToCartButtons
-              productId={product.id}
-              name={product.name}
-              slug={product.slug}
-              price={product.price}
-              image={images[0]}
-              stock={product.stock}
-            />
-          </div>
+            <p className="mt-2 text-sm">
+              {product.stock > 0 ? (
+                <span className="text-emerald-700 font-medium">
+                  In Stock {product.stock <= 5 ? `(Only ${product.stock} left)` : ""}
+                </span>
+              ) : (
+                <span className="text-red-600 font-medium">Out of Stock</span>
+              )}
+            </p>
 
-          <div className="mt-4 flex items-center gap-3">
-            <WishlistButton
-              variant="inline"
-              item={{
-                productId: product.id,
-                name: product.name,
-                slug: product.slug,
-                price: product.price,
-                compareAtPrice: product.compareAtPrice,
-                image: images[0],
-                stock: product.stock,
-              }}
-            />
-            <ShareButton
-              name={product.name}
-              url={`https://www.samyabysamishtha.com/product/${product.slug}`}
-            />
-          </div>
-
-          <div className="mt-8 grid grid-cols-3 gap-4 border-t border-brand-teal/10 pt-6">
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <Truck size={18} className="text-brand-gold-dark" />
-              <span className="text-[11px] text-brand-teal/70">Pan-India Delivery</span>
+            <div className="mt-6">
+              <AddToCartButtons
+                productId={product.id}
+                name={product.name}
+                slug={product.slug}
+                price={product.price}
+                image={images[0]}
+                stock={product.stock}
+              />
             </div>
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <ShieldCheck size={18} className="text-brand-gold-dark" />
-              <span className="text-[11px] text-brand-teal/70">Skin Friendly</span>
+
+            <div className="mt-4 flex items-center gap-3">
+              <WishlistButton
+                variant="inline"
+                item={{
+                  productId: product.id,
+                  name: product.name,
+                  slug: product.slug,
+                  price: product.price,
+                  compareAtPrice: product.compareAtPrice,
+                  image: images[0],
+                  stock: product.stock,
+                }}
+              />
+              <ShareButton
+                name={product.name}
+                url={`https://www.samyabysamishtha.com/product/${product.slug}`}
+              />
             </div>
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <RotateCcw size={18} className="text-brand-gold-dark" />
-              <span className="text-[11px] text-brand-teal/70">Easy Returns</span>
+
+            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-brand-teal/10 pt-6">
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <Truck size={18} className="text-brand-gold-dark" />
+                <span className="text-[11px] text-brand-teal/70">Pan-India Delivery</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <ShieldCheck size={18} className="text-brand-gold-dark" />
+                <span className="text-[11px] text-brand-teal/70">Skin Friendly</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 text-center">
+                <RotateCcw size={18} className="text-brand-gold-dark" />
+                <span className="text-[11px] text-brand-teal/70">Easy Returns</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-16 max-w-3xl">
         <h2 className="font-serif text-xl font-semibold text-brand-teal mb-6">

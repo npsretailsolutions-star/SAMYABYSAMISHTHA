@@ -29,8 +29,20 @@ export function parseImages(images: string): string[] {
   }
 }
 
+export type ProductVariant = {
+  id: string;
+  attributeName: string;
+  label: string;
+  images: string; // JSON string array
+  stock: number;
+  sku: string | null;
+  sortOrder: number;
+};
+
 export type CartItem = {
   productId: string;
+  variantId?: string | null;
+  variantLabel?: string | null;
   name: string;
   slug: string;
   price: number;
