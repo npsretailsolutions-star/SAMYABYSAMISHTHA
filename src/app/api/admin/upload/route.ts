@@ -31,33 +31,41 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No files provided" }, { status: 400 });
   }
 
-  const urls: string[] = [];
   for (const file of files) {
     if (!file.type.startsWith("image/")) {
       return NextResponse.json({ error: `${file.name} is not an image` }, { status: 400 });
     }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    // Convert to WebP without resizing — pixel dimensions are preserved.
-    const webpBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
-
-    const base = slugifyBase(file.name) || "image";
-    const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${base}.webp`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(SUPABASE_BUCKET)
-      .upload(path, webpBuffer, {
-        contentType: "image/webp",
-        upsert: false,
-      });
-
-    if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
-    }
-
-    const { data: publicUrlData } = supabase.storage.from(SUPABASE_BUCKET).getPublicUrl(path);
-    urls.push(publicUrlData.publicUrl);
   }
 
-  return NextResponse.json({ urls });
+  // Convert and upload all files in parallel instead of one-by-one.
+  try {
+    const urls = await Promise.all(
+      files.map(async (file) => {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        // Convert to WebP without resizing — pixel dimensions are preserved.
+        const webpBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+
+        const base = slugifyBase(file.name) || "image";
+        const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${base}.webp`;
+
+        const { error: uploadError } = await supabase.storage
+          .from(SUPABASE_BUCKET)
+          .upload(path, webpBuffer, {
+            contentType: "image/webp",
+            upsert: false,
+          });
+
+        if (uploadError) {
+          throw new Error(`${file.name}: ${uploadError.message}`);
+        }
+
+        const { data: publicUrlData } = supabase.storage.from(SUPABASE_BUCKET).getPublicUrl(path);
+        return publicUrlData.publicUrl;
+      })
+    );
+    return NextResponse.json({ urls });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Upload failed";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
