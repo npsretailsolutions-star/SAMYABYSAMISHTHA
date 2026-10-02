@@ -57,7 +57,7 @@ export default async function HomePage() {
             { icon: Sparkles, label: "Premium Finish" },
             { icon: Truck, label: "Pan-India Delivery" },
             { icon: ShieldCheck, label: "Skin Friendly" },
-            { icon: Gift, label: "Gift Ready Packaging" },
+            { icon: Gift, label: "Gift Ready" },
           ].map(({ icon: Icon, label }) => (
             <div key={label} className="flex flex-col items-center gap-1 sm:gap-2 text-center">
               <Icon size={15} className="text-brand-gold-dark sm:hidden" />
@@ -72,8 +72,7 @@ export default async function HomePage() {
       <section className="pt-4 sm:pt-10 pb-3 sm:pb-4">
         <div className="container-px mx-auto">
           <div className="text-center mb-3 sm:mb-6">
-            <span className="eyebrow">Curated For You</span>
-            <h2 className="mt-1 sm:mt-2 font-serif text-lg sm:text-2xl font-semibold text-brand-teal">
+            <h2 className="font-serif text-lg sm:text-2xl font-semibold text-brand-teal">
               Shop by Category
             </h2>
           </div>
