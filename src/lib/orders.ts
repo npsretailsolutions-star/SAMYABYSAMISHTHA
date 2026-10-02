@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { generateOrderNumber } from "@/lib/format";
 import { AUTO_DISCOUNT_PERCENT, PREPAID_DISCOUNT_PERCENT, COD_CHARGE } from "@/lib/constants";
+import { sendOrderNotificationEmail } from "@/lib/email";
 import type { Product, ProductVariant } from "@prisma/client";
 
 export class OrderValidationError extends Error {
@@ -207,6 +208,29 @@ export async function createOrderRecord(
 
     return created;
   });
+
+  sendOrderNotificationEmail({
+    orderNumber: order.orderNumber,
+    customerName: order.customerName,
+    email: order.email,
+    phone: order.phone,
+    address: order.address,
+    city: order.city,
+    state: order.state,
+    pincode: order.pincode,
+    subtotal: order.subtotal,
+    discount: order.discount,
+    codCharge: order.codCharge,
+    giftTotal: order.giftTotal,
+    total: order.total,
+    paymentMethod: order.paymentMethod,
+    items: order.items.map((i) => ({
+      name: i.name,
+      variantLabel: i.variantLabel,
+      price: i.price,
+      quantity: i.quantity,
+    })),
+  }).catch(() => {});
 
   return order;
 }
