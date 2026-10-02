@@ -9,11 +9,9 @@ type Category = { name: string; slug: string; count: number };
 export default function CategoryFilters({
   categories,
   currentCategorySlug,
-  materials,
 }: {
   categories: Category[];
   currentCategorySlug: string;
-  materials: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -22,9 +20,6 @@ export default function CategoryFilters({
 
   const minPrice = searchParams.get("minPrice") || "";
   const maxPrice = searchParams.get("maxPrice") || "";
-  const selectedMaterials = (searchParams.get("material") || "")
-    .split(",")
-    .filter(Boolean);
 
   const [minInput, setMinInput] = useState(minPrice);
   const [maxInput, setMaxInput] = useState(maxPrice);
@@ -41,13 +36,6 @@ export default function CategoryFilters({
   const applyPriceRange = (e: React.FormEvent) => {
     e.preventDefault();
     pushParams({ minPrice: minInput || null, maxPrice: maxInput || null });
-  };
-
-  const toggleMaterial = (material: string) => {
-    const next = selectedMaterials.includes(material)
-      ? selectedMaterials.filter((m) => m !== material)
-      : [...selectedMaterials, material];
-    pushParams({ material: next.length > 0 ? next.join(",") : null });
   };
 
   const filterContent = (
@@ -118,37 +106,6 @@ export default function CategoryFilters({
           Apply
         </button>
       </div>
-
-      {materials.length > 0 && (
-        <div>
-          <h3 className="eyebrow mb-3">Material</h3>
-          <ul className="space-y-2">
-            {materials.map((m) => (
-              <li key={m}>
-                <button
-                  onClick={() => toggleMaterial(m)}
-                  className="flex items-center gap-2 text-sm w-full text-left group"
-                >
-                  <span
-                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
-                      selectedMaterials.includes(m)
-                        ? "border-brand-teal bg-brand-teal"
-                        : "border-brand-teal/30"
-                    }`}
-                  >
-                    {selectedMaterials.includes(m) && (
-                      <span className="h-1.5 w-1.5 rounded-sm bg-brand-cream" />
-                    )}
-                  </span>
-                  <span className="text-brand-teal/70 group-hover:text-brand-gold-dark">
-                    {m}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </>
   );
 

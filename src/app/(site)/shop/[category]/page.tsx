@@ -19,7 +19,7 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: { category: string };
-  searchParams: { sort?: string; minPrice?: string; maxPrice?: string; material?: string };
+  searchParams: { sort?: string; minPrice?: string; maxPrice?: string };
 }) {
   const category = await prisma.category.findUnique({
     where: { slug: params.category },
@@ -42,12 +42,7 @@ export default async function CategoryPage({
     };
   }
 
-  const selectedMaterials = (searchParams.material || "").split(",").filter(Boolean);
-  if (selectedMaterials.length > 0) {
-    where.material = { in: selectedMaterials };
-  }
-
-  const [products, allCategories, materialRows] = await Promise.all([
+  const [products, allCategories] = await Promise.all([
     prisma.product.findMany({
       where,
       include: { category: true },
@@ -61,16 +56,7 @@ export default async function CategoryPage({
         _count: { select: { products: { where: { isActive: true } } } },
       },
     }),
-    prisma.product.findMany({
-      where: { categoryId: category.id, isActive: true, material: { not: null } },
-      select: { material: true },
-      distinct: ["material"],
-    }),
   ]);
-
-  const materials = materialRows
-    .map((r) => r.material)
-    .filter((m): m is string => Boolean(m));
 
   return (
     <div className="container-px mx-auto section-y">
@@ -94,7 +80,6 @@ export default async function CategoryPage({
             count: c._count.products,
           }))}
           currentCategorySlug={category.slug}
-          materials={materials}
         />
 
         <div className="flex-1">
