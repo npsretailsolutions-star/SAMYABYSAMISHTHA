@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { generateOrderNumber } from "@/lib/format";
 import { AUTO_DISCOUNT_PERCENT, PREPAID_DISCOUNT_PERCENT, COD_CHARGE } from "@/lib/constants";
 import { sendOrderNotificationEmail } from "@/lib/email";
 import type { Product, ProductVariant } from "@prisma/client";
@@ -137,9 +136,16 @@ export async function createOrderRecord(
   const { products, subtotal, discount, codCharge, giftTotal, couponCode, total } = quote;
 
   const order = await prisma.$transaction(async (tx) => {
+    const counter = await tx.orderCounter.upsert({
+      where: { id: "default" },
+      create: { id: "default", value: 2026001 },
+      update: { value: { increment: 1 } },
+    });
+    const orderNumber = `SBS${counter.value}`;
+
     const created = await tx.order.create({
       data: {
-        orderNumber: generateOrderNumber(),
+        orderNumber,
         customerName: shipping.customerName,
         email: shipping.email,
         phone: shipping.phone,

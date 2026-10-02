@@ -105,6 +105,11 @@ model OrderItem {
   giftNote     String?
 }
 
+model OrderCounter {
+  id    String @id
+  value Int
+}
+
 model Admin {
   id        String   @id @default(cuid())
   email     String   @unique
