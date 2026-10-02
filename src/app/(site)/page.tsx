@@ -52,7 +52,7 @@ export default async function HomePage() {
 
       {/* Trust strip */}
       <section className="border-b border-brand-teal/10 bg-white">
-        <div className="container-px mx-auto grid grid-cols-2 gap-3 sm:gap-6 py-4 sm:py-6 sm:grid-cols-4">
+        <div className="container-px mx-auto grid grid-cols-4 gap-1.5 sm:gap-6 py-2.5 sm:py-6">
           {[
             { icon: Sparkles, label: "Premium Finish" },
             { icon: Truck, label: "Pan-India Delivery" },
@@ -60,20 +60,20 @@ export default async function HomePage() {
             { icon: Gift, label: "Gift Ready Packaging" },
           ].map(({ icon: Icon, label }) => (
             <div key={label} className="flex flex-col items-center gap-1 sm:gap-2 text-center">
-              <Icon size={16} className="text-brand-gold-dark sm:hidden" />
+              <Icon size={15} className="text-brand-gold-dark sm:hidden" />
               <Icon size={22} className="text-brand-gold-dark hidden sm:block" />
-              <span className="text-[11px] sm:text-sm font-medium text-brand-teal">{label}</span>
+              <span className="text-[9.5px] leading-tight sm:text-sm font-medium text-brand-teal">{label}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* Shop by category */}
-      <section className="pt-8 sm:pt-10 pb-4">
+      <section className="pt-4 sm:pt-10 pb-3 sm:pb-4">
         <div className="container-px mx-auto">
-          <div className="text-center mb-6">
+          <div className="text-center mb-3 sm:mb-6">
             <span className="eyebrow">Curated For You</span>
-            <h2 className="mt-2 font-serif text-xl sm:text-2xl font-semibold text-brand-teal">
+            <h2 className="mt-1 sm:mt-2 font-serif text-lg sm:text-2xl font-semibold text-brand-teal">
               Shop by Category
             </h2>
           </div>
@@ -82,15 +82,15 @@ export default async function HomePage() {
               <Link
                 key={cat.id}
                 href={`/shop/${cat.slug}`}
-                className="group flex shrink-0 flex-col items-center gap-2 w-24 sm:w-auto"
+                className="group flex shrink-0 flex-col items-center gap-2 w-32 sm:w-auto"
               >
-                <div className="relative aspect-square w-24 sm:w-full overflow-hidden rounded-2xl bg-brand-teal/5 ring-1 ring-brand-gold/20 transition-shadow group-hover:shadow-gold">
+                <div className="relative aspect-square w-32 sm:w-full overflow-hidden rounded-2xl bg-brand-teal/5 ring-1 ring-brand-gold/20 transition-shadow group-hover:shadow-gold">
                   <Image
                     src={cat.image || "/images/products/pendants-1.svg"}
                     alt={cat.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    sizes="160px"
+                    sizes="200px"
                   />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-brand-teal text-center group-hover:text-brand-gold-dark">
@@ -106,12 +106,12 @@ export default async function HomePage() {
       {featured.length > 0 && (
         <section className="section-y bg-white">
           <div className="container-px mx-auto">
-            <div className="text-center mb-8">
+            <div className="text-center mb-4 sm:mb-8">
               <span className="eyebrow">Handpicked</span>
-              <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
+              <h2 className="mt-1 sm:mt-2 font-serif text-xl sm:text-3xl font-semibold text-brand-teal">
                 Bestsellers
               </h2>
-              <Link href="/shop" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-teal hover:text-brand-gold-dark">
+              <Link href="/shop" className="mt-2 sm:mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-teal hover:text-brand-gold-dark">
                 View All <ArrowRight size={14} />
               </Link>
             </div>
