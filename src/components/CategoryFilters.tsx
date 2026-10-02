@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { SlidersHorizontal, X } from "lucide-react";
 
 type Category = { name: string; slug: string; count: number };
 
@@ -17,6 +18,7 @@ export default function CategoryFilters({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const minPrice = searchParams.get("minPrice") || "";
   const maxPrice = searchParams.get("maxPrice") || "";
@@ -48,8 +50,8 @@ export default function CategoryFilters({
     pushParams({ material: next.length > 0 ? next.join(",") : null });
   };
 
-  return (
-    <aside className="w-full lg:w-60 shrink-0 space-y-8">
+  const filterContent = (
+    <>
       <div>
         <h3 className="eyebrow mb-3">Category</h3>
         <ul className="space-y-2">
@@ -147,6 +149,46 @@ export default function CategoryFilters({
           </ul>
         </div>
       )}
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile: compact trigger instead of the full filter block taking vertical space */}
+      <button
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden flex items-center gap-2 self-start rounded-full border border-brand-teal/20 px-4 py-2 text-sm font-medium text-brand-teal"
+      >
+        <SlidersHorizontal size={15} /> Filters
+      </button>
+
+      {/* Desktop: static sidebar, side-by-side with products */}
+      <aside className="hidden lg:block w-60 shrink-0 space-y-8">{filterContent}</aside>
+
+      {/* Mobile: slide-in drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 w-[82%] max-w-xs overflow-y-auto bg-white p-6 space-y-8">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-lg font-semibold text-brand-teal">Filters</h2>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="p-1 text-brand-teal/60"
+                aria-label="Close filters"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {filterContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
