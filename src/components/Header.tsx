@@ -17,7 +17,6 @@ const NAV_LINKS = [
   { label: "Bracelets", href: "/shop/bracelets" },
   { label: "Pendants", href: "/shop/pendants" },
   { label: "Gifting", href: "/shop/gifting" },
-  { label: "Journal", href: "/blog" },
 ];
 
 export default function Header() {
