@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { label: "Necklaces", href: "/shop/necklaces" },
   { label: "Earrings", href: "/shop/earrings" },
   { label: "Bangles", href: "/shop/bangles" },
+  { label: "Bracelets", href: "/shop/bracelets" },
   { label: "Pendants", href: "/shop/pendants" },
   { label: "Gifting", href: "/shop/gifting" },
   { label: "Journal", href: "/blog" },
