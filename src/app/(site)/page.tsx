@@ -24,7 +24,7 @@ export default async function HomePage() {
       where: { isFeatured: true, isActive: true },
       include: { category: true },
       orderBy: { createdAt: "desc" },
-      take: 8,
+      take: 10,
     }),
     prisma.product.findMany({
       where: { isGiftable: true, isActive: true },
