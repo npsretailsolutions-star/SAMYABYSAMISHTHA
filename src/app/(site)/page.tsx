@@ -106,8 +106,7 @@ export default async function HomePage() {
         <section className="section-y bg-white">
           <div className="container-px mx-auto">
             <div className="text-center mb-4 sm:mb-8">
-              <span className="eyebrow">Handpicked</span>
-              <h2 className="mt-1 sm:mt-2 font-serif text-xl sm:text-3xl font-semibold text-brand-teal">
+              <h2 className="font-serif text-xl sm:text-3xl font-semibold text-brand-teal">
                 Bestsellers
               </h2>
               <Link href="/shop" className="mt-2 sm:mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-teal hover:text-brand-gold-dark">
