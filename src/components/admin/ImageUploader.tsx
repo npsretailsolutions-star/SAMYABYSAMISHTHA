@@ -3,6 +3,30 @@
 import { useRef, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 
+// Downscale + compress in the browser before upload so a batch of several
+// full-resolution phone photos doesn't blow past Vercel's ~4.5MB request body limit.
+async function compressImage(file: File): Promise<Blob> {
+  if (!file.type.startsWith("image/") || file.type === "image/gif") return file;
+
+  const bitmap = await createImageBitmap(file);
+  const maxDim = 1800;
+  const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+  const width = Math.round(bitmap.width * scale);
+  const height = Math.round(bitmap.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.drawImage(bitmap, 0, 0, width, height);
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob((b) => resolve(b), "image/jpeg", 0.85)
+  );
+  return blob || file;
+}
+
 export default function ImageUploader({
   onUploaded,
   multiple = true,
@@ -19,10 +43,13 @@ export default function ImageUploader({
     setUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    Array.from(fileList).forEach((file) => formData.append("files", file));
-
     try {
+      const formData = new FormData();
+      for (const file of Array.from(fileList)) {
+        const compressed = await compressImage(file);
+        formData.append("files", compressed, file.name);
+      }
+
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) {
@@ -30,7 +57,12 @@ export default function ImageUploader({
         setUploading(false);
         return;
       }
-      onUploaded(data.urls);
+      if (data.urls?.length) onUploaded(data.urls);
+      if (data.failed?.length) {
+        setError(
+          `${data.failed.length} of ${fileList.length} image(s) failed: ${data.failed.join(", ")}`
+        );
+      }
     } catch {
       setError("Upload failed. Please try again.");
     }
