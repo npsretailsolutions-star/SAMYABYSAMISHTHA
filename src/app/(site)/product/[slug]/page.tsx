@@ -13,6 +13,8 @@ import ShareButton from "@/components/ShareButton";
 import ProductDetailVariants from "@/components/ProductDetailVariants";
 import ReviewsList, { RatingSummary } from "@/components/ReviewsList";
 import ReviewForm from "@/components/ReviewForm";
+import ProductAccordion from "@/components/ProductAccordion";
+import CareInstructionsBox from "@/components/CareInstructionsBox";
 
 export const dynamic = "force-dynamic";
 
@@ -120,6 +122,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       {hasVariants ? (
         <ProductDetailVariants
           productId={product.id}
+          sku={product.sku}
           name={product.name}
           slug={product.slug}
           price={product.price}
@@ -167,17 +170,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 </>
               )}
             </div>
-
-            <p className="mt-5 text-sm leading-relaxed text-brand-teal/70">
-              {product.description}
-            </p>
-
-            {product.material && (
-              <p className="mt-3 text-sm text-brand-teal/70">
-                <span className="font-medium text-brand-teal">Material: </span>
-                {product.material}
-              </p>
-            )}
 
             <p className="mt-2 text-sm">
               {product.stock > 0 ? (
@@ -233,6 +225,68 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 <span className="text-[11px] text-brand-teal/70">Easy Returns</span>
               </div>
             </div>
+
+            <ProductAccordion
+              sections={[
+                {
+                  title: "Product Details, Material & Care",
+                  content: (
+                    <>
+                      {product.sku && (
+                        <p>
+                          <span className="font-medium text-brand-teal">SKU: </span>
+                          {product.sku}
+                        </p>
+                      )}
+                      <p className="mt-3">{product.description}</p>
+                      {product.material && (
+                        <>
+                          <p className="mt-4 font-medium text-brand-teal">Material &amp; Care</p>
+                          <ul className="mt-2 list-disc space-y-1 pl-5">
+                            <li>
+                              <span className="font-medium text-brand-teal">Net Quantity: </span>1
+                              Piece
+                            </li>
+                            <li>
+                              <span className="font-medium text-brand-teal">Material: </span>
+                              {product.material}
+                            </li>
+                          </ul>
+                        </>
+                      )}
+                      <p className="mt-4">
+                        <span className="font-medium text-brand-teal">Care Label: </span>
+                        It is advisable to avoid contact with water and organic chemicals i.e.
+                        perfume sprays. Store jewellery in an airtight box. After use, wipe the
+                        jewellery with a soft cotton cloth.
+                      </p>
+                      <CareInstructionsBox />
+                    </>
+                  ),
+                },
+                {
+                  title: "Manufacturer Details",
+                  content: (
+                    <>
+                      <p>
+                        <span className="font-medium text-brand-teal">Country of Origin: </span>
+                        India
+                      </p>
+                      <p className="mt-3">
+                        <span className="font-medium text-brand-teal">Marketed &amp; Sold By: </span>
+                        Samya By Samishtha
+                      </p>
+                      <p className="mt-3">
+                        <span className="font-medium text-brand-teal">
+                          Grievance Redressal:{" "}
+                        </span>
+                        care@samyabysamishtha.com · +91 80766 21656
+                      </p>
+                    </>
+                  ),
+                },
+              ]}
+            />
           </div>
         </div>
       )}

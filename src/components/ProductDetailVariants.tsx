@@ -7,6 +7,8 @@ import ProductGallery from "@/components/ProductGallery";
 import AddToCartButtons from "@/components/AddToCartButtons";
 import WishlistButton from "@/components/WishlistButton";
 import ShareButton from "@/components/ShareButton";
+import ProductAccordion from "@/components/ProductAccordion";
+import CareInstructionsBox from "@/components/CareInstructionsBox";
 import { formatINR } from "@/lib/format";
 import { parseImages } from "@/lib/types";
 
@@ -20,6 +22,7 @@ type Variant = {
 
 export default function ProductDetailVariants({
   productId,
+  sku,
   name,
   slug,
   price,
@@ -33,6 +36,7 @@ export default function ProductDetailVariants({
   productUrl,
 }: {
   productId: string;
+  sku: string | null;
   name: string;
   slug: string;
   price: number;
@@ -75,15 +79,6 @@ export default function ProductDetailVariants({
             </>
           )}
         </div>
-
-        <p className="mt-5 text-sm leading-relaxed text-brand-teal/70">{description}</p>
-
-        {material && (
-          <p className="mt-3 text-sm text-brand-teal/70">
-            <span className="font-medium text-brand-teal">Material: </span>
-            {material}
-          </p>
-        )}
 
         <div className="mt-6">
           <p className="text-sm font-medium text-brand-teal mb-2">
@@ -177,6 +172,66 @@ export default function ProductDetailVariants({
             <span className="text-[11px] text-brand-teal/70">Easy Returns</span>
           </div>
         </div>
+
+        <ProductAccordion
+          sections={[
+            {
+              title: "Product Details, Material & Care",
+              content: (
+                <>
+                  {sku && (
+                    <p>
+                      <span className="font-medium text-brand-teal">SKU: </span>
+                      {sku}
+                    </p>
+                  )}
+                  <p className="mt-3">{description}</p>
+                  {material && (
+                    <>
+                      <p className="mt-4 font-medium text-brand-teal">Material &amp; Care</p>
+                      <ul className="mt-2 list-disc space-y-1 pl-5">
+                        <li>
+                          <span className="font-medium text-brand-teal">Net Quantity: </span>1
+                          Piece
+                        </li>
+                        <li>
+                          <span className="font-medium text-brand-teal">Material: </span>
+                          {material}
+                        </li>
+                      </ul>
+                    </>
+                  )}
+                  <p className="mt-4">
+                    <span className="font-medium text-brand-teal">Care Label: </span>
+                    It is advisable to avoid contact with water and organic chemicals i.e.
+                    perfume sprays. Store jewellery in an airtight box. After use, wipe the
+                    jewellery with a soft cotton cloth.
+                  </p>
+                  <CareInstructionsBox />
+                </>
+              ),
+            },
+            {
+              title: "Manufacturer Details",
+              content: (
+                <>
+                  <p>
+                    <span className="font-medium text-brand-teal">Country of Origin: </span>
+                    India
+                  </p>
+                  <p className="mt-3">
+                    <span className="font-medium text-brand-teal">Marketed &amp; Sold By: </span>
+                    Samya By Samishtha
+                  </p>
+                  <p className="mt-3">
+                    <span className="font-medium text-brand-teal">Grievance Redressal: </span>
+                    care@samyabysamishtha.com · +91 80766 21656
+                  </p>
+                </>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );
