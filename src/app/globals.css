@@ -12,6 +12,22 @@ body {
   background: var(--background);
 }
 
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(520deg);
+    opacity: 0.9;
+  }
+}
+.confetti-fall {
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
