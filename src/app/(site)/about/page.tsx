@@ -1,3 +1,5 @@
+import FounderFlipCard from "@/components/FounderFlipCard";
+
 export const metadata = { title: "About Us | Samya By Samishtha" };
 
 export default function AboutPage() {
@@ -15,6 +17,8 @@ export default function AboutPage() {
             <span className="h-px w-10 bg-brand-gold-light/50" />
           </div>
         </div>
+
+        <FounderFlipCard />
 
         <div className="space-y-6 text-brand-cream/90 leading-relaxed text-center sm:text-left">
           <p>
