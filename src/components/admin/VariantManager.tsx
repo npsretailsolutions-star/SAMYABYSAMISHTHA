@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
+import ReorderableImageList from "@/components/admin/ReorderableImageList";
 
 export type VariantRow = {
   id: string;
@@ -37,14 +38,7 @@ function VariantFields({
   values: FormValues;
   onChange: (v: FormValues) => void;
 }) {
-  const updateImage = (i: number, value: string) => {
-    const images = [...values.images];
-    images[i] = value;
-    onChange({ ...values, images });
-  };
   const addImageField = () => onChange({ ...values, images: [...values.images, ""] });
-  const removeImageField = (i: number) =>
-    onChange({ ...values, images: values.images.filter((_, idx) => idx !== i) });
   const addUploadedImages = (urls: string[]) =>
     onChange({ ...values, images: [...values.images.filter((img) => img.trim()), ...urls] });
 
@@ -100,36 +94,10 @@ function VariantFields({
           </label>
           <ImageUploader onUploaded={addUploadedImages} />
         </div>
-        <div className="space-y-2">
-          {values.images.map((img, i) => (
-            <div key={i} className="flex items-center gap-2">
-              {img.trim() && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={img}
-                  alt=""
-                  className="h-9 w-9 shrink-0 rounded-lg object-cover bg-brand-teal/5"
-                />
-              )}
-              <input
-                value={img}
-                onChange={(e) => updateImage(i, e.target.value)}
-                placeholder="/images/products/example.jpg"
-                className="flex-1 rounded-lg border border-brand-teal/20 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
-              />
-              {values.images.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeImageField(i)}
-                  className="p-1.5 text-brand-teal/60 hover:text-red-600"
-                  aria-label="Remove image"
-                >
-                  <X size={15} />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+        <ReorderableImageList
+          images={values.images}
+          onChange={(images) => onChange({ ...values, images })}
+        />
         <button
           type="button"
           onClick={addImageField}

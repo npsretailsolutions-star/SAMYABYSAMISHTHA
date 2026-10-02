@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
+import ReorderableImageList from "@/components/admin/ReorderableImageList";
 
 type Category = { id: string; name: string };
 
@@ -52,17 +53,7 @@ export default function ProductForm({
 
   const isEdit = Boolean(initial?.id);
 
-  const updateImage = (i: number, value: string) => {
-    setValues((v) => {
-      const images = [...v.images];
-      images[i] = value;
-      return { ...v, images };
-    });
-  };
-
   const addImageField = () => setValues((v) => ({ ...v, images: [...v.images, ""] }));
-  const removeImageField = (i: number) =>
-    setValues((v) => ({ ...v, images: v.images.filter((_, idx) => idx !== i) }));
   const addUploadedImages = (urls: string[]) =>
     setValues((v) => ({
       ...v,
@@ -215,34 +206,10 @@ export default function ProductForm({
           <code>/images/products/necklace-1.svg</code> / a full image URL below. Uploads are
           automatically converted to WebP.
         </p>
-        {values.images.map((img, i) => (
-          <div key={i} className="flex items-center gap-2">
-            {img.trim() && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={img}
-                alt=""
-                className="h-10 w-10 shrink-0 rounded-lg object-cover bg-brand-teal/5"
-              />
-            )}
-            <input
-              value={img}
-              onChange={(e) => updateImage(i, e.target.value)}
-              placeholder="/images/products/example.jpg"
-              className="flex-1 rounded-xl border border-brand-teal/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
-            />
-            {values.images.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeImageField(i)}
-                className="p-2 text-brand-teal/60 hover:text-red-600"
-                aria-label="Remove image"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-        ))}
+        <ReorderableImageList
+          images={values.images}
+          onChange={(images) => setValues((v) => ({ ...v, images }))}
+        />
         <button
           type="button"
           onClick={addImageField}
