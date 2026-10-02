@@ -18,8 +18,6 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <FounderFlipCard />
-
         <div className="space-y-6 text-brand-cream/90 leading-relaxed text-center sm:text-left">
           <p>
             Samya By Samishtha wasn&apos;t created in a boardroom. It began with
@@ -78,6 +76,8 @@ export default function AboutPage() {
 
           <p>And we feel truly honoured to become a small part of it.</p>
         </div>
+
+        <FounderFlipCard />
       </div>
     </div>
   );

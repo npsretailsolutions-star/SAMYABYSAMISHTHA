@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function FounderFlipCard() {
   return (
-    <div className="mx-auto mb-10 flex flex-col items-center">
+    <div className="mx-auto mt-10 flex flex-col items-center">
       <div className="group relative h-72 w-72 sm:h-80 sm:w-80 [perspective:1200px]">
         <div className="relative h-full w-full rounded-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
           {/* Front: founder photo */}
