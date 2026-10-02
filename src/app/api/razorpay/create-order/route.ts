@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const quote = await quoteOrder(parsed.data.items, parsed.data.couponCode);
+    const quote = await quoteOrder(parsed.data.items, parsed.data.couponCode, "RAZORPAY");
 
     if (quote.total < 100) {
       return NextResponse.json({ error: "Order total is too low to process." }, { status: 400 });

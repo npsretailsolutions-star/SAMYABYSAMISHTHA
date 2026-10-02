@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
 
   try {
-    const quote = await quoteOrder(data.items, data.couponCode);
+    const quote = await quoteOrder(data.items, data.couponCode, "COD");
     const order = await createOrderRecord(data, data.items, quote, {
       paymentMethod: "COD",
       paymentStatus: "PENDING",

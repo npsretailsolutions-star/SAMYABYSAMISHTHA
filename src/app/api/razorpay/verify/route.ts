@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const quote = await quoteOrder(data.items, data.couponCode);
+    const quote = await quoteOrder(data.items, data.couponCode, "RAZORPAY");
     const order = await createOrderRecord(data, data.items, quote, {
       paymentMethod: "RAZORPAY",
       paymentStatus: "PAID",

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { generateOrderNumber } from "@/lib/format";
-import { AUTO_DISCOUNT_PERCENT } from "@/lib/constants";
+import { AUTO_DISCOUNT_PERCENT, PREPAID_DISCOUNT_PERCENT, COD_CHARGE } from "@/lib/constants";
 import type { Product, ProductVariant } from "@prisma/client";
 
 export class OrderValidationError extends Error {
@@ -19,11 +19,16 @@ export type OrderQuote = {
   products: ProductWithVariants[];
   subtotal: number;
   discount: number;
+  codCharge: number;
   couponCode: string | null;
   total: number;
 };
 
-export async function quoteOrder(items: CartItemInput[], couponCode?: string): Promise<OrderQuote> {
+export async function quoteOrder(
+  items: CartItemInput[],
+  couponCode?: string,
+  paymentMethod: "COD" | "RAZORPAY" = "RAZORPAY"
+): Promise<OrderQuote> {
   const productIds = items.map((i) => i.productId);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
@@ -80,7 +85,20 @@ export async function quoteOrder(items: CartItemInput[], couponCode?: string): P
     }
   }
 
-  return { products, subtotal, discount, couponCode: resolvedCouponCode, total: subtotal - discount };
+  // Extra incentive discount for paying online, on top of the base discount above.
+  if (paymentMethod === "RAZORPAY") {
+    discount += Math.round((subtotal * PREPAID_DISCOUNT_PERCENT) / 100);
+  }
+  const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
+
+  return {
+    products,
+    subtotal,
+    discount,
+    codCharge,
+    couponCode: resolvedCouponCode,
+    total: subtotal - discount + codCharge,
+  };
 }
 
 export type ShippingInfo = {
@@ -106,7 +124,7 @@ export async function createOrderRecord(
     razorpayPaymentId?: string;
   }
 ) {
-  const { products, subtotal, discount, couponCode, total } = quote;
+  const { products, subtotal, discount, codCharge, couponCode, total } = quote;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -122,6 +140,7 @@ export async function createOrderRecord(
         notes: shipping.notes,
         subtotal,
         discount,
+        codCharge,
         couponCode,
         total,
         status: payment.status || "PENDING",

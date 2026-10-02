@@ -6,7 +6,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import { formatINR } from "@/lib/format";
-import { AUTO_DISCOUNT_PERCENT, AUTO_DISCOUNT_LABEL } from "@/lib/constants";
+import {
+  AUTO_DISCOUNT_PERCENT,
+  AUTO_DISCOUNT_LABEL,
+  PREPAID_DISCOUNT_PERCENT,
+  COD_CHARGE,
+} from "@/lib/constants";
 
 declare global {
   interface Window {
@@ -59,12 +64,16 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
 
   const autoDiscount = Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100);
-  const discount = Math.max(appliedCoupon?.discount ?? 0, autoDiscount);
+  const baseDiscount = Math.max(appliedCoupon?.discount ?? 0, autoDiscount);
   const discountLabel =
     appliedCoupon && appliedCoupon.discount > autoDiscount
       ? `${appliedCoupon.code} applied`
       : AUTO_DISCOUNT_LABEL;
-  const total = subtotal - discount;
+  const prepaidDiscount =
+    paymentMethod === "RAZORPAY" ? Math.round((subtotal * PREPAID_DISCOUNT_PERCENT) / 100) : 0;
+  const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
+  const discount = baseDiscount + prepaidDiscount;
+  const total = subtotal - discount + codCharge;
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -291,8 +300,8 @@ export default function CheckoutPage() {
                 <p className="text-sm font-medium text-brand-teal">
                   Pay Online — Cards, UPI, Netbanking
                 </p>
-                <p className="text-xs text-brand-teal/60">
-                  Secure payment powered by Razorpay.
+                <p className="text-xs text-emerald-700 font-medium">
+                  Extra {PREPAID_DISCOUNT_PERCENT}% off — secure payment powered by Razorpay.
                 </p>
               </div>
             </label>
@@ -313,7 +322,8 @@ export default function CheckoutPage() {
               <div>
                 <p className="text-sm font-medium text-brand-teal">Cash on Delivery</p>
                 <p className="text-xs text-brand-teal/60">
-                  Pay when your order arrives at your doorstep.
+                  Pay when your order arrives at your doorstep. ₹{COD_CHARGE / 100} extra handling
+                  charge applies.
                 </p>
               </div>
             </label>
@@ -395,10 +405,22 @@ export default function CheckoutPage() {
               <span>Subtotal</span>
               <span>{formatINR(subtotal)}</span>
             </div>
-            {discount > 0 && (
+            {baseDiscount > 0 && (
               <div className="flex items-center justify-between text-emerald-700">
                 <span>{discountLabel}</span>
-                <span>-{formatINR(discount)}</span>
+                <span>-{formatINR(baseDiscount)}</span>
+              </div>
+            )}
+            {prepaidDiscount > 0 && (
+              <div className="flex items-center justify-between text-emerald-700">
+                <span>Prepaid Discount ({PREPAID_DISCOUNT_PERCENT}%)</span>
+                <span>-{formatINR(prepaidDiscount)}</span>
+              </div>
+            )}
+            {codCharge > 0 && (
+              <div className="flex items-center justify-between text-brand-teal/70">
+                <span>COD Charges</span>
+                <span>+{formatINR(codCharge)}</span>
               </div>
             )}
             <div className="flex items-center justify-between text-brand-teal/70">

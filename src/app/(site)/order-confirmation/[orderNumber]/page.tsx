@@ -59,6 +59,12 @@ export default async function OrderConfirmationPage({
               <span>-{formatINR(order.discount)}</span>
             </div>
           )}
+          {order.codCharge > 0 && (
+            <div className="flex justify-between text-brand-teal/70">
+              <span>COD Charges</span>
+              <span>+{formatINR(order.codCharge)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-base font-semibold text-brand-teal border-t border-brand-teal/10 pt-2">
             <span>Total</span>
             <span>{formatINR(order.total)}</span>
