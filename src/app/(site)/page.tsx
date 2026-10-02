@@ -22,13 +22,13 @@ export default async function HomePage() {
     prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.product.findMany({
       where: { isFeatured: true, isActive: true },
-      include: { category: true },
+      include: { category: true, variants: { orderBy: { sortOrder: "asc" } } },
       orderBy: { createdAt: "desc" },
       take: 10,
     }),
     prisma.product.findMany({
       where: { isGiftable: true, isActive: true },
-      include: { category: true },
+      include: { category: true, variants: { orderBy: { sortOrder: "asc" } } },
       orderBy: { createdAt: "desc" },
       take: 4,
     }),

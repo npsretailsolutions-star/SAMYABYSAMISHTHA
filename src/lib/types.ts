@@ -18,6 +18,14 @@ export type ProductWithCategory = {
     name: string;
     slug: string;
   };
+  variants?: {
+    id: string;
+    attributeName: string;
+    label: string;
+    images: string;
+    stock: number;
+    sortOrder: number;
+  }[];
 };
 
 export function parseImages(images: string): string[] {

@@ -63,7 +63,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       isActive: true,
       id: { not: product.id },
     },
-    include: { category: true },
+    include: { category: true, variants: { orderBy: { sortOrder: "asc" } } },
     take: 4,
   });
 

@@ -11,7 +11,10 @@ import { parseImages, type ProductWithCategory } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: ProductWithCategory }) {
   const { addItem } = useCart();
-  const images = parseImages(product.images);
+  const hasVariants = (product.variants?.length ?? 0) > 0;
+  const images = hasVariants
+    ? parseImages(product.variants![0].images)
+    : parseImages(product.images);
   const discount =
     product.compareAtPrice && product.compareAtPrice > product.price
       ? Math.round(
