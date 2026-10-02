@@ -76,23 +76,28 @@ export default async function HomePage() {
               Shop by Category
             </h2>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-start sm:grid sm:grid-cols-5 sm:gap-4 sm:overflow-visible">
+          <div
+            className="grid gap-1.5 sm:gap-4"
+            style={{
+              gridTemplateColumns: `repeat(${Math.max(categories.length, 6)}, minmax(0, 1fr))`,
+            }}
+          >
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/shop/${cat.slug}`}
-                className="group flex shrink-0 flex-col items-center gap-2 w-32 sm:w-auto"
+                className="group flex flex-col items-center gap-1.5 sm:gap-2"
               >
-                <div className="relative aspect-square w-32 sm:w-full overflow-hidden rounded-2xl bg-brand-teal/5 ring-1 ring-brand-gold/20 transition-shadow group-hover:shadow-gold">
+                <div className="relative aspect-square w-full overflow-hidden rounded-xl sm:rounded-2xl bg-brand-teal/5 ring-1 ring-brand-gold/20 transition-shadow group-hover:shadow-gold">
                   <Image
                     src={cat.image || "/images/products/pendants-1.svg"}
                     alt={cat.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    sizes="200px"
+                    sizes="120px"
                   />
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-brand-teal text-center group-hover:text-brand-gold-dark">
+                <span className="text-[10px] sm:text-sm font-medium leading-tight text-brand-teal text-center line-clamp-2 group-hover:text-brand-gold-dark">
                   {cat.name}
                 </span>
               </Link>
