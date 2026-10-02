@@ -167,47 +167,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Explore our collections */}
-      <section className="section-y bg-white">
-        <div className="container-px mx-auto">
-          <div className="text-center mb-8">
-            <span className="eyebrow">Shop The Look</span>
-            <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
-              Explore Our Collections
-            </h2>
-          </div>
-          <div className="grid gap-4 sm:gap-6 sm:grid-cols-3">
-            {[
-              { name: "Earrings", slug: "earrings", tagline: "A touch of charm for every mood", image: "/images/products/earrings-2.svg" },
-              { name: "Necklaces", slug: "necklaces", tagline: "Grace in every detail", image: "/images/products/necklace-3.svg" },
-              { name: "Bangles", slug: "bangles", tagline: "Tradition meets trend", image: "/images/products/bangles-1.svg" },
-            ].map((c) => (
-              <Link
-                key={c.slug}
-                href={`/shop/${c.slug}`}
-                className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-brand-teal/5"
-              >
-                <Image
-                  src={c.image}
-                  alt={c.name}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-                <div className="absolute bottom-0 left-0 p-6">
-                  <h3 className="font-serif text-xl font-semibold text-white">{c.name}</h3>
-                  <p className="text-xs text-white/80 mt-1">{c.tagline}</p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-brand-gold-light">
-                    Shop Now <ArrowRight size={13} />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Why choose Samya */}
       <section className="section-y">
         <div className="container-px mx-auto">
