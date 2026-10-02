@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
+import GiftOptions from "@/components/GiftOptions";
+import type { GiftWrapSelection } from "@/lib/types";
 
 export default function AddToCartButtons({
   productId,
@@ -27,15 +29,35 @@ export default function AddToCartButtons({
   const { addItem } = useCart();
   const router = useRouter();
   const [qty, setQty] = useState(1);
+  const [giftWrap, setGiftWrap] = useState<GiftWrapSelection | null>(null);
+  const [giftCharge, setGiftCharge] = useState(0);
 
   useEffect(() => {
     setQty(1);
   }, [variantId]);
 
-  const item = { productId, variantId, variantLabel, name, slug, price, image, stock };
+  const item = {
+    productId,
+    variantId,
+    variantLabel,
+    name,
+    slug,
+    price,
+    image,
+    stock,
+    giftWrap: giftWrap || undefined,
+    giftCharge: giftCharge || undefined,
+  };
 
   return (
     <div className="space-y-4">
+      <GiftOptions
+        onChange={(selection, charge) => {
+          setGiftWrap(selection);
+          setGiftCharge(charge);
+        }}
+      />
+
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-brand-teal">Quantity</span>
         <div className="flex items-center gap-3 rounded-full border border-brand-teal/20 px-3 py-1.5">

@@ -19,6 +19,7 @@ type CartContextValue = {
   updateQuantity: (productId: string, quantity: number, variantId?: string | null) => void;
   clearCart: () => void;
   subtotal: number;
+  giftTotal: number;
   count: number;
   isCartOpen: boolean;
   openCart: () => void;
@@ -98,6 +99,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () => items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     [items]
   );
+  const giftTotal = useMemo(
+    () => items.reduce((sum, i) => sum + (i.giftCharge || 0), 0),
+    [items]
+  );
   const count = useMemo(
     () => items.reduce((sum, i) => sum + i.quantity, 0),
     [items]
@@ -110,6 +115,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     updateQuantity,
     clearCart,
     subtotal,
+    giftTotal,
     count,
     isCartOpen,
     openCart: () => setIsCartOpen(true),

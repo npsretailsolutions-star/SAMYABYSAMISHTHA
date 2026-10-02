@@ -39,6 +39,13 @@ export type ProductVariant = {
   sortOrder: number;
 };
 
+export type GiftWrapSelection = {
+  box: boolean;
+  card: boolean;
+  cardMessage?: string;
+  pouch: boolean;
+};
+
 export type CartItem = {
   productId: string;
   variantId?: string | null;
@@ -49,4 +56,6 @@ export type CartItem = {
   image: string;
   quantity: number;
   stock: number;
+  giftWrap?: GiftWrapSelection | null;
+  giftCharge?: number;
 };

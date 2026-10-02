@@ -5,11 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
-import { formatINR } from "@/lib/format";
+import { formatINR, formatGiftNote } from "@/lib/format";
 import { AUTO_DISCOUNT_PERCENT, AUTO_DISCOUNT_LABEL } from "@/lib/constants";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, subtotal, closeCart } = useCart();
+  const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart } = useCart();
 
   useEffect(() => {
     closeCart();
@@ -61,6 +61,11 @@ export default function CartPage() {
                         {item.variantLabel}
                       </span>
                     )}
+                    {formatGiftNote(item.giftWrap) && (
+                      <span className="block text-xs font-sans font-normal text-brand-gold-dark">
+                        🎁 {formatGiftNote(item.giftWrap)}
+                      </span>
+                    )}
                   </Link>
                   <button
                     onClick={() => removeItem(item.productId, item.variantId)}
@@ -91,7 +96,7 @@ export default function CartPage() {
                     </button>
                   </div>
                   <span className="font-semibold text-brand-teal">
-                    {formatINR(item.price * item.quantity)}
+                    {formatINR(item.price * item.quantity + (item.giftCharge || 0))}
                   </span>
                 </div>
               </div>
@@ -111,6 +116,12 @@ export default function CartPage() {
             <span>{AUTO_DISCOUNT_LABEL}</span>
             <span>-{formatINR(Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100))}</span>
           </div>
+          {giftTotal > 0 && (
+            <div className="flex items-center justify-between text-sm text-brand-teal/70 mb-2">
+              <span>Gift Wrapping</span>
+              <span>+{formatINR(giftTotal)}</span>
+            </div>
+          )}
           <div className="flex items-center justify-between text-sm text-brand-teal/70 mb-4">
             <span>Shipping</span>
             <span className="text-emerald-700 font-medium">Free</span>
@@ -118,7 +129,9 @@ export default function CartPage() {
           <div className="flex items-center justify-between border-t border-brand-teal/10 pt-4 text-base font-semibold text-brand-teal mb-6">
             <span>Total</span>
             <span>
-              {formatINR(subtotal - Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100))}
+              {formatINR(
+                subtotal - Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100) + giftTotal
+              )}
             </span>
           </div>
           <Link href="/checkout" className="btn-gold w-full">

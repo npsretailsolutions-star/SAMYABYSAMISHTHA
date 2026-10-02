@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
-import { formatINR } from "@/lib/format";
+import { formatINR, formatGiftNote } from "@/lib/format";
 import {
   AUTO_DISCOUNT_PERCENT,
   AUTO_DISCOUNT_LABEL,
@@ -37,7 +37,7 @@ function loadRazorpayScript(): Promise<boolean> {
 }
 
 export default function CheckoutPage() {
-  const { items, subtotal, clearCart, closeCart } = useCart();
+  const { items, subtotal, giftTotal, clearCart, closeCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function CheckoutPage() {
     paymentMethod === "RAZORPAY" ? Math.round((subtotal * PREPAID_DISCOUNT_PERCENT) / 100) : 0;
   const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
   const discount = baseDiscount + prepaidDiscount;
-  const total = subtotal - discount + codCharge;
+  const total = subtotal - discount + codCharge + giftTotal;
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -115,6 +115,8 @@ export default function CheckoutPage() {
     productId: i.productId,
     quantity: i.quantity,
     variantId: i.variantId || undefined,
+    giftCharge: i.giftCharge || undefined,
+    giftNote: formatGiftNote(i.giftWrap),
   }));
 
   const payWithCOD = async () => {
@@ -355,9 +357,14 @@ export default function CheckoutPage() {
                 <div className="flex flex-1 items-center justify-between">
                   <span className="text-sm text-brand-teal line-clamp-2">
                     {item.name} × {item.quantity}
+                    {formatGiftNote(item.giftWrap) && (
+                      <span className="block text-xs text-brand-gold-dark">
+                        🎁 {formatGiftNote(item.giftWrap)}
+                      </span>
+                    )}
                   </span>
                   <span className="text-sm font-medium text-brand-teal whitespace-nowrap ml-2">
-                    {formatINR(item.price * item.quantity)}
+                    {formatINR(item.price * item.quantity + (item.giftCharge || 0))}
                   </span>
                 </div>
               </div>
@@ -421,6 +428,12 @@ export default function CheckoutPage() {
               <div className="flex items-center justify-between text-brand-teal/70">
                 <span>COD Charges</span>
                 <span>+{formatINR(codCharge)}</span>
+              </div>
+            )}
+            {giftTotal > 0 && (
+              <div className="flex items-center justify-between text-brand-teal/70">
+                <span>Gift Wrapping</span>
+                <span>+{formatINR(giftTotal)}</span>
               </div>
             )}
             <div className="flex items-center justify-between text-brand-teal/70">

@@ -7,6 +7,15 @@ export function formatINR(paise: number) {
   }).format(rupees);
 }
 
+export function formatGiftNote(giftWrap?: { box: boolean; card: boolean; cardMessage?: string; pouch: boolean } | null) {
+  if (!giftWrap) return undefined;
+  const parts: string[] = [];
+  if (giftWrap.box) parts.push("Gift Box");
+  if (giftWrap.card) parts.push(`Card${giftWrap.cardMessage ? ` (${giftWrap.cardMessage})` : ""}`);
+  if (giftWrap.pouch) parts.push("Pouch");
+  return parts.length > 0 ? parts.join(", ") : undefined;
+}
+
 export function generateOrderNumber() {
   const date = new Date();
   const y = date.getFullYear().toString().slice(-2);

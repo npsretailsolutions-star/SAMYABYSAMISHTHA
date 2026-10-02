@@ -11,7 +11,13 @@ export class OrderValidationError extends Error {
   }
 }
 
-export type CartItemInput = { productId: string; quantity: number; variantId?: string };
+export type CartItemInput = {
+  productId: string;
+  quantity: number;
+  variantId?: string;
+  giftCharge?: number;
+  giftNote?: string;
+};
 
 type ProductWithVariants = Product & { variants: ProductVariant[] };
 
@@ -20,6 +26,7 @@ export type OrderQuote = {
   subtotal: number;
   discount: number;
   codCharge: number;
+  giftTotal: number;
   couponCode: string | null;
   total: number;
 };
@@ -60,6 +67,7 @@ export async function quoteOrder(
     const product = products.find((p) => p.id === item.productId)!;
     return sum + product.price * item.quantity;
   }, 0);
+  const giftTotal = items.reduce((sum, item) => sum + (item.giftCharge || 0), 0);
 
   // Every order gets at least the sitewide auto-discount, no code needed.
   let discount = Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100);
@@ -96,8 +104,9 @@ export async function quoteOrder(
     subtotal,
     discount,
     codCharge,
+    giftTotal,
     couponCode: resolvedCouponCode,
-    total: subtotal - discount + codCharge,
+    total: subtotal - discount + codCharge + giftTotal,
   };
 }
 
@@ -124,7 +133,7 @@ export async function createOrderRecord(
     razorpayPaymentId?: string;
   }
 ) {
-  const { products, subtotal, discount, codCharge, couponCode, total } = quote;
+  const { products, subtotal, discount, codCharge, giftTotal, couponCode, total } = quote;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -141,6 +150,7 @@ export async function createOrderRecord(
         subtotal,
         discount,
         codCharge,
+        giftTotal,
         couponCode,
         total,
         status: payment.status || "PENDING",
@@ -165,6 +175,8 @@ export async function createOrderRecord(
               price: product.price,
               quantity: item.quantity,
               image: image || null,
+              giftCharge: item.giftCharge || 0,
+              giftNote: item.giftNote || null,
             };
           }),
         },

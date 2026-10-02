@@ -4,10 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
-import { formatINR } from "@/lib/format";
+import { formatINR, formatGiftNote } from "@/lib/format";
 
 export default function CartDrawer() {
-  const { items, isCartOpen, closeCart, updateQuantity, removeItem, subtotal } =
+  const { items, isCartOpen, closeCart, updateQuantity, removeItem, subtotal, giftTotal } =
     useCart();
 
   if (!isCartOpen) return null;
@@ -57,6 +57,11 @@ export default function CartDrawer() {
                             {item.variantLabel}
                           </span>
                         )}
+                        {formatGiftNote(item.giftWrap) && (
+                          <span className="block text-xs font-normal text-brand-gold-dark">
+                            🎁 {formatGiftNote(item.giftWrap)}
+                          </span>
+                        )}
                       </Link>
                       <button
                         onClick={() => removeItem(item.productId, item.variantId)}
@@ -87,7 +92,7 @@ export default function CartDrawer() {
                         </button>
                       </div>
                       <span className="text-sm font-semibold text-brand-teal">
-                        {formatINR(item.price * item.quantity)}
+                        {formatINR(item.price * item.quantity + (item.giftCharge || 0))}
                       </span>
                     </div>
                   </div>
@@ -98,7 +103,7 @@ export default function CartDrawer() {
             <div className="border-t border-brand-teal/10 px-5 py-5 space-y-4">
               <div className="flex items-center justify-between text-base font-semibold text-brand-teal">
                 <span>Subtotal</span>
-                <span>{formatINR(subtotal)}</span>
+                <span>{formatINR(subtotal + giftTotal)}</span>
               </div>
               <p className="text-xs text-brand-teal/60">
                 Shipping & taxes calculated at checkout.

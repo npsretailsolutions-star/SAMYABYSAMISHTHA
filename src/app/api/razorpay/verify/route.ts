@@ -14,6 +14,8 @@ const schema = z.object({
         productId: z.string(),
         quantity: z.number().int().positive(),
         variantId: z.string().optional(),
+        giftCharge: z.number().int().nonnegative().optional(),
+        giftNote: z.string().optional(),
       })
     )
     .min(1),

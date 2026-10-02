@@ -41,9 +41,12 @@ export default async function OrderConfirmationPage({
             <div key={item.id} className="flex items-center justify-between text-sm">
               <span className="text-brand-teal">
                 {item.name} × {item.quantity}
+                {item.giftNote && (
+                  <span className="block text-xs text-brand-gold-dark">🎁 {item.giftNote}</span>
+                )}
               </span>
               <span className="font-medium text-brand-teal">
-                {formatINR(item.price * item.quantity)}
+                {formatINR(item.price * item.quantity + item.giftCharge)}
               </span>
             </div>
           ))}
@@ -63,6 +66,12 @@ export default async function OrderConfirmationPage({
             <div className="flex justify-between text-brand-teal/70">
               <span>COD Charges</span>
               <span>+{formatINR(order.codCharge)}</span>
+            </div>
+          )}
+          {order.giftTotal > 0 && (
+            <div className="flex justify-between text-brand-teal/70">
+              <span>Gift Wrapping</span>
+              <span>+{formatINR(order.giftTotal)}</span>
             </div>
           )}
           <div className="flex justify-between text-base font-semibold text-brand-teal border-t border-brand-teal/10 pt-2">
