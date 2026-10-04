@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { label: "Bracelets", href: "/shop/bracelets" },
   { label: "Pendants", href: "/shop/pendants" },
   { label: "Gifting", href: "/shop/gifting" },
+  { label: "Build Your Gift", href: "/build-your-gift" },
 ];
 
 export default function Header() {
