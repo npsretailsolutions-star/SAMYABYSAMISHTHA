@@ -66,8 +66,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
     <form onSubmit={onSubmit} className="rounded-2xl bg-white p-6 shadow-card space-y-4">
       <h3 className="font-serif text-base font-semibold text-brand-teal">Write a Review</h3>
       <p className="text-xs text-brand-teal/60">
-        Only customers who have purchased this product can leave a review — enter the
-        email you used at checkout to verify your purchase.
+        Share your honest experience with this product.
       </p>
 
       <div>
@@ -106,9 +105,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-teal mb-1">
-            Email (used at checkout)
-          </label>
+          <label className="block text-sm font-medium text-brand-teal mb-1">Email</label>
           <input
             required
             type="email"

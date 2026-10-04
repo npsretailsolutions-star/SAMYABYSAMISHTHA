@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
   const email = data.email.trim().toLowerCase();
 
-  // Verify this email actually purchased this product before allowing a review.
+  // Open to any visitor — not gated on a verified purchase.
   const purchase = await prisma.order.findFirst({
     where: {
       email: { equals: email, mode: "insensitive" },
@@ -40,13 +40,6 @@ export async function POST(req: NextRequest) {
     },
     orderBy: { createdAt: "desc" },
   });
-
-  if (!purchase) {
-    return NextResponse.json(
-      { error: "Only customers who have purchased this product can leave a review." },
-      { status: 403 }
-    );
-  }
 
   const existing = await prisma.review.findFirst({
     where: { productId: data.productId, email },
@@ -61,7 +54,7 @@ export async function POST(req: NextRequest) {
   const review = await prisma.review.create({
     data: {
       productId: data.productId,
-      orderId: purchase.id,
+      orderId: purchase?.id,
       customerName: data.customerName,
       email,
       rating: data.rating,
