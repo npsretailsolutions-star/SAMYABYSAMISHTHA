@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
+import { useCustomer } from "@/components/CustomerProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
 import {
   AUTO_DISCOUNT_PERCENT,
@@ -38,6 +39,7 @@ function loadRazorpayScript(): Promise<boolean> {
 
 export default function CheckoutPage() {
   const { items, subtotal, giftTotal, clearCart, closeCart } = useCart();
+  const { customer } = useCustomer();
   const router = useRouter();
 
   useEffect(() => {
@@ -54,6 +56,21 @@ export default function CheckoutPage() {
     pincode: "",
     notes: "",
   });
+
+  // Prefill from the logged-in customer's saved profile — still fully editable.
+  useEffect(() => {
+    if (!customer) return;
+    setForm((f) => ({
+      ...f,
+      customerName: f.customerName || customer.name,
+      email: f.email || customer.email,
+      phone: f.phone || customer.phone,
+      address: f.address || customer.address || "",
+      city: f.city || customer.city || "",
+      state: f.state || customer.state || "",
+      pincode: f.pincode || customer.pincode || "",
+    }));
+  }, [customer]);
   const [paymentMethod, setPaymentMethod] = useState<"COD" | "RAZORPAY">("RAZORPAY");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -252,9 +269,19 @@ export default function CheckoutPage() {
       <div className="grid gap-10 lg:grid-cols-3">
         <form onSubmit={onSubmit} className="lg:col-span-2 space-y-5">
           <div className="rounded-2xl bg-white p-6 shadow-card space-y-4">
-            <h2 className="font-serif text-lg font-semibold text-brand-teal">
-              Shipping Details
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-lg font-semibold text-brand-teal">
+                Shipping Details
+              </h2>
+              {!customer && (
+                <Link
+                  href="/account/login?redirect=/checkout"
+                  className="text-xs font-medium text-brand-gold-dark hover:underline"
+                >
+                  Login to autofill
+                </Link>
+              )}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Full Name" name="customerName" value={form.customerName} onChange={onChange} required />
               <Field label="Phone" name="phone" value={form.phone} onChange={onChange} required type="tel" />

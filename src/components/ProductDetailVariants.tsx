@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
-import { ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButtons from "@/components/AddToCartButtons";
 import WishlistButton from "@/components/WishlistButton";
 import ShareButton from "@/components/ShareButton";
 import ProductAccordion from "@/components/ProductAccordion";
 import CareInstructionsBox from "@/components/CareInstructionsBox";
+import ProductTrustBadges from "@/components/ProductTrustBadges";
 import { formatINR } from "@/lib/format";
 import { parseImages } from "@/lib/types";
 
@@ -158,20 +158,7 @@ export default function ProductDetailVariants({
           <ShareButton name={name} url={productUrl} />
         </div>
 
-        <div className="mt-8 grid grid-cols-3 gap-4 border-t border-brand-teal/10 pt-6">
-          <div className="flex flex-col items-center gap-1.5 text-center">
-            <Truck size={18} className="text-brand-gold-dark" />
-            <span className="text-[11px] text-brand-teal/70">Pan-India Delivery</span>
-          </div>
-          <div className="flex flex-col items-center gap-1.5 text-center">
-            <ShieldCheck size={18} className="text-brand-gold-dark" />
-            <span className="text-[11px] text-brand-teal/70">Skin Friendly</span>
-          </div>
-          <div className="flex flex-col items-center gap-1.5 text-center">
-            <RotateCcw size={18} className="text-brand-gold-dark" />
-            <span className="text-[11px] text-brand-teal/70">Easy Returns</span>
-          </div>
-        </div>
+        <ProductTrustBadges />
 
         <ProductAccordion
           sections={[

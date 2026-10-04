@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import { parseImages, type ProductWithCategory } from "@/lib/types";
@@ -15,6 +14,7 @@ import ReviewsList, { RatingSummary } from "@/components/ReviewsList";
 import ReviewForm from "@/components/ReviewForm";
 import ProductAccordion from "@/components/ProductAccordion";
 import CareInstructionsBox from "@/components/CareInstructionsBox";
+import ProductTrustBadges from "@/components/ProductTrustBadges";
 
 export const dynamic = "force-dynamic";
 
@@ -211,20 +211,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               />
             </div>
 
-            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-brand-teal/10 pt-6">
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <Truck size={18} className="text-brand-gold-dark" />
-                <span className="text-[11px] text-brand-teal/70">Pan-India Delivery</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <ShieldCheck size={18} className="text-brand-gold-dark" />
-                <span className="text-[11px] text-brand-teal/70">Skin Friendly</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5 text-center">
-                <RotateCcw size={18} className="text-brand-gold-dark" />
-                <span className="text-[11px] text-brand-teal/70">Easy Returns</span>
-              </div>
-            </div>
+            <ProductTrustBadges />
 
             <ProductAccordion
               sections={[

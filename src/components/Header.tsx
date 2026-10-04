@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, Search, ShoppingBag, Heart, X } from "lucide-react";
+import { Menu, Search, ShoppingBag, Heart, User, X } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { useWishlist } from "@/components/WishlistProvider";
+import { useCustomer } from "@/components/CustomerProvider";
 import CartDrawer from "@/components/CartDrawer";
 import SearchOverlay from "@/components/SearchOverlay";
 
@@ -22,6 +23,7 @@ const NAV_LINKS = [
 export default function Header() {
   const { count, openCart } = useCart();
   const { count: wishlistCount } = useWishlist();
+  const { customer } = useCustomer();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -68,6 +70,13 @@ export default function Header() {
             >
               <Search size={20} />
             </button>
+            <Link
+              href={customer ? "/account" : "/account/login"}
+              className="p-2 text-brand-teal hover:text-brand-gold-dark"
+              aria-label={customer ? "My account" : "Login"}
+            >
+              <User size={20} />
+            </Link>
             <Link
               href="/wishlist"
               className="relative p-2 text-brand-teal hover:text-brand-gold-dark"
@@ -143,6 +152,13 @@ export default function Header() {
                 className="py-3 text-base font-medium uppercase tracking-wide text-brand-teal"
               >
                 Wishlist
+              </Link>
+              <Link
+                href={customer ? "/account" : "/account/login"}
+                onClick={() => setMobileOpen(false)}
+                className="py-3 text-base font-medium uppercase tracking-wide text-brand-teal"
+              >
+                {customer ? "My Account" : "Login"}
               </Link>
             </nav>
           </div>

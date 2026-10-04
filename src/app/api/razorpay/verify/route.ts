@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { z } from "zod";
 import { quoteOrder, createOrderRecord, OrderValidationError } from "@/lib/orders";
+import { getCustomerSession } from "@/lib/auth";
 
 const schema = z.object({
   razorpay_order_id: z.string(),
@@ -52,14 +53,21 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const customer = getCustomerSession();
     const quote = await quoteOrder(data.items, data.couponCode, "RAZORPAY");
-    const order = await createOrderRecord(data, data.items, quote, {
-      paymentMethod: "RAZORPAY",
-      paymentStatus: "PAID",
-      status: "CONFIRMED",
-      razorpayOrderId: data.razorpay_order_id,
-      razorpayPaymentId: data.razorpay_payment_id,
-    });
+    const order = await createOrderRecord(
+      data,
+      data.items,
+      quote,
+      {
+        paymentMethod: "RAZORPAY",
+        paymentStatus: "PAID",
+        status: "CONFIRMED",
+        razorpayOrderId: data.razorpay_order_id,
+        razorpayPaymentId: data.razorpay_payment_id,
+      },
+      customer?.id
+    );
     return NextResponse.json({ order }, { status: 201 });
   } catch (err) {
     if (err instanceof OrderValidationError) {

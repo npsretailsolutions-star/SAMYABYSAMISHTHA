@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import { WishlistProvider } from "@/components/WishlistProvider";
+import { CustomerProvider } from "@/components/CustomerProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -78,9 +79,11 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <WishlistProvider>
-          <CartProvider>{children}</CartProvider>
-        </WishlistProvider>
+        <CustomerProvider>
+          <WishlistProvider>
+            <CartProvider>{children}</CartProvider>
+          </WishlistProvider>
+        </CustomerProvider>
       </body>
     </html>
   );

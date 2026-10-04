@@ -131,7 +131,8 @@ export async function createOrderRecord(
     status?: string;
     razorpayOrderId?: string;
     razorpayPaymentId?: string;
-  }
+  },
+  customerId?: string | null
 ) {
   const { products, subtotal, discount, codCharge, giftTotal, couponCode, total } = quote;
 
@@ -154,6 +155,7 @@ export async function createOrderRecord(
         state: shipping.state,
         pincode: shipping.pincode,
         notes: shipping.notes,
+        customerId: customerId || null,
         subtotal,
         discount,
         codCharge,

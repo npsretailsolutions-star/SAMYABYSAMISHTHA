@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getAdminSession } from "@/lib/auth";
+import { getAdminSession, getCustomerSession } from "@/lib/auth";
 import { quoteOrder, createOrderRecord, OrderValidationError } from "@/lib/orders";
 
 const orderSchema = z.object({
@@ -39,12 +39,19 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
 
   try {
+    const customer = getCustomerSession();
     const quote = await quoteOrder(data.items, data.couponCode, "COD");
-    const order = await createOrderRecord(data, data.items, quote, {
-      paymentMethod: "COD",
-      paymentStatus: "PENDING",
-      status: "PENDING",
-    });
+    const order = await createOrderRecord(
+      data,
+      data.items,
+      quote,
+      {
+        paymentMethod: "COD",
+        paymentStatus: "PENDING",
+        status: "PENDING",
+      },
+      customer?.id
+    );
     return NextResponse.json({ order }, { status: 201 });
   } catch (err) {
     if (err instanceof OrderValidationError) {
