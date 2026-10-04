@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
       email,
       rating: data.rating,
       comment: data.comment,
+      isApproved: false,
     },
   });
 

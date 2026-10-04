@@ -44,7 +44,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
     return (
       <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-6 text-center">
         <p className="text-sm font-medium text-emerald-700">
-          Thank you! Your review has been submitted.
+          Thank you! Your review has been submitted and will appear here once approved.
         </p>
       </div>
     );
