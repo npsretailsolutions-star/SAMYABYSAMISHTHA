@@ -3,7 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const STATUSES = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"];
+const STATUSES = [
+  "PENDING",
+  "CONFIRMED",
+  "SHIPPED",
+  "IN_TRANSIT",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+];
 
 export default function OrderStatusSelect({
   orderId,
@@ -37,7 +45,7 @@ export default function OrderStatusSelect({
     >
       {STATUSES.map((s) => (
         <option key={s} value={s}>
-          {s}
+          {s.replace(/_/g, " ")}
         </option>
       ))}
     </select>

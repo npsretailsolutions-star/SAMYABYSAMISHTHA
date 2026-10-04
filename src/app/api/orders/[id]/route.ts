@@ -4,7 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 
 const schema = z.object({
-  status: z.enum(["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"]),
+  status: z.enum([
+    "PENDING",
+    "CONFIRMED",
+    "SHIPPED",
+    "IN_TRANSIT",
+    "OUT_FOR_DELIVERY",
+    "DELIVERED",
+    "CANCELLED",
+  ]),
 });
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {

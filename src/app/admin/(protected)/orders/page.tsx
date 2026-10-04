@@ -10,6 +10,8 @@ const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-700",
   CONFIRMED: "bg-blue-100 text-blue-700",
   SHIPPED: "bg-purple-100 text-purple-700",
+  IN_TRANSIT: "bg-indigo-100 text-indigo-700",
+  OUT_FOR_DELIVERY: "bg-teal-100 text-teal-700",
   DELIVERED: "bg-emerald-100 text-emerald-700",
   CANCELLED: "bg-red-100 text-red-700",
 };
@@ -103,7 +105,7 @@ export default async function AdminOrdersPage({
                   <span
                     className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${STATUS_STYLES[o.status] || ""}`}
                   >
-                    {o.status}
+                    {o.status.replace(/_/g, " ")}
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">

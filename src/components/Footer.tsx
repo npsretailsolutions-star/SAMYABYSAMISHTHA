@@ -120,6 +120,7 @@ export default function Footer() {
         <div>
           <h4 className="eyebrow text-brand-gold-light mb-4">Policies</h4>
           <ul className="space-y-2 text-sm text-brand-cream/80">
+            <li><Link href="/track-order" className="hover:text-brand-gold-light">Track Your Order</Link></li>
             <li><Link href="/shipping-policy" className="hover:text-brand-gold-light">Shipping Policy</Link></li>
             <li><Link href="/return-exchange-policy" className="hover:text-brand-gold-light">Return, Exchange &amp; Cancellation</Link></li>
             <li><Link href="/privacy-policy" className="hover:text-brand-gold-light">Privacy Policy</Link></li>
