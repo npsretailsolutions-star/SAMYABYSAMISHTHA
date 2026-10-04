@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Star } from "lucide-react";
+import { Star, PenLine } from "lucide-react";
 
 export default function ReviewForm({ productId }: { productId: string }) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [customerName, setCustomerName] = useState("");
@@ -46,6 +47,18 @@ export default function ReviewForm({ productId }: { productId: string }) {
           Thank you! Your review has been submitted.
         </p>
       </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="btn-outline flex items-center gap-2"
+      >
+        <PenLine size={16} /> Write a Review
+      </button>
     );
   }
 
@@ -119,9 +132,14 @@ export default function ReviewForm({ productId }: { productId: string }) {
 
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>}
 
-      <button type="submit" disabled={submitting} className="btn-gold">
-        {submitting ? "Submitting..." : "Submit Review"}
-      </button>
+      <div className="flex gap-3">
+        <button type="submit" disabled={submitting} className="btn-gold">
+          {submitting ? "Submitting..." : "Submit Review"}
+        </button>
+        <button type="button" onClick={() => setOpen(false)} className="btn-outline">
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }
