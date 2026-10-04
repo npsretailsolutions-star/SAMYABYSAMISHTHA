@@ -66,12 +66,32 @@ export default function WelcomePopup() {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
+    // iOS renders the scissors emoji much wider than other platforms, so measure
+    // and shrink the font until each line actually fits the card — otherwise
+    // the text silently overflows the rounded box on iPhone.
+    const fitFontSize = (text: string, maxWidth: number, weight: number, startSize: number) => {
+      let size = startSize;
+      while (size > 8) {
+        ctx.font = `${weight} ${size}px sans-serif`;
+        if (ctx.measureText(text).width <= maxWidth) break;
+        size -= 1;
+      }
+      return size;
+    };
+
+    const maxTextWidth = width - 24;
     ctx.fillStyle = "#f4e4c1";
-    ctx.font = "600 13px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("✂️ CUT HERE TO REVEAL", width / 2, height / 2 - 4);
-    ctx.font = "400 10px sans-serif";
-    ctx.fillText("drag your finger across the card", width / 2, height / 2 + 14);
+
+    const line1 = "✂️ CUT HERE TO REVEAL";
+    const size1 = fitFontSize(line1, maxTextWidth, 600, 13);
+    ctx.font = `600 ${size1}px sans-serif`;
+    ctx.fillText(line1, width / 2, height / 2 - 4);
+
+    const line2 = "drag your finger across the card";
+    const size2 = fitFontSize(line2, maxTextWidth, 400, 10);
+    ctx.font = `400 ${size2}px sans-serif`;
+    ctx.fillText(line2, width / 2, height / 2 + 14);
 
     ctx.globalCompositeOperation = "destination-out";
 
