@@ -10,6 +10,13 @@ const schema = z.object({
   sortOrder: z.number().int().optional(),
 });
 
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = getAdminSession();
   if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,10 +26,21 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!parsed.success) return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   const data = parsed.data;
 
+  const existing = await prisma.category.findUnique({ where: { id: params.id } });
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  let slug = existing.slug;
+  const desiredSlug = slugify(data.name);
+  if (desiredSlug !== existing.slug) {
+    const slugTaken = await prisma.category.findUnique({ where: { slug: desiredSlug } });
+    slug = slugTaken && slugTaken.id !== params.id ? `${desiredSlug}-${Date.now().toString().slice(-5)}` : desiredSlug;
+  }
+
   const category = await prisma.category.update({
     where: { id: params.id },
     data: {
       name: data.name,
+      slug,
       description: data.description || null,
       image: data.image || null,
       sortOrder: data.sortOrder ?? 0,
