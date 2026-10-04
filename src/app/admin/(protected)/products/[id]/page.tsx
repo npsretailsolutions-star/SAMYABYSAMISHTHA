@@ -6,7 +6,13 @@ import { parseImages } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+export default async function EditProductPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { created?: string };
+}) {
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({
       where: { id: params.id },
@@ -19,6 +25,12 @@ export default async function EditProductPage({ params }: { params: { id: string
   return (
     <div className="max-w-3xl space-y-6">
       <h1 className="font-serif text-2xl font-semibold text-brand-teal">Edit Product</h1>
+      {searchParams.created && (
+        <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          Product created! If it comes in different sizes or colours, add them below — each
+          variant gets its own photos, stock, and SKU.
+        </p>
+      )}
       <ProductForm
         categories={categories}
         initial={{

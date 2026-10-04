@@ -10,7 +10,8 @@ export default async function NewProductPage() {
     <div>
       <h1 className="font-serif text-2xl font-semibold text-brand-teal mb-2">Add Product</h1>
       <p className="text-sm text-brand-teal/60 mb-6">
-        Save the product first — you&apos;ll be able to add colour or size variants once it exists.
+        Save the product first — you&apos;ll land right on the page to add size or colour
+        variants (like bangle sizes) next.
       </p>
       <ProductForm categories={categories} />
     </div>

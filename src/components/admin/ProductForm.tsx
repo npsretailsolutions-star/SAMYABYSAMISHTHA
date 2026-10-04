@@ -89,7 +89,12 @@ export default function ProductForm({
       setSaving(false);
       return;
     }
-    router.push("/admin/products");
+    if (isEdit) {
+      router.push("/admin/products");
+    } else {
+      // Land on the edit page so Size/Colour variants can be added right away.
+      router.push(`/admin/products/${data.product.id}?created=1`);
+    }
     router.refresh();
   };
 
