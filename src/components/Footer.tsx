@@ -44,7 +44,7 @@ export default function Footer() {
       <div className="container-px mx-auto grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <Image
-            src="/images/logo.svg"
+            src="/images/logo-gold.svg"
             alt="Samya By Samishtha"
             width={190}
             height={76}
@@ -100,6 +100,7 @@ export default function Footer() {
             <li><Link href="/shop/necklaces" className="hover:text-brand-gold-light">Necklaces</Link></li>
             <li><Link href="/shop/earrings" className="hover:text-brand-gold-light">Earrings</Link></li>
             <li><Link href="/shop/bangles" className="hover:text-brand-gold-light">Bangles</Link></li>
+            <li><Link href="/shop/bracelets" className="hover:text-brand-gold-light">Bracelets</Link></li>
             <li><Link href="/shop/pendants" className="hover:text-brand-gold-light">Pendants</Link></li>
             <li><Link href="/shop/gifting" className="hover:text-brand-gold-light">Gifting</Link></li>
             <li><Link href="/build-your-gift" className="hover:text-brand-gold-light">Build Your Own Gift Set</Link></li>
