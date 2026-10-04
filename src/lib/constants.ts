@@ -2,7 +2,7 @@ export const ADMIN_COOKIE = "sbs_admin_session";
 export const CUSTOMER_COOKIE = "sbs_customer_session";
 
 export const AUTO_DISCOUNT_PERCENT = 10;
-export const AUTO_DISCOUNT_LABEL = "10% Off (All Orders)";
+export const AUTO_DISCOUNT_LABEL = "Welcome Offer (10% Off)";
 
 // Prepaid (Razorpay) orders get an extra discount; COD orders carry a small handling charge.
 export const PREPAID_DISCOUNT_PERCENT = 5;
