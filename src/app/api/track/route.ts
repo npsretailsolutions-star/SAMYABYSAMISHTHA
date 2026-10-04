@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 const schema = z.object({
   path: z.string().min(1).max(500),
   referrer: z.string().max(500).optional(),
+  eventType: z.enum(["pageview", "add_to_cart"]).optional(),
+  meta: z.string().max(300).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -24,6 +26,8 @@ export async function POST(req: NextRequest) {
     data: {
       path: parsed.data.path,
       referrer: parsed.data.referrer || null,
+      eventType: parsed.data.eventType || "pageview",
+      meta: parsed.data.meta || null,
       country,
       region,
       city,

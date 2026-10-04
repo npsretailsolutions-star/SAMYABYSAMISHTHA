@@ -66,6 +66,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return [...prev, { ...item, quantity: Math.min(quantity, item.stock) }];
       });
       setIsCartOpen(true);
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          path: `/product/${item.slug}`,
+          eventType: "add_to_cart",
+          meta: item.name,
+        }),
+        keepalive: true,
+      }).catch(() => {
+        // ignore tracking failures
+      });
     },
     []
   );

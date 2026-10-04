@@ -156,10 +156,13 @@ model PageView {
   region    String?
   city      String?
   referrer  String?
+  eventType String   @default("pageview")
+  meta      String?
   createdAt DateTime @default(now())
 
   @@index([createdAt])
   @@index([country])
+  @@index([eventType])
 }
 
 model Review {

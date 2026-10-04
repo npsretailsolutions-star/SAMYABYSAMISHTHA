@@ -1,4 +1,4 @@
-import { Eye, Globe2, MapPin } from "lucide-react";
+import { Eye, Globe2, MapPin, ShoppingBag } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
 
@@ -28,24 +28,37 @@ export default async function AdminTrafficPage({
 
   const since7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [totalViews, viewsInRange, views7, rangeRows, topPages] = await Promise.all([
-    prisma.pageView.count(),
-    prisma.pageView.count({ where: { createdAt: { gte: rangeStart, lte: rangeEnd } } }),
-    prisma.pageView.count({ where: { createdAt: { gte: since7 } } }),
-    prisma.pageView.findMany({
-      where: { createdAt: { gte: rangeStart, lte: rangeEnd } },
-      select: { country: true, region: true, city: true, path: true, createdAt: true },
-      orderBy: { createdAt: "desc" },
-      take: 5000,
-    }),
-    prisma.pageView.groupBy({
-      by: ["path"],
-      where: { createdAt: { gte: rangeStart, lte: rangeEnd } },
-      _count: { path: true },
-      orderBy: { _count: { path: "desc" } },
-      take: 8,
-    }),
-  ]);
+  const [totalViews, viewsInRange, views7, rangeRows, topPages, cartEventsInRange, topCartProducts] =
+    await Promise.all([
+      prisma.pageView.count({ where: { eventType: "pageview" } }),
+      prisma.pageView.count({
+        where: { eventType: "pageview", createdAt: { gte: rangeStart, lte: rangeEnd } },
+      }),
+      prisma.pageView.count({ where: { eventType: "pageview", createdAt: { gte: since7 } } }),
+      prisma.pageView.findMany({
+        where: { eventType: "pageview", createdAt: { gte: rangeStart, lte: rangeEnd } },
+        select: { country: true, region: true, city: true, path: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+        take: 5000,
+      }),
+      prisma.pageView.groupBy({
+        by: ["path"],
+        where: { eventType: "pageview", createdAt: { gte: rangeStart, lte: rangeEnd } },
+        _count: { path: true },
+        orderBy: { _count: { path: "desc" } },
+        take: 8,
+      }),
+      prisma.pageView.count({
+        where: { eventType: "add_to_cart", createdAt: { gte: rangeStart, lte: rangeEnd } },
+      }),
+      prisma.pageView.groupBy({
+        by: ["meta"],
+        where: { eventType: "add_to_cart", createdAt: { gte: rangeStart, lte: rangeEnd } },
+        _count: { meta: true },
+        orderBy: { _count: { meta: "desc" } },
+        take: 8,
+      }),
+    ]);
 
   const locationMap = new Map<string, { country: string; city: string | null; count: number }>();
   for (const v of rangeRows) {
@@ -82,7 +95,7 @@ export default async function AdminTrafficPage({
 
       <DateRangeFilter />
 
-      <div className="grid gap-4 sm:grid-cols-3 mb-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <div className="rounded-2xl bg-white p-5 shadow-card">
           <Eye size={20} className="text-brand-gold-dark mb-3" />
           <p className="text-2xl font-semibold text-brand-teal">{totalViews}</p>
@@ -99,6 +112,13 @@ export default async function AdminTrafficPage({
           <Eye size={20} className="text-brand-gold-dark mb-3" />
           <p className="text-2xl font-semibold text-brand-teal">{views7}</p>
           <p className="text-sm text-brand-teal/60">Last 7 Days</p>
+        </div>
+        <div className="rounded-2xl bg-white p-5 shadow-card">
+          <ShoppingBag size={20} className="text-brand-gold-dark mb-3" />
+          <p className="text-2xl font-semibold text-brand-teal">{cartEventsInRange}</p>
+          <p className="text-sm text-brand-teal/60">
+            Add to Cart {hasFilter ? "(Selected Range)" : "(Last 30 Days)"}
+          </p>
         </div>
       </div>
 
@@ -122,6 +142,27 @@ export default async function AdminTrafficPage({
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-6 shadow-card mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <ShoppingBag size={18} className="text-brand-gold-dark" />
+          <h2 className="font-serif text-base font-semibold text-brand-teal">
+            Top Products Added to Cart {hasFilter ? "(Selected Range)" : "(30 days)"}
+          </h2>
+        </div>
+        {topCartProducts.length === 0 ? (
+          <p className="text-sm text-brand-teal/60">No add-to-cart activity recorded yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {topCartProducts.map((p) => (
+              <div key={p.meta} className="flex items-center justify-between text-sm">
+                <span className="text-brand-teal truncate max-w-[70%]">{p.meta || "Unknown product"}</span>
+                <span className="font-medium text-brand-teal">{p._count.meta}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
