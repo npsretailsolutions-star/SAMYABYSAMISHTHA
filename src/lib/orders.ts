@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { AUTO_DISCOUNT_PERCENT, PREPAID_DISCOUNT_PERCENT, COD_CHARGE } from "@/lib/constants";
 import { sendOrderNotificationEmail } from "@/lib/email";
+import { createDelhiveryShipment } from "@/lib/delhivery";
 import type { Product, ProductVariant } from "@prisma/client";
 
 export class OrderValidationError extends Error {
@@ -217,6 +218,8 @@ export async function createOrderRecord(
     return created;
   });
 
+  shipOrderViaDelhivery(order).catch(() => {});
+
   sendOrderNotificationEmail({
     orderNumber: order.orderNumber,
     customerName: order.customerName,
@@ -241,4 +244,57 @@ export async function createOrderRecord(
   }).catch(() => {});
 
   return order;
+}
+
+type OrderWithItems = {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  paymentMethod: string;
+  total: number;
+  items: { name: string }[];
+};
+
+export async function shipOrderViaDelhivery(order: OrderWithItems) {
+  const result = await createDelhiveryShipment({
+    orderNumber: order.orderNumber,
+    customerName: order.customerName,
+    phone: order.phone,
+    address: order.address,
+    city: order.city,
+    state: order.state,
+    pincode: order.pincode,
+    paymentMethod: order.paymentMethod === "COD" ? "COD" : "RAZORPAY",
+    codAmount: Math.round(order.total / 100),
+    totalAmount: Math.round(order.total / 100),
+    productsDesc: order.items.map((i) => i.name).join(", "),
+  });
+
+  if (result.ok) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        trackingNumber: result.waybill,
+        shippingProvider: "Delhivery",
+        shippingStatus: "Manifested",
+        shippingError: null,
+      },
+    });
+  } else {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        shippingProvider: "Delhivery",
+        shippingStatus: "Failed",
+        shippingError: result.error,
+      },
+    });
+  }
+
+  return result;
 }

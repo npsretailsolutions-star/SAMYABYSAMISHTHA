@@ -65,6 +65,7 @@ export default async function AdminOrdersPage({
               <th className="px-4 py-3 font-medium">Total</th>
               <th className="px-4 py-3 font-medium">Payment</th>
               <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Shipping</th>
               <th className="px-4 py-3 font-medium">Date</th>
             </tr>
           </thead>
@@ -104,6 +105,19 @@ export default async function AdminOrdersPage({
                   >
                     {o.status}
                   </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {o.trackingNumber && o.shippingStatus !== "Failed" ? (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                      {o.trackingNumber}
+                    </span>
+                  ) : o.shippingStatus === "Failed" ? (
+                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700">
+                      Failed
+                    </span>
+                  ) : (
+                    <span className="text-xs text-brand-teal/40">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-brand-teal/60 whitespace-nowrap">
                   {new Date(o.createdAt).toLocaleDateString("en-IN", {

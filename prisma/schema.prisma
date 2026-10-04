@@ -83,6 +83,10 @@ model Order {
   paymentStatus String      @default("PENDING") // PENDING, PAID, FAILED
   razorpayOrderId   String?
   razorpayPaymentId String?
+  trackingNumber   String? // Delhivery waybill number
+  shippingProvider String? // e.g. "Delhivery"
+  shippingStatus   String? // Manifested, Failed, etc.
+  shippingError    String? // last error message, if shipment creation failed
   items         OrderItem[]
   customer      Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
   customerId    String?
