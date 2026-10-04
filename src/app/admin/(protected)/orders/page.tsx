@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
+import DateRangeFilter from "@/components/admin/DateRangeFilter";
+import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +14,46 @@ const STATUS_STYLES: Record<string, string> = {
   CANCELLED: "bg-red-100 text-red-700",
 };
 
-export default async function AdminOrdersPage() {
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: { from?: string; to?: string };
+}) {
+  const where: Prisma.OrderWhereInput = {};
+  if (searchParams.from || searchParams.to) {
+    where.createdAt = {};
+    if (searchParams.from) where.createdAt.gte = new Date(`${searchParams.from}T00:00:00`);
+    if (searchParams.to) where.createdAt.lte = new Date(`${searchParams.to}T23:59:59`);
+  }
+
   const orders = await prisma.order.findMany({
+    where,
     include: { items: true },
     orderBy: { createdAt: "desc" },
   });
 
+  const totalSales = orders.reduce((sum, o) => sum + o.total, 0);
+
   return (
     <div>
       <h1 className="font-serif text-2xl font-semibold text-brand-teal mb-6">Orders</h1>
+
+      <DateRangeFilter />
+
+      <div className="grid gap-4 sm:grid-cols-2 mb-6">
+        <div className="rounded-2xl bg-white p-5 shadow-card">
+          <p className="text-2xl font-semibold text-brand-teal">{orders.length}</p>
+          <p className="text-sm text-brand-teal/60">
+            {searchParams.from || searchParams.to ? "Orders in Selected Range" : "Total Orders"}
+          </p>
+        </div>
+        <div className="rounded-2xl bg-white p-5 shadow-card">
+          <p className="text-2xl font-semibold text-brand-teal">{formatINR(totalSales)}</p>
+          <p className="text-sm text-brand-teal/60">
+            {searchParams.from || searchParams.to ? "Sales in Selected Range" : "Total Sales"}
+          </p>
+        </div>
+      </div>
 
       <div className="rounded-2xl bg-white shadow-card overflow-x-auto">
         <table className="w-full text-sm">
@@ -84,7 +117,9 @@ export default async function AdminOrdersPage() {
           </tbody>
         </table>
         {orders.length === 0 && (
-          <p className="p-8 text-center text-sm text-brand-teal/60">No orders yet.</p>
+          <p className="p-8 text-center text-sm text-brand-teal/60">
+            No orders {searchParams.from || searchParams.to ? "in this date range." : "yet."}
+          </p>
         )}
       </div>
     </div>
