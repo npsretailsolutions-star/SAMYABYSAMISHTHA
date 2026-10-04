@@ -34,16 +34,39 @@ const emptyForm: FormValues = {
 function VariantFields({
   values,
   onChange,
+  imageSources,
 }: {
   values: FormValues;
   onChange: (v: FormValues) => void;
+  imageSources: { label: string; images: string[] }[];
 }) {
   const addImageField = () => onChange({ ...values, images: [...values.images, ""] });
   const addUploadedImages = (urls: string[]) =>
     onChange({ ...values, images: [...values.images.filter((img) => img.trim()), ...urls] });
+  const applySameImages = (images: string[]) => onChange({ ...values, images: [...images] });
 
   return (
     <div className="space-y-3">
+      {imageSources.length > 0 && (
+        <div>
+          <label className="block text-xs font-medium text-brand-teal mb-1">
+            Images are the same as...
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {imageSources.map((src) => (
+              <button
+                key={src.label}
+                type="button"
+                onClick={() => applySameImages(src.images)}
+                disabled={src.images.length === 0}
+                className="rounded-full border border-brand-teal/20 px-3 py-1 text-xs font-medium text-brand-teal hover:border-brand-gold hover:text-brand-gold-dark disabled:opacity-40"
+              >
+                {src.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="grid gap-3 sm:grid-cols-3">
         <div>
           <label className="block text-xs font-medium text-brand-teal mb-1">Type</label>
@@ -112,9 +135,11 @@ function VariantFields({
 
 export default function VariantManager({
   productId,
+  productImages,
   variants,
 }: {
   productId: string;
+  productImages: string[];
   variants: VariantRow[];
 }) {
   const router = useRouter();
@@ -218,7 +243,16 @@ export default function VariantManager({
 
       {adding && (
         <div className="rounded-xl border border-brand-gold/40 bg-brand-gold/5 p-4 space-y-3">
-          <VariantFields values={addForm} onChange={setAddForm} />
+          <VariantFields
+            values={addForm}
+            onChange={setAddForm}
+            imageSources={[
+              { label: "Main Product Photos", images: productImages },
+              ...variants
+                .filter((v) => v.images.length > 0)
+                .map((v) => ({ label: `${v.attributeName}: ${v.label}`, images: v.images })),
+            ]}
+          />
           <div className="flex gap-2">
             <button
               type="button"
@@ -251,7 +285,19 @@ export default function VariantManager({
           {variants.map((v) =>
             editingId === v.id ? (
               <div key={v.id} className="rounded-xl border border-brand-gold/40 bg-brand-gold/5 p-4 space-y-3">
-                <VariantFields values={editForm} onChange={setEditForm} />
+                <VariantFields
+                  values={editForm}
+                  onChange={setEditForm}
+                  imageSources={[
+                    { label: "Main Product Photos", images: productImages },
+                    ...variants
+                      .filter((other) => other.id !== v.id && other.images.length > 0)
+                      .map((other) => ({
+                        label: `${other.attributeName}: ${other.label}`,
+                        images: other.images,
+                      })),
+                  ]}
+                />
                 <div className="flex gap-2">
                   <button
                     type="button"

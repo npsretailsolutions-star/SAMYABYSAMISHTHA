@@ -51,6 +51,7 @@ export default async function EditProductPage({
       />
       <VariantManager
         productId={product.id}
+        productImages={parseImages(product.images)}
         variants={product.variants.map((v) => ({
           id: v.id,
           attributeName: v.attributeName,
