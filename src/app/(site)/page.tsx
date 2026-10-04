@@ -175,11 +175,12 @@ export default async function HomePage() {
               Why Choose Samya
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-5 sm:gap-4">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 sm:gap-4">
             {[
               { icon: Gem, label: "Trendy & Timeless Designs" },
               { icon: Feather, label: "Lightweight & Comfortable" },
               { icon: Sparkles, label: "Premium Finish & Quality" },
+              { icon: ShieldCheck, label: "Skin Friendly & Safe" },
               { icon: Gift, label: "Perfect for Gifting" },
               { icon: Heart, label: "Designed for Every Occasion" },
             ].map(({ icon: Icon, label }) => (
