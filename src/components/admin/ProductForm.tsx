@@ -89,10 +89,13 @@ export default function ProductForm({
       setSaving(false);
       return;
     }
-    if (isEdit) {
+    const category = categories.find((c) => c.id === values.categoryId);
+    const isBangles = category?.name.toLowerCase().includes("bangle");
+
+    if (isEdit || !isBangles) {
       router.push("/admin/products");
     } else {
-      // Land on the edit page so Size/Colour variants can be added right away.
+      // Bangles need sizes — land on the edit page so they can be added right away.
       router.push(`/admin/products/${data.product.id}?created=1`);
     }
     router.refresh();
