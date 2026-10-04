@@ -110,6 +110,11 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
     })
     .filter((e): e is NonNullable<typeof e> => Boolean(e));
 
+  const visibleTouches =
+    mode === "hamper"
+      ? FINISHING_TOUCHES.filter((t) => t.key !== "babys-breath" && t.key !== "eucalyptus")
+      : FINISHING_TOUCHES;
+
   const touchesTotal = FINISHING_TOUCHES.filter((t) => touches.has(t.key)).reduce(
     (sum, t) => sum + t.price,
     0
@@ -243,51 +248,50 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
           </div>
         )}
 
-        {/* Step 2: Choose your wrapping */}
-        <div className="mt-10 rounded-2xl bg-white/90 p-6">
-          <div className="mb-4 flex items-start gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-teal-dark text-xs font-semibold text-brand-cream">
-              2
-            </span>
-            <div>
-              <h2 className="flex items-center gap-2 font-serif text-base font-semibold text-brand-teal">
-                <Gift size={16} className="text-brand-gold-dark" />{" "}
-                {mode === "hamper" ? "Choose your basket colour" : "Choose your wrapping"}
-              </h2>
-              <p className="text-xs text-brand-teal/60">
-                {mode === "hamper"
-                  ? "Pick the colour your hamper basket is finished in — included in the price."
-                  : "Pick the colour your gift set is wrapped in — included in the price."}
-              </p>
+        {/* Step 2: Choose your wrapping (bouquet only) */}
+        {mode === "bouquet" && (
+          <div className="mt-10 rounded-2xl bg-white/90 p-6">
+            <div className="mb-4 flex items-start gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-teal-dark text-xs font-semibold text-brand-cream">
+                2
+              </span>
+              <div>
+                <h2 className="flex items-center gap-2 font-serif text-base font-semibold text-brand-teal">
+                  <Gift size={16} className="text-brand-gold-dark" /> Choose your wrapping
+                </h2>
+                <p className="text-xs text-brand-teal/60">
+                  Pick the colour your gift set is wrapped in — included in the price.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {WRAP_COLORS.map((c) => (
+                <button
+                  key={c.label}
+                  type="button"
+                  onClick={() => setWrapColor(wrapColor === c.label ? null : c.label)}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
+                    wrapColor === c.label
+                      ? "border-brand-gold bg-brand-gold/10 text-brand-teal"
+                      : "border-brand-teal/15 text-brand-teal/80 hover:border-brand-gold"
+                  }`}
+                >
+                  <span
+                    className="h-5 w-5 shrink-0 rounded-md border border-black/10"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  {c.label}
+                </button>
+              ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {WRAP_COLORS.map((c) => (
-              <button
-                key={c.label}
-                type="button"
-                onClick={() => setWrapColor(wrapColor === c.label ? null : c.label)}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
-                  wrapColor === c.label
-                    ? "border-brand-gold bg-brand-gold/10 text-brand-teal"
-                    : "border-brand-teal/15 text-brand-teal/80 hover:border-brand-gold"
-                }`}
-              >
-                <span
-                  className="h-5 w-5 shrink-0 rounded-md border border-black/10"
-                  style={{ backgroundColor: c.hex }}
-                />
-                {c.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        )}
 
-        {/* Step 3: Finishing touches */}
+        {/* Finishing touches */}
         <div className="mt-6 rounded-2xl bg-white/90 p-6">
           <div className="mb-4 flex items-start gap-3">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-teal-dark text-xs font-semibold text-brand-cream">
-              3
+              {mode === "hamper" ? 2 : 3}
             </span>
             <div>
               <h2 className="flex items-center gap-2 font-serif text-base font-semibold text-brand-teal">
@@ -299,7 +303,7 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {FINISHING_TOUCHES.map((t) => {
+            {visibleTouches.map((t) => {
               const active = touches.has(t.key);
               return (
                 <button
