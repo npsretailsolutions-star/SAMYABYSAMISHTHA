@@ -141,9 +141,17 @@ export default async function HomePage() {
               Beautifully packaged sets, ready to gift — for Rakhi, weddings,
               anniversaries and everyday love.
             </p>
-            <Link href="/shop/gifting" className="relative mt-6 inline-flex btn-gold">
-              Shop Gifting Edit <ArrowRight size={16} />
-            </Link>
+            <div className="relative mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Link href="/shop/gifting" className="btn-gold">
+                Shop Gifting Edit <ArrowRight size={16} />
+              </Link>
+              <Link
+                href="/build-your-gift"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-cream/40 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-brand-cream transition-colors hover:bg-brand-cream hover:text-brand-teal-dark"
+              >
+                Build Your Own Gift Set <ArrowRight size={16} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

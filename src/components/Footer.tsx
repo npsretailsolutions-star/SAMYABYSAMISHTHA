@@ -102,6 +102,7 @@ export default function Footer() {
             <li><Link href="/shop/bangles" className="hover:text-brand-gold-light">Bangles</Link></li>
             <li><Link href="/shop/pendants" className="hover:text-brand-gold-light">Pendants</Link></li>
             <li><Link href="/shop/gifting" className="hover:text-brand-gold-light">Gifting</Link></li>
+            <li><Link href="/build-your-gift" className="hover:text-brand-gold-light">Build Your Own Gift Set</Link></li>
           </ul>
         </div>
 
