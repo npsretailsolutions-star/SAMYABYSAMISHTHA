@@ -3,10 +3,13 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Check, Gift, Minus, Plus, Ribbon, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, Gift, Minus, Plus, Ribbon, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatINR } from "@/lib/format";
 import { parseImages } from "@/lib/types";
+import { BouquetIllustration, HamperIllustration } from "@/components/GiftIllustrations";
+
+type GiftMode = "bouquet" | "hamper";
 
 const WRAP_COLORS = [
   { label: "Lavender", hex: "#B9A6E0" },
@@ -54,6 +57,7 @@ type SelectionKey = string; // `${productId}:${variantId || ""}`
 export default function GiftSetBuilder({ categories }: { categories: BuilderCategory[] }) {
   const { addItem, openCart } = useCart();
   const router = useRouter();
+  const [mode, setMode] = useState<GiftMode | null>(null);
   const [activeSlug, setActiveSlug] = useState(categories[0]?.slug);
   const [selections, setSelections] = useState<Record<SelectionKey, number>>({});
   const [wrapColor, setWrapColor] = useState<string | null>(null);
@@ -158,8 +162,51 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
     );
   }
 
+  const wrapHex = wrapColor ? WRAP_COLORS.find((c) => c.label === wrapColor)?.hex : undefined;
+
+  if (!mode) {
+    return (
+      <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => setMode("bouquet")}
+          className="group rounded-3xl bg-white/95 p-8 text-center shadow-card transition-transform hover:-translate-y-1 hover:shadow-gold"
+        >
+          <div className="mx-auto mb-4 h-32 w-32">
+            <BouquetIllustration color="#F2B8C6" />
+          </div>
+          <h2 className="font-serif text-xl font-semibold text-brand-teal">Create a Bouquet</h2>
+          <p className="mt-2 text-sm text-brand-teal/60">
+            Your pieces wrapped like a flower bouquet, tied with a ribbon bow.
+          </p>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("hamper")}
+          className="group rounded-3xl bg-white/95 p-8 text-center shadow-card transition-transform hover:-translate-y-1 hover:shadow-gold"
+        >
+          <div className="mx-auto mb-4 h-32 w-32">
+            <HamperIllustration color="#B9A6E0" />
+          </div>
+          <h2 className="font-serif text-xl font-semibold text-brand-teal">Create a Hamper</h2>
+          <p className="mt-2 text-sm text-brand-teal/60">
+            Your pieces packed into a gift basket, finished with a bow.
+          </p>
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
+    <div>
+      <button
+        type="button"
+        onClick={() => setMode(null)}
+        className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-brand-cream/80 hover:text-brand-gold-light"
+      >
+        <ArrowLeft size={14} /> Change gift type
+      </button>
+      <div className="grid gap-8 lg:grid-cols-3">
       <div className="lg:col-span-2">
         {/* Section tabs */}
         <div className="mb-6 flex flex-wrap gap-2">
@@ -204,10 +251,13 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
             </span>
             <div>
               <h2 className="flex items-center gap-2 font-serif text-base font-semibold text-brand-teal">
-                <Gift size={16} className="text-brand-gold-dark" /> Choose your wrapping
+                <Gift size={16} className="text-brand-gold-dark" />{" "}
+                {mode === "hamper" ? "Choose your basket colour" : "Choose your wrapping"}
               </h2>
               <p className="text-xs text-brand-teal/60">
-                Pick the colour your gift set is wrapped in — included in the price.
+                {mode === "hamper"
+                  ? "Pick the colour your hamper basket is finished in — included in the price."
+                  : "Pick the colour your gift set is wrapped in — included in the price."}
               </p>
             </div>
           </div>
@@ -287,6 +337,13 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
 
       {/* Live gift set summary */}
       <div className="h-fit rounded-2xl bg-white p-6 shadow-card lg:sticky lg:top-24">
+        <div className="mx-auto mb-3 h-28 w-28">
+          {mode === "hamper" ? (
+            <HamperIllustration color={wrapHex || "#B9A6E0"} />
+          ) : (
+            <BouquetIllustration color={wrapHex || "#F2B8C6"} />
+          )}
+        </div>
         <h2 className="font-serif text-lg font-semibold text-brand-teal mb-4">Your Gift Set</h2>
 
         {selectedEntries.length === 0 ? (
@@ -362,6 +419,7 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
         >
           <ShoppingBag size={16} /> Add Gift Set to Cart
         </button>
+      </div>
       </div>
     </div>
   );
