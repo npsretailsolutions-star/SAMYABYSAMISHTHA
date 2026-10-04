@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { AUTO_DISCOUNT_PERCENT, PREPAID_DISCOUNT_PERCENT, COD_CHARGE } from "@/lib/constants";
-import { sendOrderNotificationEmail } from "@/lib/email";
+import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
+import { sendWhatsAppOrderConfirmation } from "@/lib/whatsapp";
 import { createDelhiveryShipment } from "@/lib/delhivery";
+import { formatINR } from "@/lib/format";
 import type { Product, ProductVariant } from "@prisma/client";
 
 export class OrderValidationError extends Error {
@@ -220,7 +222,7 @@ export async function createOrderRecord(
 
   shipOrderViaDelhivery(order).catch(() => {});
 
-  sendOrderNotificationEmail({
+  const emailPayload = {
     orderNumber: order.orderNumber,
     customerName: order.customerName,
     email: order.email,
@@ -241,6 +243,15 @@ export async function createOrderRecord(
       price: i.price,
       quantity: i.quantity,
     })),
+  };
+
+  sendOrderNotificationEmail(emailPayload).catch(() => {});
+  sendCustomerOrderConfirmationEmail(emailPayload).catch(() => {});
+  sendWhatsAppOrderConfirmation({
+    orderNumber: order.orderNumber,
+    customerName: order.customerName,
+    phone: order.phone,
+    totalFormatted: formatINR(order.total),
   }).catch(() => {});
 
   return order;
