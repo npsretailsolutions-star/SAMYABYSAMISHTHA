@@ -3,10 +3,26 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Check, Gift, Minus, Plus, Ribbon, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatINR } from "@/lib/format";
 import { parseImages } from "@/lib/types";
+
+const WRAP_COLORS = [
+  { label: "Lavender", hex: "#B9A6E0" },
+  { label: "Black", hex: "#1A1A1A" },
+  { label: "Pink", hex: "#F2B8C6" },
+  { label: "White", hex: "#F5F0E6" },
+  { label: "Blue", hex: "#A9D3E8" },
+];
+
+const FINISHING_TOUCHES = [
+  { key: "babys-breath", label: "Baby's Breath", desc: "Tiny white clusters tucked between the pieces", price: 8000 },
+  { key: "eucalyptus", label: "Eucalyptus Leaves", desc: "Soft sage-green leaves for depth", price: 5000 },
+  { key: "ribbon", label: "Decorative Ribbon", desc: "A simple satin bow at the neck", price: 3000 },
+  { key: "premium-ribbon", label: "Premium Ribbon", desc: "Wide gold-edged ribbon, hand-tied", price: 6000 },
+  { key: "message-card", label: "Personalised Message Card", desc: "Your words, handwritten on a card", price: 5000 },
+];
 
 type Variant = {
   id: string;
@@ -40,6 +56,17 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
   const router = useRouter();
   const [activeSlug, setActiveSlug] = useState(categories[0]?.slug);
   const [selections, setSelections] = useState<Record<SelectionKey, number>>({});
+  const [wrapColor, setWrapColor] = useState<string | null>(null);
+  const [touches, setTouches] = useState<Set<string>>(new Set());
+
+  const toggleTouch = (key: string) => {
+    setTouches((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   const activeCategory = categories.find((c) => c.slug === activeSlug) || categories[0];
 
@@ -79,11 +106,25 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
     })
     .filter((e): e is NonNullable<typeof e> => Boolean(e));
 
+  const touchesTotal = FINISHING_TOUCHES.filter((t) => touches.has(t.key)).reduce(
+    (sum, t) => sum + t.price,
+    0
+  );
+
   const totalItems = selectedEntries.reduce((sum, e) => sum + e.qty, 0);
-  const totalPrice = selectedEntries.reduce((sum, e) => sum + e.product.price * e.qty, 0);
+  const totalPrice =
+    selectedEntries.reduce((sum, e) => sum + e.product.price * e.qty, 0) + touchesTotal;
 
   const addSetToCart = () => {
-    for (const entry of selectedEntries) {
+    const giftNoteParts: string[] = [];
+    if (wrapColor) giftNoteParts.push(`Wrap: ${wrapColor}`);
+    const selectedTouches = FINISHING_TOUCHES.filter((t) => touches.has(t.key));
+    if (selectedTouches.length > 0) {
+      giftNoteParts.push(selectedTouches.map((t) => t.label).join(", "));
+    }
+    const giftNote = giftNoteParts.length > 0 ? giftNoteParts.join(" · ") : undefined;
+
+    selectedEntries.forEach((entry, i) => {
       const images = parseImages(entry.variant ? entry.variant.images : entry.product.images);
       addItem(
         {
@@ -97,10 +138,14 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
           price: entry.product.price,
           image: images[0],
           stock: entry.variant ? entry.variant.stock : entry.product.stock,
+          // Wrapping/finishing-touch charges apply once to the whole set, so attach to the first item.
+          // `card: true` ensures the note text renders wherever gift notes are shown.
+          giftWrap: i === 0 && giftNote ? { box: false, card: true, pouch: false, cardMessage: giftNote } : undefined,
+          giftCharge: i === 0 ? touchesTotal : undefined,
         },
         entry.qty
       );
-    }
+    });
     openCart();
     router.push("/cart");
   };
@@ -150,6 +195,94 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
             ))}
           </div>
         )}
+
+        {/* Step 2: Choose your wrapping */}
+        <div className="mt-10 rounded-2xl bg-white/90 p-6">
+          <div className="mb-4 flex items-start gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-teal-dark text-xs font-semibold text-brand-cream">
+              2
+            </span>
+            <div>
+              <h2 className="flex items-center gap-2 font-serif text-base font-semibold text-brand-teal">
+                <Gift size={16} className="text-brand-gold-dark" /> Choose your wrapping
+              </h2>
+              <p className="text-xs text-brand-teal/60">
+                Pick the colour your gift set is wrapped in — included in the price.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {WRAP_COLORS.map((c) => (
+              <button
+                key={c.label}
+                type="button"
+                onClick={() => setWrapColor(wrapColor === c.label ? null : c.label)}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${
+                  wrapColor === c.label
+                    ? "border-brand-gold bg-brand-gold/10 text-brand-teal"
+                    : "border-brand-teal/15 text-brand-teal/80 hover:border-brand-gold"
+                }`}
+              >
+                <span
+                  className="h-5 w-5 shrink-0 rounded-md border border-black/10"
+                  style={{ backgroundColor: c.hex }}
+                />
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 3: Finishing touches */}
+        <div className="mt-6 rounded-2xl bg-white/90 p-6">
+          <div className="mb-4 flex items-start gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-teal-dark text-xs font-semibold text-brand-cream">
+              3
+            </span>
+            <div>
+              <h2 className="flex items-center gap-2 font-serif text-base font-semibold text-brand-teal">
+                <Ribbon size={16} className="text-brand-gold-dark" /> Add the finishing touches
+              </h2>
+              <p className="text-xs text-brand-teal/60">
+                Optional, but they are what make it look gift-shop made.
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {FINISHING_TOUCHES.map((t) => {
+              const active = touches.has(t.key);
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => toggleTouch(t.key)}
+                  className={`flex items-start justify-between gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+                    active
+                      ? "border-brand-gold bg-brand-gold/10"
+                      : "border-brand-teal/15 hover:border-brand-gold"
+                  }`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <span
+                      className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                        active ? "border-brand-teal bg-brand-teal" : "border-brand-teal/30"
+                      }`}
+                    >
+                      {active && <Check size={11} className="text-brand-cream" />}
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium text-brand-teal">{t.label}</p>
+                      <p className="text-[11px] text-brand-teal/50">{t.desc}</p>
+                    </div>
+                  </div>
+                  <span className="shrink-0 text-xs font-semibold text-brand-gold-dark">
+                    +{formatINR(t.price)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Live gift set summary */}
@@ -199,8 +332,20 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
           </div>
         )}
 
-        <div className="border-t border-brand-teal/10 pt-4 space-y-1">
-          <div className="flex items-center justify-between text-sm text-brand-teal/70">
+        <div className="border-t border-brand-teal/10 pt-4 space-y-1.5">
+          {wrapColor && (
+            <div className="flex items-center justify-between text-xs text-brand-teal/60">
+              <span>Wrapping: {wrapColor}</span>
+              <span>Included</span>
+            </div>
+          )}
+          {touches.size > 0 && (
+            <div className="flex items-center justify-between text-xs text-brand-teal/60">
+              <span>Finishing touches ({touches.size})</span>
+              <span>+{formatINR(touchesTotal)}</span>
+            </div>
+          )}
+          <div className="flex items-center justify-between pt-1 text-sm text-brand-teal/70">
             <span>{totalItems} item(s)</span>
             <span className="text-base font-semibold text-brand-teal">
               {formatINR(totalPrice)}
