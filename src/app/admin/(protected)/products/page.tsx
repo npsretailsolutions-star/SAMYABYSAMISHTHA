@@ -8,11 +8,24 @@ import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminProductsPage() {
-  const products = await prisma.product.findMany({
-    include: { category: true },
-    orderBy: { createdAt: "desc" },
-  });
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: { category?: string };
+}) {
+  const [categories, products] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { sortOrder: "asc" },
+      select: { name: true, slug: true, _count: { select: { products: true } } },
+    }),
+    prisma.product.findMany({
+      where: searchParams.category ? { category: { slug: searchParams.category } } : undefined,
+      include: { category: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    }),
+  ]);
+
+  const totalProducts = categories.reduce((sum, c) => sum + c._count.products, 0);
 
   return (
     <div>
@@ -21,6 +34,32 @@ export default async function AdminProductsPage() {
         <Link href="/admin/products/new" className="btn-gold !py-2.5 !px-5">
           <Plus size={16} /> Add Product
         </Link>
+      </div>
+
+      <div className="mb-5 flex flex-wrap gap-2">
+        <Link
+          href="/admin/products"
+          className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+            !searchParams.category
+              ? "border-brand-gold bg-brand-gold text-brand-teal-dark"
+              : "border-brand-teal/20 text-brand-teal/70 hover:border-brand-gold"
+          }`}
+        >
+          All ({totalProducts})
+        </Link>
+        {categories.map((c) => (
+          <Link
+            key={c.slug}
+            href={`/admin/products?category=${c.slug}`}
+            className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+              searchParams.category === c.slug
+                ? "border-brand-gold bg-brand-gold text-brand-teal-dark"
+                : "border-brand-teal/20 text-brand-teal/70 hover:border-brand-gold"
+            }`}
+          >
+            {c.name} ({c._count.products})
+          </Link>
+        ))}
       </div>
 
       <div className="rounded-2xl bg-white shadow-card overflow-x-auto">
