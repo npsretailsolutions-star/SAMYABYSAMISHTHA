@@ -126,6 +126,7 @@ export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail) {
     await resend.emails.send({
       from: "Samya By Samishtha <orders@samyabysamishtha.com>",
       to: order.email,
+      replyTo: ORDER_NOTIFICATION_EMAIL,
       subject: `Order Confirmed: ${order.orderNumber} — Samya By Samishtha`,
       html,
     });
