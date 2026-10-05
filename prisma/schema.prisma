@@ -34,6 +34,7 @@ model Product {
   isFeatured    Boolean     @default(false)
   isGiftable    Boolean     @default(false)
   isActive      Boolean     @default(true)
+  sortOrder     Int         @default(0) // lower shows first in the default "Featured" sort
   material      String?
   category      Category    @relation(fields: [categoryId], references: [id])
   categoryId    String

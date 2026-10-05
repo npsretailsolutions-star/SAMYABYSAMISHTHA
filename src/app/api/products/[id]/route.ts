@@ -16,6 +16,7 @@ const productSchema = z.object({
   isActive: z.boolean().optional(),
   material: z.string().optional().nullable(),
   categoryId: z.string(),
+  sortOrder: z.number().int().optional(),
 });
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
@@ -56,6 +57,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       isActive: data.isActive ?? true,
       material: data.material || null,
       categoryId: data.categoryId,
+      sortOrder: data.sortOrder ?? 0,
     },
   });
 

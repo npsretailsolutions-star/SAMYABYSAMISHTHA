@@ -6,6 +6,7 @@ import SortBar from "@/components/SortBar";
 export const dynamic = "force-dynamic";
 
 const SORT_MAP: Record<string, object> = {
+  featured: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   newest: { createdAt: "desc" },
   "price-asc": { price: "asc" },
   "price-desc": { price: "desc" },
@@ -16,7 +17,7 @@ export default async function ShopAllPage({
 }: {
   searchParams: { sort?: string };
 }) {
-  const sortKey = searchParams.sort && SORT_MAP[searchParams.sort] ? searchParams.sort : "newest";
+  const sortKey = searchParams.sort && SORT_MAP[searchParams.sort] ? searchParams.sort : "featured";
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
       where: { isActive: true },

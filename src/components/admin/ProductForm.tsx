@@ -22,6 +22,7 @@ export type ProductFormValues = {
   isActive: boolean;
   material: string;
   categoryId: string;
+  sortOrder: number;
 };
 
 export default function ProductForm({
@@ -46,6 +47,7 @@ export default function ProductForm({
       isActive: true,
       material: "",
       categoryId: categories[0]?.id || "",
+      sortOrder: 0,
     }
   );
   const [saving, setSaving] = useState(false);
@@ -194,13 +196,29 @@ export default function ProductForm({
             />
           </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-brand-teal mb-1">SKU (optional)</label>
-          <input
-            value={values.sku}
-            onChange={(e) => setValues((v) => ({ ...v, sku: e.target.value }))}
-            className="w-full sm:w-64 rounded-xl border border-brand-teal/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-brand-teal mb-1">SKU (optional)</label>
+            <input
+              value={values.sku}
+              onChange={(e) => setValues((v) => ({ ...v, sku: e.target.value }))}
+              className="w-full rounded-xl border border-brand-teal/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-brand-teal mb-1">
+              Display Order
+            </label>
+            <input
+              type="number"
+              value={values.sortOrder}
+              onChange={(e) => setValues((v) => ({ ...v, sortOrder: Number(e.target.value) }))}
+              className="w-full rounded-xl border border-brand-teal/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
+            />
+            <p className="mt-1 text-xs text-brand-teal/50">
+              Lower number shows first in the default &ldquo;Featured&rdquo; sort on shop pages.
+            </p>
+          </div>
         </div>
       </div>
 

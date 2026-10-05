@@ -12,6 +12,7 @@ const GIFT_SET_SECTIONS = ["Earrings", "Pendants", "Bracelets", "Bangles"];
 export const dynamic = "force-dynamic";
 
 const SORT_MAP: Record<string, object> = {
+  featured: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   newest: { createdAt: "desc" },
   "price-asc": { price: "asc" },
   "price-desc": { price: "desc" },
@@ -29,7 +30,7 @@ export default async function CategoryPage({
   });
   if (!category) notFound();
 
-  const sortKey = searchParams.sort && SORT_MAP[searchParams.sort] ? searchParams.sort : "newest";
+  const sortKey = searchParams.sort && SORT_MAP[searchParams.sort] ? searchParams.sort : "featured";
 
   const where: Prisma.ProductWhereInput = {
     categoryId: category.id,

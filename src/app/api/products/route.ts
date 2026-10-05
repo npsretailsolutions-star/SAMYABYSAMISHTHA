@@ -16,6 +16,7 @@ const productSchema = z.object({
   isActive: z.boolean().optional(),
   material: z.string().optional().nullable(),
   categoryId: z.string(),
+  sortOrder: z.number().int().optional(),
 });
 
 function slugify(name: string) {
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
       isActive: data.isActive ?? true,
       material: data.material || null,
       categoryId: data.categoryId,
+      sortOrder: data.sortOrder ?? 0,
     },
   });
 

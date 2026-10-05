@@ -47,6 +47,7 @@ export default async function EditProductPage({
           isActive: product.isActive,
           material: product.material || "",
           categoryId: product.categoryId,
+          sortOrder: product.sortOrder,
         }}
       />
       <VariantManager
