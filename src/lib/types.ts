@@ -66,4 +66,6 @@ export type CartItem = {
   stock: number;
   giftWrap?: GiftWrapSelection | null;
   giftCharge?: number;
+  /** Gifting-category product or a Build-Your-Own bouquet/hamper item: COD + returns are not offered. */
+  isGiftItem?: boolean;
 };

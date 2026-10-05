@@ -66,6 +66,11 @@ export default function CartPage() {
                         🎁 {formatGiftNote(item.giftWrap)}
                       </span>
                     )}
+                    {item.isGiftItem && (
+                      <span className="block text-[11px] font-sans font-normal text-brand-teal/40">
+                        Prepaid only · Not eligible for return
+                      </span>
+                    )}
                   </Link>
                   <button
                     onClick={() => removeItem(item.productId, item.variantId)}

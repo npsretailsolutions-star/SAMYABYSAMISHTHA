@@ -29,6 +29,7 @@ export default function ProductDetailVariants({
   compareAtPrice,
   discount,
   categoryName,
+  categorySlug,
   description,
   material,
   variants,
@@ -43,6 +44,7 @@ export default function ProductDetailVariants({
   compareAtPrice: number | null;
   discount: number;
   categoryName: string;
+  categorySlug?: string;
   description: string;
   material: string | null;
   variants: Variant[];
@@ -139,6 +141,7 @@ export default function ProductDetailVariants({
             price={price}
             image={selectedImages[0]}
             stock={selected.stock}
+            categorySlug={categorySlug}
           />
         </div>
 

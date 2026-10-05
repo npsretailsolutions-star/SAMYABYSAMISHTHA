@@ -109,6 +109,7 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
               price: product.price,
               image: images[0],
               stock: product.stock,
+              isGiftItem: product.category?.slug === "gifting" || undefined,
             })
           }
           disabled={product.stock <= 0}

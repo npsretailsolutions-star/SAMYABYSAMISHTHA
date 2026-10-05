@@ -18,6 +18,10 @@ export default function ReturnExchangePolicyPage() {
             "Products showing signs of wear, scratches, perfume exposure, makeup stains, damage, or alteration will not qualify for return or exchange.",
           ]}
         />
+        <p className="text-sm font-medium text-brand-teal mt-3">
+          Gifting collection, and bouquets/hampers made through Build Your Own Gift Set, are
+          final sale — not eligible for return, exchange, or Cash on Delivery.
+        </p>
       </PolicySection>
 
       <PolicySection number="2" title="Return & Exchange Options">

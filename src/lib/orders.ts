@@ -20,9 +20,10 @@ export type CartItemInput = {
   variantId?: string;
   giftCharge?: number;
   giftNote?: string;
+  isGiftItem?: boolean;
 };
 
-type ProductWithVariants = Product & { variants: ProductVariant[] };
+type ProductWithVariants = Product & { variants: ProductVariant[]; category: { slug: string } };
 
 export type OrderQuote = {
   products: ProductWithVariants[];
@@ -42,11 +43,23 @@ export async function quoteOrder(
   const productIds = items.map((i) => i.productId);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
-    include: { variants: true },
+    include: { variants: true, category: { select: { slug: true } } },
   });
 
   if (products.length !== productIds.length) {
     throw new OrderValidationError("Some products were not found");
+  }
+
+  // Gifting-category products and Build-Your-Own bouquet/hamper items are prepaid only.
+  const hasGiftItem = items.some((item) => {
+    if (item.isGiftItem) return true;
+    const product = products.find((p) => p.id === item.productId);
+    return product?.category.slug === "gifting";
+  });
+  if (hasGiftItem && paymentMethod === "COD") {
+    throw new OrderValidationError(
+      "Cash on Delivery is not available for Gifting / bouquet / hamper items. Please pay online."
+    );
   }
 
   for (const item of items) {

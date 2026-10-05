@@ -16,6 +16,7 @@ export default function AddToCartButtons({
   price,
   image,
   stock,
+  categorySlug,
 }: {
   productId: string;
   variantId?: string;
@@ -25,6 +26,7 @@ export default function AddToCartButtons({
   price: number;
   image: string;
   stock: number;
+  categorySlug?: string;
 }) {
   const { addItem } = useCart();
   const router = useRouter();
@@ -47,6 +49,7 @@ export default function AddToCartButtons({
     stock,
     giftWrap: giftWrap || undefined,
     giftCharge: giftCharge || undefined,
+    isGiftItem: categorySlug === "gifting" || undefined,
   };
 
   return (

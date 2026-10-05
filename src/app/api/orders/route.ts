@@ -22,6 +22,7 @@ const orderSchema = z.object({
         variantId: z.string().optional(),
         giftCharge: z.number().int().nonnegative().optional(),
         giftNote: z.string().optional(),
+        isGiftItem: z.boolean().optional(),
       })
     )
     .min(1),

@@ -75,6 +75,13 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const hasGiftItem = items.some((i) => i.isGiftItem);
+
+  // Gifting / bouquet / hamper items are prepaid-only — force online payment.
+  useEffect(() => {
+    if (hasGiftItem) setPaymentMethod("RAZORPAY");
+  }, [hasGiftItem]);
+
   const [couponInput, setCouponInput] = useState("");
   const [applying, setApplying] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
@@ -134,6 +141,7 @@ export default function CheckoutPage() {
     variantId: i.variantId || undefined,
     giftCharge: i.giftCharge || undefined,
     giftNote: formatGiftNote(i.giftWrap),
+    isGiftItem: i.isGiftItem || undefined,
   }));
 
   const payWithCOD = async () => {
@@ -334,28 +342,35 @@ export default function CheckoutPage() {
                 </p>
               </div>
             </label>
-            <label
-              className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-colors ${
-                paymentMethod === "COD"
-                  ? "border-brand-gold/60 bg-brand-gold/5"
-                  : "border-brand-teal/15"
-              }`}
-            >
-              <input
-                type="radio"
-                name="paymentMethod"
-                checked={paymentMethod === "COD"}
-                onChange={() => setPaymentMethod("COD")}
-                className="accent-brand-gold"
-              />
-              <div>
-                <p className="text-sm font-medium text-brand-teal">Cash on Delivery</p>
-                <p className="text-xs text-brand-teal/60">
-                  Pay when your order arrives at your doorstep. ₹{COD_CHARGE / 100} extra handling
-                  charge applies.
-                </p>
-              </div>
-            </label>
+            {hasGiftItem ? (
+              <p className="rounded-xl bg-brand-teal/5 px-4 py-3 text-xs text-brand-teal/60">
+                Cash on Delivery isn&apos;t available for Gifting / bouquet / hamper items — these
+                ship prepaid only.
+              </p>
+            ) : (
+              <label
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-colors ${
+                  paymentMethod === "COD"
+                    ? "border-brand-gold/60 bg-brand-gold/5"
+                    : "border-brand-teal/15"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "COD"}
+                  onChange={() => setPaymentMethod("COD")}
+                  className="accent-brand-gold"
+                />
+                <div>
+                  <p className="text-sm font-medium text-brand-teal">Cash on Delivery</p>
+                  <p className="text-xs text-brand-teal/60">
+                    Pay when your order arrives at your doorstep. ₹{COD_CHARGE / 100} extra handling
+                    charge applies.
+                  </p>
+                </div>
+              </label>
+            )}
           </div>
 
           {error && (
@@ -387,6 +402,11 @@ export default function CheckoutPage() {
                     {formatGiftNote(item.giftWrap) && (
                       <span className="block text-xs text-brand-gold-dark">
                         🎁 {formatGiftNote(item.giftWrap)}
+                      </span>
+                    )}
+                    {item.isGiftItem && (
+                      <span className="block text-[11px] text-brand-teal/40">
+                        Not eligible for return
                       </span>
                     )}
                   </span>

@@ -129,6 +129,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           compareAtPrice={product.compareAtPrice}
           discount={discount}
           categoryName={product.category.name}
+          categorySlug={product.category.slug}
           description={product.description}
           material={product.material}
           variants={product.variants.map((v) => ({
@@ -189,6 +190,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 price={product.price}
                 image={images[0]}
                 stock={product.stock}
+                categorySlug={product.category.slug}
               />
             </div>
 

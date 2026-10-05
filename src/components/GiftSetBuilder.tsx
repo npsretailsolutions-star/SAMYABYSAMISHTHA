@@ -151,6 +151,7 @@ export default function GiftSetBuilder({ categories }: { categories: BuilderCate
           // `card: true` ensures the note text renders wherever gift notes are shown.
           giftWrap: i === 0 && giftNote ? { box: false, card: true, pouch: false, cardMessage: giftNote } : undefined,
           giftCharge: i === 0 ? touchesTotal : undefined,
+          isGiftItem: true,
         },
         entry.qty
       );
