@@ -65,7 +65,7 @@ export async function sendOrderNotificationEmail(order: OrderForEmail) {
 
   try {
     await resend.emails.send({
-      from: "Samya By Samishtha <onboarding@resend.dev>",
+      from: "Samya By Samishtha <orders@samyabysamishtha.com>",
       to: ORDER_NOTIFICATION_EMAIL,
       subject: `New Order: ${order.orderNumber} — ${formatINR(order.total)}`,
       html,
@@ -124,7 +124,7 @@ export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail) {
 
   try {
     await resend.emails.send({
-      from: "Samya By Samishtha <onboarding@resend.dev>",
+      from: "Samya By Samishtha <orders@samyabysamishtha.com>",
       to: order.email,
       subject: `Order Confirmed: ${order.orderNumber} — Samya By Samishtha`,
       html,
