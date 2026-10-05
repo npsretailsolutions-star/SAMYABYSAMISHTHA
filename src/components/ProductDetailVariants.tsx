@@ -161,7 +161,7 @@ export default function ProductDetailVariants({
           <ShareButton name={name} url={productUrl} />
         </div>
 
-        <ProductTrustBadges />
+        <ProductTrustBadges isGiftItem={categorySlug === "gifting"} />
 
         <ProductAccordion
           sections={[

@@ -213,7 +213,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               />
             </div>
 
-            <ProductTrustBadges />
+            <ProductTrustBadges isGiftItem={product.category.slug === "gifting"} />
 
             <ProductAccordion
               sections={[

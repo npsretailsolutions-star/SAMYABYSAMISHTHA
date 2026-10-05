@@ -1,4 +1,4 @@
-import { RotateCcw, ShieldCheck, Truck, Flag, Gem } from "lucide-react";
+import { RotateCcw, ShieldCheck, Truck, Flag, Gem, XCircle } from "lucide-react";
 import DeliveryEstimate from "@/components/DeliveryEstimate";
 
 const BADGES = [
@@ -9,17 +9,29 @@ const BADGES = [
   { icon: Gem, label: "Premium Quality" },
 ];
 
-export default function ProductTrustBadges() {
+export default function ProductTrustBadges({ isGiftItem }: { isGiftItem?: boolean }) {
   return (
     <div className="mt-8 space-y-5 border-t border-brand-teal/10 pt-6">
       <DeliveryEstimate />
       <div className="grid grid-cols-3 gap-4">
-        {BADGES.map(({ icon: Icon, label }) => (
-          <div key={label} className="flex flex-col items-center gap-1.5 text-center">
-            <Icon size={20} className="text-brand-gold-dark" />
-            <span className="text-[11px] leading-tight text-brand-teal/70">{label}</span>
-          </div>
-        ))}
+        {BADGES.map(({ icon: Icon, label }) => {
+          if (isGiftItem && label === "5 Days Return") {
+            return (
+              <div key={label} className="flex flex-col items-center gap-1.5 text-center">
+                <XCircle size={20} className="text-red-400" />
+                <span className="text-[11px] leading-tight text-red-500">
+                  Return Not Available
+                </span>
+              </div>
+            );
+          }
+          return (
+            <div key={label} className="flex flex-col items-center gap-1.5 text-center">
+              <Icon size={20} className="text-brand-gold-dark" />
+              <span className="text-[11px] leading-tight text-brand-teal/70">{label}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
