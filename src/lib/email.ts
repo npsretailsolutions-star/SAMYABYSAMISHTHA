@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { formatINR } from "@/lib/format";
 
 const ORDER_NOTIFICATION_EMAIL = "npsretailsolutions@gmail.com";
+const CUSTOMER_SUPPORT_EMAIL = "care@samyabysamishtha.com";
 
 type OrderForEmail = {
   orderNumber: string;
@@ -126,7 +127,7 @@ export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail) {
     await resend.emails.send({
       from: "Samya By Samishtha <orders@samyabysamishtha.com>",
       to: order.email,
-      replyTo: ORDER_NOTIFICATION_EMAIL,
+      replyTo: CUSTOMER_SUPPORT_EMAIL,
       subject: `Order Confirmed: ${order.orderNumber} — Samya By Samishtha`,
       html,
     });
