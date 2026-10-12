@@ -7,9 +7,22 @@ import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
 import { getAutoDiscountPercent, getAutoDiscountLabel } from "@/lib/constants";
+import { computeBundleDiscount } from "@/lib/discounts";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart } = useCart();
+
+  const bundleResult = computeBundleDiscount(
+    items.map((i) => ({
+      price: i.price,
+      quantity: i.quantity,
+      categorySlug: i.categorySlug,
+      sku: i.sku,
+    }))
+  );
+  const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
+  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal)) / 100);
+  const totalDiscount = bundleResult.totalDiscount + autoDiscount;
 
   useEffect(() => {
     closeCart();
@@ -117,9 +130,19 @@ export default function CartPage() {
             <span>Subtotal</span>
             <span>{formatINR(subtotal)}</span>
           </div>
+          {bundleResult.totalDiscount > 0 && (
+            <div className="flex items-center justify-between text-sm text-emerald-700 mb-2">
+              <span>
+                Shagun Days Bundle
+                {bundleResult.earringsBundles > 0 && ` (${bundleResult.earringsBundles}× 3 Earrings @₹599)`}
+                {bundleResult.bangleBundles > 0 && ` (${bundleResult.bangleBundles}× 3 Bangles @₹699)`}
+              </span>
+              <span>-{formatINR(bundleResult.totalDiscount)}</span>
+            </div>
+          )}
           <div className="flex items-center justify-between text-sm text-emerald-700 mb-2">
             <span>{getAutoDiscountLabel(subtotal)}</span>
-            <span>-{formatINR(Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100))}</span>
+            <span>-{formatINR(autoDiscount)}</span>
           </div>
           {giftTotal > 0 && (
             <div className="flex items-center justify-between text-sm text-brand-teal/70 mb-2">
@@ -133,11 +156,7 @@ export default function CartPage() {
           </div>
           <div className="flex items-center justify-between border-t border-brand-teal/10 pt-4 text-base font-semibold text-brand-teal mb-6">
             <span>Total</span>
-            <span>
-              {formatINR(
-                subtotal - Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100) + giftTotal
-              )}
-            </span>
+            <span>{formatINR(subtotal - totalDiscount + giftTotal)}</span>
           </div>
           <Link href="/checkout" className="btn-gold w-full">
             Proceed to Checkout

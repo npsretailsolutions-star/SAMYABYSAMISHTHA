@@ -13,6 +13,7 @@ import {
   getAutoDiscountPercent,
   getAutoDiscountLabel,
 } from "@/lib/constants";
+import { computeBundleDiscount } from "@/lib/discounts";
 
 declare global {
   interface Window {
@@ -87,16 +88,26 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
 
-  const autoDiscount = Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100);
+  const bundleResult = computeBundleDiscount(
+    items.map((i) => ({
+      price: i.price,
+      quantity: i.quantity,
+      categorySlug: i.categorySlug,
+      sku: i.sku,
+    }))
+  );
+  const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
+
+  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal)) / 100);
   const baseDiscount = Math.max(appliedCoupon?.discount ?? 0, autoDiscount);
   const discountLabel =
     appliedCoupon && appliedCoupon.discount > autoDiscount
       ? `${appliedCoupon.code} applied`
       : getAutoDiscountLabel(subtotal);
   const prepaidDiscount =
-    paymentMethod === "RAZORPAY" ? Math.round((subtotal * PREPAID_DISCOUNT_PERCENT) / 100) : 0;
+    paymentMethod === "RAZORPAY" ? Math.round((remainingSubtotal * PREPAID_DISCOUNT_PERCENT) / 100) : 0;
   const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
-  const discount = baseDiscount + prepaidDiscount;
+  const discount = bundleResult.totalDiscount + baseDiscount + prepaidDiscount;
   const total = subtotal - discount + codCharge + giftTotal;
 
   const applyCoupon = async () => {
@@ -459,6 +470,16 @@ export default function CheckoutPage() {
               <span>Subtotal</span>
               <span>{formatINR(subtotal)}</span>
             </div>
+            {bundleResult.totalDiscount > 0 && (
+              <div className="flex items-center justify-between text-emerald-700">
+                <span>
+                  Shagun Days Bundle
+                  {bundleResult.earringsBundles > 0 && ` (${bundleResult.earringsBundles}× 3 Earrings @₹599)`}
+                  {bundleResult.bangleBundles > 0 && ` (${bundleResult.bangleBundles}× 3 Bangles @₹699)`}
+                </span>
+                <span>-{formatINR(bundleResult.totalDiscount)}</span>
+              </div>
+            )}
             {baseDiscount > 0 && (
               <div className="flex items-center justify-between text-emerald-700">
                 <span>{discountLabel}</span>

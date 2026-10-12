@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PREPAID_DISCOUNT_PERCENT, COD_CHARGE, getAutoDiscountPercent } from "@/lib/constants";
+import { computeBundleDiscount } from "@/lib/discounts";
 import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
 import { sendWhatsAppOrderConfirmation } from "@/lib/whatsapp";
 import { createDelhiveryShipment } from "@/lib/delhivery";
@@ -85,9 +86,25 @@ export async function quoteOrder(
   }, 0);
   const giftTotal = items.reduce((sum, item) => sum + (item.giftCharge || 0), 0);
 
+  // Shagun Days bundle offers (any 3 earrings / any 3 selected bangles at a flat
+  // price) are final — they don't stack with the sitewide auto-discount below.
+  const bundleResult = computeBundleDiscount(
+    items.map((item) => {
+      const product = products.find((p) => p.id === item.productId)!;
+      return {
+        price: product.price,
+        quantity: item.quantity,
+        categorySlug: product.category.slug,
+        sku: product.sku,
+      };
+    })
+  );
+  const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
+
   // Every order gets at least the sitewide auto-discount, no code needed —
-  // it steps up to 20% once the cart crosses the Shagun Days threshold.
-  let discount = Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100);
+  // it steps up to 20% once the cart crosses the Shagun Days threshold. This
+  // only applies to the portion of the cart not already covered by a bundle.
+  let autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal)) / 100);
   let resolvedCouponCode: string | null = null;
   if (couponCode) {
     const code = couponCode.trim().toUpperCase();
@@ -101,10 +118,10 @@ export async function quoteOrder(
     ) {
       const couponDiscount =
         coupon.type === "PERCENT"
-          ? Math.round((subtotal * coupon.value) / 100)
-          : Math.min(coupon.value, subtotal);
-      if (couponDiscount > discount) {
-        discount = couponDiscount;
+          ? Math.round((remainingSubtotal * coupon.value) / 100)
+          : Math.min(coupon.value, remainingSubtotal);
+      if (couponDiscount > autoDiscount) {
+        autoDiscount = couponDiscount;
         resolvedCouponCode = coupon.code;
       }
     }
@@ -112,8 +129,9 @@ export async function quoteOrder(
 
   // Extra incentive discount for paying online, on top of the base discount above.
   if (paymentMethod === "RAZORPAY") {
-    discount += Math.round((subtotal * PREPAID_DISCOUNT_PERCENT) / 100);
+    autoDiscount += Math.round((remainingSubtotal * PREPAID_DISCOUNT_PERCENT) / 100);
   }
+  const discount = bundleResult.totalDiscount + autoDiscount;
   const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
 
   return {

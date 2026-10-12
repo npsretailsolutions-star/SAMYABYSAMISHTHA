@@ -191,6 +191,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 image={images[0]}
                 stock={product.stock}
                 categorySlug={product.category.slug}
+                sku={product.sku}
               />
             </div>
 

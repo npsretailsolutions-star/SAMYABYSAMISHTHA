@@ -142,6 +142,7 @@ export default function ProductDetailVariants({
             image={selectedImages[0]}
             stock={selected.stock}
             categorySlug={categorySlug}
+            sku={sku}
           />
         </div>
 

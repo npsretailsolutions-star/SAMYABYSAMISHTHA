@@ -68,4 +68,7 @@ export type CartItem = {
   giftCharge?: number;
   /** Gifting-category product or a Build-Your-Own bouquet/hamper item: COD + returns are not offered. */
   isGiftItem?: boolean;
+  /** Used for Shagun Days bundle pricing (any-3-earrings / any-3-selected-bangles). */
+  categorySlug?: string;
+  sku?: string | null;
 };

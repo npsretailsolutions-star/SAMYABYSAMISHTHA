@@ -17,6 +17,31 @@ export function getAutoDiscountLabel(subtotal: number) {
   return subtotal >= AUTO_DISCOUNT_THRESHOLD ? AUTO_DISCOUNT_THRESHOLD_LABEL : AUTO_DISCOUNT_LABEL;
 }
 
+// Shagun Days bundle offers — any 3 eligible pieces at a flat price, replacing
+// (not stacked with) the sitewide auto-discount on those specific units.
+export const EARRINGS_BUNDLE_SIZE = 3;
+export const EARRINGS_BUNDLE_PRICE = 59900; // ₹599 in paise
+export const BANGLE_BUNDLE_SIZE = 3;
+export const BANGLE_BUNDLE_PRICE = 69900; // ₹699 in paise
+export const BANGLE_BUNDLE_SKUS = [
+  "KR-172",
+  "KR-173",
+  "KR-174",
+  "KR-175",
+  "KR-176",
+  "KR-177",
+  "KR-178",
+  "KR-179",
+  "KR-180",
+  "KR-181",
+  "KR-182",
+  "KR-183",
+  "KR-184",
+  "KR-185",
+  "KR-186",
+  "KR-187",
+];
+
 // Prepaid (Razorpay) orders get an extra discount; COD orders carry a small handling charge.
 export const PREPAID_DISCOUNT_PERCENT = 5;
 export const COD_CHARGE = 4900; // ₹49 in paise
