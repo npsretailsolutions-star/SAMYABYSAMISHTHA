@@ -64,8 +64,14 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
       <div className="rounded-2xl bg-white p-6 shadow-card mb-6">
         <h2 className="font-serif text-base font-semibold text-brand-teal mb-3">Payment</h2>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-brand-teal/70">
-            Method: <span className="font-medium text-brand-teal">{order.paymentMethod}</span>
+          <span
+            className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+              order.paymentMethod === "COD"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            {order.paymentMethod === "COD" ? "COD" : "Prepaid"}
           </span>
           <span
             className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${

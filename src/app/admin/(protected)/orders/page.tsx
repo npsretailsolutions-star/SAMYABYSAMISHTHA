@@ -88,7 +88,15 @@ export default async function AdminOrdersPage({
                 </td>
                 <td className="px-4 py-3 font-medium text-brand-teal">{formatINR(o.total)}</td>
                 <td className="px-4 py-3">
-                  <span className="text-brand-teal/70">{o.paymentMethod}</span>
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                      o.paymentMethod === "COD"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {o.paymentMethod === "COD" ? "COD" : "Prepaid"}
+                  </span>
                   {o.paymentMethod === "RAZORPAY" && (
                     <span
                       className={`ml-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium ${
