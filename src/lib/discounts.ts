@@ -10,8 +10,15 @@ export type BundleLineInput = {
   price: number;
   quantity: number;
   categorySlug?: string | null;
+  categoryName?: string | null;
   sku?: string | null;
 };
+
+function isEarringCategory(slug?: string | null, name?: string | null) {
+  if (slug && slug.toLowerCase().includes("earring")) return true;
+  if (name && name.toLowerCase().includes("earring")) return true;
+  return false;
+}
 
 function bundleDiscountFor(units: number[], size: number, bundlePrice: number) {
   // Sort high-to-low so the customer's 3 most expensive eligible pieces get
@@ -40,7 +47,7 @@ export function computeBundleDiscount(items: BundleLineInput[]) {
 
   for (const item of items) {
     const qty = Math.max(0, item.quantity);
-    if (item.categorySlug === "earrings") {
+    if (isEarringCategory(item.categorySlug, item.categoryName)) {
       for (let i = 0; i < qty; i++) earringUnits.push(item.price);
     }
     if (item.sku && BANGLE_BUNDLE_SKUS.includes(item.sku)) {

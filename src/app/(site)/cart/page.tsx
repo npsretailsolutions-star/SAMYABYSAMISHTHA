@@ -17,6 +17,7 @@ export default function CartPage() {
       price: i.price,
       quantity: i.quantity,
       categorySlug: i.categorySlug,
+      categoryName: i.categoryName,
       sku: i.sku,
     }))
   );

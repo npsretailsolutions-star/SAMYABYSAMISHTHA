@@ -70,5 +70,6 @@ export type CartItem = {
   isGiftItem?: boolean;
   /** Used for Shagun Days bundle pricing (any-3-earrings / any-3-selected-bangles). */
   categorySlug?: string;
+  categoryName?: string;
   sku?: string | null;
 };

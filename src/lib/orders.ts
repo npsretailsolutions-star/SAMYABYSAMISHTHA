@@ -24,7 +24,10 @@ export type CartItemInput = {
   isGiftItem?: boolean;
 };
 
-type ProductWithVariants = Product & { variants: ProductVariant[]; category: { slug: string } };
+type ProductWithVariants = Product & {
+  variants: ProductVariant[];
+  category: { slug: string; name: string };
+};
 
 export type OrderQuote = {
   products: ProductWithVariants[];
@@ -44,7 +47,7 @@ export async function quoteOrder(
   const productIds = items.map((i) => i.productId);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
-    include: { variants: true, category: { select: { slug: true } } },
+    include: { variants: true, category: { select: { slug: true, name: true } } },
   });
 
   if (products.length !== productIds.length) {
@@ -95,6 +98,7 @@ export async function quoteOrder(
         price: product.price,
         quantity: item.quantity,
         categorySlug: product.category.slug,
+        categoryName: product.category.name,
         sku: product.sku,
       };
     })

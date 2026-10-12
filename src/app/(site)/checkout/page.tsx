@@ -93,6 +93,7 @@ export default function CheckoutPage() {
       price: i.price,
       quantity: i.quantity,
       categorySlug: i.categorySlug,
+      categoryName: i.categoryName,
       sku: i.sku,
     }))
   );
