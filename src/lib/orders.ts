@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { AUTO_DISCOUNT_PERCENT, PREPAID_DISCOUNT_PERCENT, COD_CHARGE } from "@/lib/constants";
+import { PREPAID_DISCOUNT_PERCENT, COD_CHARGE, getAutoDiscountPercent } from "@/lib/constants";
 import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
 import { sendWhatsAppOrderConfirmation } from "@/lib/whatsapp";
 import { createDelhiveryShipment } from "@/lib/delhivery";
@@ -85,8 +85,9 @@ export async function quoteOrder(
   }, 0);
   const giftTotal = items.reduce((sum, item) => sum + (item.giftCharge || 0), 0);
 
-  // Every order gets at least the sitewide auto-discount, no code needed.
-  let discount = Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100);
+  // Every order gets at least the sitewide auto-discount, no code needed —
+  // it steps up to 20% once the cart crosses the Shagun Days threshold.
+  let discount = Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100);
   let resolvedCouponCode: string | null = null;
   if (couponCode) {
     const code = couponCode.trim().toUpperCase();

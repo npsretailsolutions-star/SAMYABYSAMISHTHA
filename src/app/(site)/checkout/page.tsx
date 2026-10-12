@@ -8,10 +8,10 @@ import { useCart } from "@/components/CartProvider";
 import { useCustomer } from "@/components/CustomerProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
 import {
-  AUTO_DISCOUNT_PERCENT,
-  AUTO_DISCOUNT_LABEL,
   PREPAID_DISCOUNT_PERCENT,
   COD_CHARGE,
+  getAutoDiscountPercent,
+  getAutoDiscountLabel,
 } from "@/lib/constants";
 
 declare global {
@@ -87,12 +87,12 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
 
-  const autoDiscount = Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100);
+  const autoDiscount = Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100);
   const baseDiscount = Math.max(appliedCoupon?.discount ?? 0, autoDiscount);
   const discountLabel =
     appliedCoupon && appliedCoupon.discount > autoDiscount
       ? `${appliedCoupon.code} applied`
-      : AUTO_DISCOUNT_LABEL;
+      : getAutoDiscountLabel(subtotal);
   const prepaidDiscount =
     paymentMethod === "RAZORPAY" ? Math.round((subtotal * PREPAID_DISCOUNT_PERCENT) / 100) : 0;
   const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;

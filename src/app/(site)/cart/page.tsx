@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
-import { AUTO_DISCOUNT_PERCENT, AUTO_DISCOUNT_LABEL } from "@/lib/constants";
+import { getAutoDiscountPercent, getAutoDiscountLabel } from "@/lib/constants";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart } = useCart();
@@ -118,8 +118,8 @@ export default function CartPage() {
             <span>{formatINR(subtotal)}</span>
           </div>
           <div className="flex items-center justify-between text-sm text-emerald-700 mb-2">
-            <span>{AUTO_DISCOUNT_LABEL}</span>
-            <span>-{formatINR(Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100))}</span>
+            <span>{getAutoDiscountLabel(subtotal)}</span>
+            <span>-{formatINR(Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100))}</span>
           </div>
           {giftTotal > 0 && (
             <div className="flex items-center justify-between text-sm text-brand-teal/70 mb-2">
@@ -135,7 +135,7 @@ export default function CartPage() {
             <span>Total</span>
             <span>
               {formatINR(
-                subtotal - Math.round((subtotal * AUTO_DISCOUNT_PERCENT) / 100) + giftTotal
+                subtotal - Math.round((subtotal * getAutoDiscountPercent(subtotal)) / 100) + giftTotal
               )}
             </span>
           </div>
