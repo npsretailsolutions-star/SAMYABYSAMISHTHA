@@ -25,6 +25,7 @@ function EditRow({
   const [name, setName] = useState(category.name);
   const [description, setDescription] = useState(category.description || "");
   const [image, setImage] = useState(category.image || "");
+  const [sortOrder, setSortOrder] = useState(category.sortOrder);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,7 +39,7 @@ function EditRow({
         name,
         description: description || null,
         image: image || null,
-        sortOrder: category.sortOrder,
+        sortOrder,
       }),
     });
     const data = await res.json();
@@ -70,6 +71,16 @@ function EditRow({
               placeholder="Category name"
               className="flex-1 rounded-xl border border-brand-teal/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
             />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-brand-teal/70">Menu order</label>
+            <input
+              type="number"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(Number(e.target.value))}
+              className="w-24 rounded-xl border border-brand-teal/20 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
+            />
+            <span className="text-xs text-brand-teal/50">Lower shows first in the menu</span>
           </div>
           <textarea
             rows={2}

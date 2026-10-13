@@ -38,7 +38,7 @@ function YoutubeIcon() {
   );
 }
 
-export default function Footer() {
+export default function Footer({ categories }: { categories: { name: string; slug: string }[] }) {
   return (
     <footer className="bg-teal-gradient text-brand-cream mt-16">
       <div className="container-px mx-auto grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
@@ -97,12 +97,11 @@ export default function Footer() {
         <div>
           <h4 className="eyebrow text-brand-gold-light mb-4">Shop</h4>
           <ul className="space-y-2 text-sm text-brand-cream/80">
-            <li><Link href="/shop/necklaces" className="hover:text-brand-gold-light">Necklaces</Link></li>
-            <li><Link href="/shop/earrings" className="hover:text-brand-gold-light">Earrings</Link></li>
-            <li><Link href="/shop/bangles" className="hover:text-brand-gold-light">Bangles</Link></li>
-            <li><Link href="/shop/bracelets" className="hover:text-brand-gold-light">Bracelets</Link></li>
-            <li><Link href="/shop/pendants" className="hover:text-brand-gold-light">Pendants</Link></li>
-            <li><Link href="/shop/gifting" className="hover:text-brand-gold-light">Gifting</Link></li>
+            {categories.map((c) => (
+              <li key={c.slug}>
+                <Link href={`/shop/${c.slug}`} className="hover:text-brand-gold-light">{c.name}</Link>
+              </li>
+            ))}
             <li><Link href="/build-your-gift" className="hover:text-brand-gold-light">Build Your Own Gift Set</Link></li>
           </ul>
         </div>

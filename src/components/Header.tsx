@@ -10,18 +10,14 @@ import { useCustomer } from "@/components/CustomerProvider";
 import CartDrawer from "@/components/CartDrawer";
 import SearchOverlay from "@/components/SearchOverlay";
 
-const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Necklaces", href: "/shop/necklaces" },
-  { label: "Earrings", href: "/shop/earrings" },
-  { label: "Bangles", href: "/shop/bangles" },
-  { label: "Bracelets", href: "/shop/bracelets" },
-  { label: "Pendants", href: "/shop/pendants" },
-  { label: "Gifting", href: "/shop/gifting" },
-  { label: "Build Your Gift", href: "/build-your-gift" },
-];
+type NavCategory = { name: string; slug: string };
 
-export default function Header() {
+export default function Header({ categories }: { categories: NavCategory[] }) {
+  const NAV_LINKS = [
+    { label: "Home", href: "/" },
+    ...categories.map((c) => ({ label: c.name, href: `/shop/${c.slug}` })),
+    { label: "Build Your Gift", href: "/build-your-gift" },
+  ];
   const { count, openCart } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { customer } = useCustomer();
