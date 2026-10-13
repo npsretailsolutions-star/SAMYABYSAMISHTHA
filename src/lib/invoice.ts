@@ -1,3 +1,4 @@
+import { INVOICE_LOGO_BASE64 } from "@/lib/invoiceLogo";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 
 // Seller details. Set INVOICE_GSTIN in Vercel once the GST number is available.
@@ -141,16 +142,21 @@ export async function generateInvoicePdf(order: InvoiceOrder): Promise<Uint8Arra
     return out;
   };
 
-  // Header band
-  page.drawRectangle({ x: 0, y: H - 92, width: W, height: 92, color: TEAL });
-  page.drawRectangle({ x: 0, y: H - 95, width: W, height: 3, color: GOLD });
-  text(page, "SAMYA", M, H - 50, 26, bold, GOLD);
-  text(page, "By Samishtha", M + 2, H - 68, 11, oblique, CREAM);
-  textRight(page, "TAX INVOICE", W - M, H - 48, 20, bold, CREAM);
-  textRight(page, "Original for Recipient", W - M, H - 66, 8.5, reg, CREAM);
+  // Header: logo on top, brand name centred in teal, then the document title
+  const logo = await pdf.embedPng(Buffer.from(INVOICE_LOGO_BASE64, "base64"));
+  const logoW = 92;
+  const logoH = (logo.height / logo.width) * logoW;
+  page.drawImage(logo, { x: (W - logoW) / 2, y: H - 24 - logoH, width: logoW, height: logoH });
+  const brand = "Samya By Samishtha";
+  const brandY = H - 24 - logoH - 26;
+  text(page, brand, (W - bold.widthOfTextAtSize(brand, 20)) / 2, brandY, 20, bold, TEAL);
+  page.drawLine({ start: { x: W / 2 - 40, y: brandY - 10 }, end: { x: W / 2 + 40, y: brandY - 10 }, thickness: 1.5, color: GOLD });
+  const title = "TAX INVOICE";
+  text(page, title, (W - bold.widthOfTextAtSize(title, 12)) / 2, brandY - 28, 12, bold, GOLD);
+  textRight(page, "Original for Recipient", W - M, brandY - 28, 8, reg, GREY);
 
   // Meta
-  let y = H - 122;
+  let y = brandY - 62;
   const meta: [string, string][] = [
     ["Invoice No", invoiceNumber(order.orderNumber)],
     ["Invoice Date", order.createdAt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })],
