@@ -111,7 +111,6 @@ export async function generateInvoicePdf(order: InvoiceOrder): Promise<Uint8Arra
   const pdf = await PDFDocument.create();
   const reg = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const oblique = await pdf.embedFont(StandardFonts.HelveticaOblique);
 
   const W = 595;
   const H = 842;
