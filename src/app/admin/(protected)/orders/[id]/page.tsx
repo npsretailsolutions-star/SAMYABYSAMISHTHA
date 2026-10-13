@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
-import ShipOrderAction from "@/components/admin/ShipOrderAction";
 
 export const dynamic = "force-dynamic";
 
@@ -60,15 +59,6 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
             <p className="text-sm text-brand-teal/60 mt-2 italic">Note: {order.notes}</p>
           )}
         </div>
-      </div>
-
-      <div className="mb-6">
-        <ShipOrderAction
-          orderId={order.id}
-          trackingNumber={order.trackingNumber}
-          shippingStatus={order.shippingStatus}
-          shippingError={order.shippingError}
-        />
       </div>
 
       <div className="rounded-2xl bg-white p-6 shadow-card mb-6">

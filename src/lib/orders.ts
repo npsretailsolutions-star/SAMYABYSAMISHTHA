@@ -2,9 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { PREPAID_DISCOUNT_PERCENT, COD_CHARGE, getAutoDiscountPercent } from "@/lib/constants";
 import { computeBundleDiscount } from "@/lib/discounts";
 import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
-import { sendWhatsAppOrderConfirmation } from "@/lib/whatsapp";
-import { createDelhiveryShipment } from "@/lib/delhivery";
-import { formatINR } from "@/lib/format";
 import type { Product, ProductVariant } from "@prisma/client";
 
 export class OrderValidationError extends Error {
@@ -280,73 +277,12 @@ export async function createOrderRecord(
     })),
   };
 
-  // Vercel stops the function as soon as the response is sent, so these must be awaited
-  // (not fire-and-forget) or emails get dropped intermittently. Emails go one after
-  // another to stay under Resend's rate limit.
+  // Awaited (not fire-and-forget): Vercel stops the function once the response is sent.
+  // Emails go one after another to stay under Resend's rate limit.
   await sendOrderNotificationEmail(emailPayload).catch((e) => console.error("Admin email", e));
   await sendCustomerOrderConfirmationEmail({ ...emailPayload, createdAt: order.createdAt }).catch((e) =>
     console.error("Customer email", e)
   );
-  await shipOrderViaDelhivery(order).catch((e) => console.error("Delhivery", e));
-  await sendWhatsAppOrderConfirmation({
-    orderNumber: order.orderNumber,
-    customerName: order.customerName,
-    phone: order.phone,
-    totalFormatted: formatINR(order.total),
-  }).catch((e) => console.error("WhatsApp", e));
 
   return order;
-}
-
-type OrderWithItems = {
-  id: string;
-  orderNumber: string;
-  customerName: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  pincode: string;
-  paymentMethod: string;
-  total: number;
-  items: { name: string }[];
-};
-
-export async function shipOrderViaDelhivery(order: OrderWithItems) {
-  const result = await createDelhiveryShipment({
-    orderNumber: order.orderNumber,
-    customerName: order.customerName,
-    phone: order.phone,
-    address: order.address,
-    city: order.city,
-    state: order.state,
-    pincode: order.pincode,
-    paymentMethod: order.paymentMethod === "COD" ? "COD" : "RAZORPAY",
-    codAmount: Math.round(order.total / 100),
-    totalAmount: Math.round(order.total / 100),
-    productsDesc: order.items.map((i) => i.name).join(", "),
-  });
-
-  if (result.ok) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        trackingNumber: result.waybill,
-        shippingProvider: "Delhivery",
-        shippingStatus: "Manifested",
-        shippingError: null,
-      },
-    });
-  } else {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        shippingProvider: "Delhivery",
-        shippingStatus: "Failed",
-        shippingError: result.error,
-      },
-    });
-  }
-
-  return result;
 }
