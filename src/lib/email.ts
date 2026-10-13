@@ -2,6 +2,24 @@ import { Resend } from "resend";
 import { formatINR } from "@/lib/format";
 import { generateInvoicePdf, invoiceNumber } from "@/lib/invoice";
 
+
+type SendArgs = Parameters<Resend["emails"]["send"]>[0];
+
+// Resend returns { error } instead of throwing, and rate-limits (429) bursts — retry once and log.
+async function sendWithRetry(resend: Resend, args: SendArgs, label: string) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const { error } = await resend.emails.send(args);
+      if (!error) return true;
+      console.error(`${label}: Resend error (attempt ${attempt})`, error);
+    } catch (err) {
+      console.error(`${label}: send threw (attempt ${attempt})`, err);
+    }
+    await new Promise((r) => setTimeout(r, 700 * attempt));
+  }
+  return false;
+}
+
 const ORDER_NOTIFICATION_EMAIL = "npsretailsolutions@gmail.com";
 const CUSTOMER_SUPPORT_EMAIL = "care@samyabysamishtha.com";
 
@@ -65,16 +83,16 @@ export async function sendOrderNotificationEmail(order: OrderForEmail) {
     </div>
   `;
 
-  try {
-    await resend.emails.send({
+  await sendWithRetry(
+    resend,
+    {
       from: "Samya By Samishtha <orders@samyabysamishtha.com>",
       to: ORDER_NOTIFICATION_EMAIL,
       subject: `New Order: ${order.orderNumber} — ${formatINR(order.total)}`,
       html,
-    });
-  } catch (err) {
-    console.error("Failed to send order notification email", err);
-  }
+    },
+    "Admin order email"
+  );
 }
 
 export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail & { createdAt?: Date }) {
@@ -132,16 +150,16 @@ export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail & 
     console.error("Failed to generate invoice PDF", err);
   }
 
-  try {
-    await resend.emails.send({
+  await sendWithRetry(
+    resend,
+    {
       from: "Samya By Samishtha <orders@samyabysamishtha.com>",
       to: order.email,
       attachments,
       replyTo: CUSTOMER_SUPPORT_EMAIL,
       subject: `Order Confirmed: ${order.orderNumber} — Samya By Samishtha`,
       html,
-    });
-  } catch (err) {
-    console.error("Failed to send customer order confirmation email", err);
-  }
+    },
+    "Customer order email"
+  );
 }

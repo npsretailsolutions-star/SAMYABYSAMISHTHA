@@ -72,6 +72,7 @@ export async function createDelhiveryShipment(
   try {
     const res = await fetch(`${DELHIVERY_BASE_URL}/api/cmu/create.json`, {
       method: "POST",
+      signal: AbortSignal.timeout(8000),
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: `Token ${DELHIVERY_API_TOKEN}`,

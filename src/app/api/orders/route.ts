@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getAdminSession, getCustomerSession } from "@/lib/auth";
 import { quoteOrder, createOrderRecord, OrderValidationError } from "@/lib/orders";
 
+export const maxDuration = 30;
+
 const orderSchema = z.object({
   customerName: z.string().min(2),
   email: z.string().email(),

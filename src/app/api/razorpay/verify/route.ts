@@ -4,6 +4,8 @@ import { z } from "zod";
 import { quoteOrder, createOrderRecord, OrderValidationError } from "@/lib/orders";
 import { getCustomerSession } from "@/lib/auth";
 
+export const maxDuration = 30;
+
 const schema = z.object({
   razorpay_order_id: z.string(),
   razorpay_payment_id: z.string(),

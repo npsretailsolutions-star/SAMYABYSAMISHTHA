@@ -256,7 +256,6 @@ export async function createOrderRecord(
     return created;
   });
 
-  shipOrderViaDelhivery(order).catch(() => {});
 
   const emailPayload = {
     orderNumber: order.orderNumber,
@@ -281,14 +280,20 @@ export async function createOrderRecord(
     })),
   };
 
-  sendOrderNotificationEmail(emailPayload).catch(() => {});
-  sendCustomerOrderConfirmationEmail({ ...emailPayload, createdAt: order.createdAt }).catch(() => {});
-  sendWhatsAppOrderConfirmation({
+  // Vercel stops the function as soon as the response is sent, so these must be awaited
+  // (not fire-and-forget) or emails get dropped intermittently. Emails go one after
+  // another to stay under Resend's rate limit.
+  await sendOrderNotificationEmail(emailPayload).catch((e) => console.error("Admin email", e));
+  await sendCustomerOrderConfirmationEmail({ ...emailPayload, createdAt: order.createdAt }).catch((e) =>
+    console.error("Customer email", e)
+  );
+  await shipOrderViaDelhivery(order).catch((e) => console.error("Delhivery", e));
+  await sendWhatsAppOrderConfirmation({
     orderNumber: order.orderNumber,
     customerName: order.customerName,
     phone: order.phone,
     totalFormatted: formatINR(order.total),
-  }).catch(() => {});
+  }).catch((e) => console.error("WhatsApp", e));
 
   return order;
 }
