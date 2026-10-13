@@ -7,7 +7,7 @@ import { ADMIN_COOKIE } from "@/lib/constants";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname === "/admin/login") {
+  if (["/admin/login", "/admin/forgot-password", "/admin/reset-password"].includes(pathname)) {
     return NextResponse.next();
   }
 

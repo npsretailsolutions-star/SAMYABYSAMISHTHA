@@ -69,6 +69,11 @@ export default function AdminLoginForm() {
             className="w-full rounded-xl border border-brand-teal/20 px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand-gold"
           />
         </div>
+        <div className="text-right -mt-1">
+          <a href="/admin/forgot-password" className="text-xs text-brand-gold-dark hover:underline">
+            Forgot password?
+          </a>
+        </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button type="submit" disabled={loading} className="btn-gold w-full">
           {loading ? "Signing in..." : "Sign In"}
