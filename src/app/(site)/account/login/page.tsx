@@ -118,6 +118,11 @@ function AccountLoginForm() {
               value={loginForm.password}
               onChange={(v) => setLoginForm((f) => ({ ...f, password: v }))}
             />
+            <div className="text-right -mt-2">
+              <Link href="/account/forgot-password" className="text-xs text-brand-gold-dark hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <button type="submit" disabled={submitting} className="btn-gold w-full">
               {submitting ? "Logging in..." : "Login"}
             </button>

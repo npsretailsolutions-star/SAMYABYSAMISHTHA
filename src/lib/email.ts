@@ -163,3 +163,32 @@ export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail & 
     "Customer order email"
   );
 }
+
+export async function sendPasswordResetEmail(to: string, name: string, resetUrl: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY not set — skipping password reset email");
+    return;
+  }
+  const html = `
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
+      <h2 style="color:#0b3d3a;">Reset your password</h2>
+      <p>Hi ${name.split(" ")[0]}, we received a request to reset the password for your Samya By Samishtha account.</p>
+      <p style="margin:24px 0;">
+        <a href="${resetUrl}" style="background:#c9a24a;color:#0b3d3a;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:600;">Reset Password</a>
+      </p>
+      <p style="font-size:13px;color:#777;">This link is valid for 1 hour. If you didn't request this, you can safely ignore this email — your password won't change.</p>
+    </div>
+  `;
+  await sendWithRetry(
+    new Resend(apiKey),
+    {
+      from: "Samya By Samishtha <orders@samyabysamishtha.com>",
+      to,
+      replyTo: CUSTOMER_SUPPORT_EMAIL,
+      subject: "Reset your Samya By Samishtha password",
+      html,
+    },
+    "Password reset email"
+  );
+}
