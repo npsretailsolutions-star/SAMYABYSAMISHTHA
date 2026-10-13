@@ -38,13 +38,13 @@ export default async function HomePage() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-brand-cream">
-        <div className="relative w-full aspect-[16/8] sm:aspect-[16/7] lg:aspect-[16/6]">
+        <div className="relative w-full aspect-[8/3]">
           <Image
             src="/images/hero-banner.webp"
             alt="Samya By Samishtha — Timeless Beauty, Made For You"
             fill
             priority
-            className="object-cover"
+            className="object-contain"
             sizes="100vw"
           />
         </div>
