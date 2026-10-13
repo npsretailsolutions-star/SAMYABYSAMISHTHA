@@ -13,12 +13,13 @@ import {
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 import NewsletterBox from "@/components/NewsletterBox";
+import HeroBanner from "@/components/HeroBanner";
 import type { ProductWithCategory } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [categories, featured, giftIdeas] = await Promise.all([
+  const [categories, featured, giftIdeas, banners] = await Promise.all([
     prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.product.findMany({
       where: { isFeatured: true, isActive: true },
@@ -32,23 +33,30 @@ export default async function HomePage() {
       orderBy: { createdAt: "desc" },
       take: 4,
     }),
+    prisma.heroBanner.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    }),
   ]);
+
+  const slides =
+    banners.length > 0
+      ? banners
+      : [
+          {
+            id: "default",
+            imageUrl: "/images/hero-banner.webp",
+            width: 2000,
+            height: 750,
+            alt: "Samya By Samishtha",
+            linkUrl: null,
+          },
+        ];
 
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-brand-cream">
-        <div className="relative w-full aspect-[8/3]">
-          <Image
-            src="/images/hero-banner.webp"
-            alt="Samya By Samishtha — Timeless Beauty, Made For You"
-            fill
-            priority
-            className="object-contain"
-            sizes="100vw"
-          />
-        </div>
-      </section>
+      <HeroBanner slides={slides} />
 
       {/* Trust strip */}
       <section className="border-b border-brand-teal/10 bg-white">
