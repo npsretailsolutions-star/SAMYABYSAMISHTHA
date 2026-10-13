@@ -31,7 +31,17 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
             })}
           </p>
         </div>
-        <OrderStatusSelect orderId={order.id} status={order.status} />
+        <div className="flex items-center gap-3">
+          <a
+            href={`/api/orders/${order.id}/invoice`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline !py-2 !px-4 text-sm"
+          >
+            Invoice PDF
+          </a>
+          <OrderStatusSelect orderId={order.id} status={order.status} />
+        </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 mb-6">

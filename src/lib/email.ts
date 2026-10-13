@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { formatINR } from "@/lib/format";
+import { generateInvoicePdf, invoiceNumber } from "@/lib/invoice";
 
 const ORDER_NOTIFICATION_EMAIL = "npsretailsolutions@gmail.com";
 const CUSTOMER_SUPPORT_EMAIL = "care@samyabysamishtha.com";
@@ -76,7 +77,7 @@ export async function sendOrderNotificationEmail(order: OrderForEmail) {
   }
 }
 
-export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail) {
+export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail & { createdAt?: Date }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn("RESEND_API_KEY not set — skipping customer order confirmation email");
@@ -118,15 +119,24 @@ export async function sendCustomerOrderConfirmationEmail(order: OrderForEmail) {
         ${order.phone}
       </p>
       <p style="font-size:13px;color:#777;margin-top:24px;">
-        Questions about your order? Reply to this email or reach us at care@samyabysamishtha.com.
+        Your tax invoice is attached (all prices are inclusive of 3% GST). Questions about your order? Reply to this email or reach us at care@samyabysamishtha.com.
       </p>
     </div>
   `;
+
+  let attachments: { filename: string; content: Buffer }[] | undefined;
+  try {
+    const pdf = await generateInvoicePdf({ ...order, createdAt: order.createdAt ?? new Date() });
+    attachments = [{ filename: `${invoiceNumber(order.orderNumber)}.pdf`, content: Buffer.from(pdf) }];
+  } catch (err) {
+    console.error("Failed to generate invoice PDF", err);
+  }
 
   try {
     await resend.emails.send({
       from: "Samya By Samishtha <orders@samyabysamishtha.com>",
       to: order.email,
+      attachments,
       replyTo: CUSTOMER_SUPPORT_EMAIL,
       subject: `Order Confirmed: ${order.orderNumber} — Samya By Samishtha`,
       html,

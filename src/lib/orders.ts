@@ -282,7 +282,7 @@ export async function createOrderRecord(
   };
 
   sendOrderNotificationEmail(emailPayload).catch(() => {});
-  sendCustomerOrderConfirmationEmail(emailPayload).catch(() => {});
+  sendCustomerOrderConfirmationEmail({ ...emailPayload, createdAt: order.createdAt }).catch(() => {});
   sendWhatsAppOrderConfirmation({
     orderNumber: order.orderNumber,
     customerName: order.customerName,
