@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import type { CartItem } from "@/lib/types";
+import { track } from "@/lib/metaPixel";
 
 const STORAGE_KEY = "sbs_cart_v1";
 
@@ -66,6 +67,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return [...prev, { ...item, quantity: Math.min(quantity, item.stock) }];
       });
       setIsCartOpen(true);
+      track("AddToCart", {
+        content_ids: [item.productId],
+        content_type: "product",
+        content_name: item.name,
+        value: (item.price * quantity) / 100,
+        currency: "INR",
+      });
       fetch("/api/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

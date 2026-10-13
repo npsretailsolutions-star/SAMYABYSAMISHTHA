@@ -14,6 +14,7 @@ import ReviewsList, { RatingSummary } from "@/components/ReviewsList";
 import ReviewForm from "@/components/ReviewForm";
 import ProductAccordion from "@/components/ProductAccordion";
 import CareInstructionsBox from "@/components/CareInstructionsBox";
+import PixelEvent from "@/components/PixelEvent";
 import ProductTrustBadges from "@/components/ProductTrustBadges";
 
 export const dynamic = "force-dynamic";
@@ -105,6 +106,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   return (
     <div className="container-px mx-auto section-y">
+      <PixelEvent
+        event="ViewContent"
+        data={{
+          content_ids: [product.id],
+          content_type: "product",
+          content_name: product.name,
+          value: product.price / 100,
+          currency: "INR",
+        }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

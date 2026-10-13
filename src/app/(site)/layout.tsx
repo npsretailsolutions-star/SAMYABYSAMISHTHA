@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import PromoBar from "@/components/PromoBar";
 import TrackVisit from "@/components/TrackVisit";
 import WelcomePopup from "@/components/WelcomePopup";
+import MetaPixel from "@/components/MetaPixel";
 import TawkToWidget from "@/components/TawkToWidget";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <>
+      <MetaPixel />
       <TrackVisit />
       <WelcomePopup />
       <PromoBar />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import {
   getAutoDiscountPercent,
   getAutoDiscountLabel,
 } from "@/lib/constants";
+import { track } from "@/lib/metaPixel";
 import { computeBundleDiscount } from "@/lib/discounts";
 
 declare global {
@@ -42,6 +43,19 @@ export default function CheckoutPage() {
   const { items, subtotal, giftTotal, clearCart, closeCart } = useCart();
   const { customer } = useCustomer();
   const router = useRouter();
+
+  const pixelSent = useRef(false);
+  useEffect(() => {
+    if (pixelSent.current || items.length === 0) return;
+    pixelSent.current = true;
+    track("InitiateCheckout", {
+      content_ids: items.map((i) => i.productId),
+      content_type: "product",
+      num_items: items.reduce((n, i) => n + i.quantity, 0),
+      value: subtotal / 100,
+      currency: "INR",
+    });
+  }, [items, subtotal]);
 
   useEffect(() => {
     closeCart();

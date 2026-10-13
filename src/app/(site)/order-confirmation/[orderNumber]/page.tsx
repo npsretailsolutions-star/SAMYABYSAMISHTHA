@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import PixelEvent from "@/components/PixelEvent";
 import { formatINR } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,17 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="container-px mx-auto section-y max-w-2xl">
+      <PixelEvent
+        event="Purchase"
+        onceKey={`purchase-${order.orderNumber}`}
+        data={{
+          content_ids: order.items.map((i) => i.productId).filter(Boolean),
+          content_type: "product",
+          num_items: order.items.reduce((n, i) => n + i.quantity, 0),
+          value: order.total / 100,
+          currency: "INR",
+        }}
+      />
       <div className="text-center mb-8">
         <CheckCircle2 size={52} className="mx-auto text-emerald-600 mb-4" />
         <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-brand-teal">
