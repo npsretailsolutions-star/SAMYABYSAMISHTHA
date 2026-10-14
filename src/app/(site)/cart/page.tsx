@@ -8,10 +8,12 @@ import { useCart } from "@/components/CartProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
 import { getAutoDiscountPercent, getAutoDiscountLabel } from "@/lib/constants";
 import { computeBundleDiscount } from "@/lib/discounts";
+import { useWelcomeEligible } from "@/lib/useWelcomeEligible";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart } = useCart();
 
+  const welcomeEligible = useWelcomeEligible();
   const bundleResult = computeBundleDiscount(
     items.map((i) => ({
       price: i.price,
@@ -22,7 +24,7 @@ export default function CartPage() {
     }))
   );
   const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
-  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal)) / 100);
+  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal, welcomeEligible)) / 100);
   const totalDiscount = bundleResult.totalDiscount + autoDiscount;
 
   useEffect(() => {
@@ -141,10 +143,12 @@ export default function CartPage() {
               <span>-{formatINR(bundleResult.totalDiscount)}</span>
             </div>
           )}
-          <div className="flex items-center justify-between text-sm text-emerald-700 mb-2">
-            <span>{getAutoDiscountLabel(subtotal)}</span>
-            <span>-{formatINR(autoDiscount)}</span>
-          </div>
+          {autoDiscount > 0 && (
+            <div className="flex items-center justify-between text-sm text-emerald-700 mb-2">
+              <span>{getAutoDiscountLabel(subtotal)}</span>
+              <span>-{formatINR(autoDiscount)}</span>
+            </div>
+          )}
           {giftTotal > 0 && (
             <div className="flex items-center justify-between text-sm text-brand-teal/70 mb-2">
               <span>Gift Wrapping</span>

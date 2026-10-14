@@ -2,15 +2,19 @@ export const ADMIN_COOKIE = "sbs_admin_session";
 export const CUSTOMER_COOKIE = "sbs_customer_session";
 
 export const AUTO_DISCOUNT_PERCENT = 10;
-export const AUTO_DISCOUNT_LABEL = "10% Off (All Orders)";
+export const AUTO_DISCOUNT_LABEL = "10% Welcome Offer";
+export const WELCOME_COOKIE = "sbs_welcome_email";
 
 // Shagun Days festive offer: discount steps up to 20% once the cart crosses ₹1000.
 export const AUTO_DISCOUNT_THRESHOLD = 100000; // ₹1000 in paise
 export const AUTO_DISCOUNT_THRESHOLD_PERCENT = 20;
 export const AUTO_DISCOUNT_THRESHOLD_LABEL = "Shagun Days Offer (20% Off)";
 
-export function getAutoDiscountPercent(subtotal: number) {
-  return subtotal >= AUTO_DISCOUNT_THRESHOLD ? AUTO_DISCOUNT_THRESHOLD_PERCENT : AUTO_DISCOUNT_PERCENT;
+// The 10% base discount is a welcome offer: only visitors who shared their email
+// get it. The 20% Shagun Days tier applies to everyone.
+export function getAutoDiscountPercent(subtotal: number, welcomeEligible: boolean) {
+  if (subtotal >= AUTO_DISCOUNT_THRESHOLD) return AUTO_DISCOUNT_THRESHOLD_PERCENT;
+  return welcomeEligible ? AUTO_DISCOUNT_PERCENT : 0;
 }
 
 export function getAutoDiscountLabel(subtotal: number) {

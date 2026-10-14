@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isWelcomeEligible } from "@/lib/welcome";
 import { PREPAID_DISCOUNT_PERCENT, COD_CHARGE, getAutoDiscountPercent } from "@/lib/constants";
 import { computeBundleDiscount } from "@/lib/discounts";
 import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
@@ -102,10 +103,13 @@ export async function quoteOrder(
   );
   const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
 
-  // Every order gets at least the sitewide auto-discount, no code needed —
-  // it steps up to 20% once the cart crosses the Shagun Days threshold. This
+  // Visitors who shared their email get the 10% welcome discount automatically; the
+  // 20% Shagun Days tier (cart ≥ ₹1000) applies to everyone. This
   // only applies to the portion of the cart not already covered by a bundle.
-  let autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal)) / 100);
+  const welcomeEligible = await isWelcomeEligible();
+  let autoDiscount = Math.round(
+    (remainingSubtotal * getAutoDiscountPercent(subtotal, welcomeEligible)) / 100
+  );
   let resolvedCouponCode: string | null = null;
   if (couponCode) {
     const code = couponCode.trim().toUpperCase();

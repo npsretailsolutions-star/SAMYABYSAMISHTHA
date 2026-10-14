@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 const SESSION_KEY = "sbs_welcome_popup_shown";
+const SUBSCRIBED_KEY = "sbs_welcome_subscribed";
 
 type ConfettiPiece = {
   id: number;
@@ -38,7 +39,7 @@ export default function WelcomePopup() {
 
   useEffect(() => {
     try {
-      if (sessionStorage.getItem(SESSION_KEY)) return;
+      if (sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SUBSCRIBED_KEY)) return;
     } catch {
       // ignore
     }
@@ -73,6 +74,7 @@ export default function WelcomePopup() {
       }
       setStatus("done");
       try {
+        localStorage.setItem(SUBSCRIBED_KEY, "1");
         sessionStorage.setItem(SESSION_KEY, "1");
       } catch {
         // ignore

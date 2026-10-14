@@ -15,6 +15,7 @@ import {
 } from "@/lib/constants";
 import { track } from "@/lib/metaPixel";
 import { computeBundleDiscount } from "@/lib/discounts";
+import { useWelcomeEligible } from "@/lib/useWelcomeEligible";
 
 declare global {
   interface Window {
@@ -102,6 +103,7 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
 
+  const welcomeEligible = useWelcomeEligible();
   const bundleResult = computeBundleDiscount(
     items.map((i) => ({
       price: i.price,
@@ -113,7 +115,7 @@ export default function CheckoutPage() {
   );
   const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
 
-  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal)) / 100);
+  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal, welcomeEligible)) / 100);
   const baseDiscount = Math.max(appliedCoupon?.discount ?? 0, autoDiscount);
   const discountLabel =
     appliedCoupon && appliedCoupon.discount > autoDiscount
