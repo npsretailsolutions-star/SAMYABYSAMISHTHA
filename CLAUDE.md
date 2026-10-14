@@ -68,3 +68,31 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
 - Never `pkill -f "next start"` in the same Bash call as other commands (kills the shell).
 - A local `next build` fails at sitemap prerender if Postgres isn't running locally — not a code bug.
 - Local Prisma client must be regenerated (`npx prisma generate`) after schema edits before typechecking.
+
+## Current status (last updated Oct 2026)
+Everything below is live on production unless marked otherwise.
+- Done: storefront + admin, Razorpay/COD checkout, order emails with GST invoice (GSTIN 07GQZPS6439G1ZS in
+  footer + invoice), track-order page, reviews with approval, hero banner manager, category-driven menus,
+  Build-Your-Own gift sets, Meta Pixel + product feed, subscriber capture (welcome popup + footer box →
+  Admin → Subscribers, CSV export), admin-editable automatic offers (Admin → Coupons), "Buy any 3" tags on
+  eligible products, 3-day return badge.
+- Meta Ads: Pixel verified (PageView, AddToCart, InitiateCheckout received). Catalogue created in Commerce
+  Manager from `/feed/meta.xml`, linked to dataset "Samya Website". Owner was about to create the Sales
+  campaign (Advantage+ catalog ads). Use the Add to Cart / Initiate Checkout event until Purchase data builds up.
+- Removed / not doing: Delhivery, WhatsApp, Google reviews section (owner's card was declined on Google Cloud
+  billing; a "Rate us on Google" link needs only the Google Business review URL — offered, not built).
+
+## Open items / ideas (none are blocking)
+- Conversions API for Meta (not built); Privacy Policy line about collecting emails and the Meta Pixel.
+- About Us page improvements, extra trust badges, review-request email after delivery.
+- Tawk.to live chat: widget code is in place, owner's account setup unconfirmed.
+- Owner-side hygiene: delete the old Delhivery token and the Google API key that were pasted in chat; remove stale
+  `DELHIVERY_*` env vars in Vercel; keep logins/env values in a password manager; database backups.
+- Bulk-import scripts for bangles (KR-1xx) were generated for the owner to paste in the admin console; whether
+  they were all run is unconfirmed — check Admin → Products before re-sending.
+- Footer subscribe box only exists on the homepage; consider adding it to the site footer.
+
+## Working with this owner
+Hinglish, short messages, often screenshots. Prefer small, safe changes pushed straight to the branch; explain
+what changed and what to check after the deploy in simple words. Never ask for or repeat secrets; tell them to
+paste keys directly into Vercel.
