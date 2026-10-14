@@ -7,6 +7,7 @@ import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import WishlistButton from "@/components/WishlistButton";
 import { formatINR } from "@/lib/format";
+import { getBundleOfferLabel } from "@/lib/discounts";
 import { parseImages, type ProductWithCategory } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: ProductWithCategory }) {
@@ -21,6 +22,12 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
           ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
         )
       : 0;
+
+  const offerLabel = getBundleOfferLabel({
+    sku: product.sku,
+    categorySlug: product.category?.slug,
+    categoryName: product.category?.name,
+  });
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -99,6 +106,11 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
             </span>
           )}
         </div>
+        {offerLabel && (
+          <span className="mt-1 inline-block self-start rounded-full bg-brand-gold/15 px-2 py-0.5 text-[10px] font-semibold text-brand-gold-dark">
+            {offerLabel}
+          </span>
+        )}
         <button
           onClick={() =>
             product.stock > 0 &&

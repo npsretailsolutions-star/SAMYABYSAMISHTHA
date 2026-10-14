@@ -10,6 +10,7 @@ import ProductAccordion from "@/components/ProductAccordion";
 import CareInstructionsBox from "@/components/CareInstructionsBox";
 import ProductTrustBadges from "@/components/ProductTrustBadges";
 import { formatINR } from "@/lib/format";
+import { getBundleOfferLabel } from "@/lib/discounts";
 import { parseImages } from "@/lib/types";
 
 type Variant = {
@@ -55,6 +56,7 @@ export default function ProductDetailVariants({
   const selected = variants.find((v) => v.id === selectedId) || variants[0];
   const selectedImages = parseImages(selected.images);
   const attributeName = selected.attributeName;
+  const offerLabel = getBundleOfferLabel({ sku, categorySlug, categoryName });
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
@@ -81,6 +83,11 @@ export default function ProductDetailVariants({
             </>
           )}
         </div>
+        {offerLabel && (
+          <p className="mt-3 inline-block rounded-full bg-brand-gold/15 px-3 py-1 text-xs font-semibold text-brand-gold-dark">
+            🎁 {offerLabel}
+          </p>
+        )}
 
         <div className="mt-6">
           <p className="text-sm font-medium text-brand-teal mb-2">

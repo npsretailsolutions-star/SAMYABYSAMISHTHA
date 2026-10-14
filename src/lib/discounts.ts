@@ -5,6 +5,7 @@ import {
   BANGLE_BUNDLE_PRICE,
   BANGLE_BUNDLE_SKUS,
 } from "@/lib/constants";
+import { formatINR } from "@/lib/format";
 
 export type BundleLineInput = {
   price: number;
@@ -18,6 +19,22 @@ function isEarringCategory(slug?: string | null, name?: string | null) {
   if (slug && slug.toLowerCase().includes("earring")) return true;
   if (name && name.toLowerCase().includes("earring")) return true;
   return false;
+}
+
+// Label for the "buy any 3" offer a product qualifies for, if any — shown on the
+// product card and product page so shoppers can see which pieces are in the offer.
+export function getBundleOfferLabel(item: {
+  sku?: string | null;
+  categorySlug?: string | null;
+  categoryName?: string | null;
+}): string | null {
+  if (item.sku && BANGLE_BUNDLE_SKUS.includes(item.sku)) {
+    return `Buy any ${BANGLE_BUNDLE_SIZE} Bangles @ ${formatINR(BANGLE_BUNDLE_PRICE)}`;
+  }
+  if (isEarringCategory(item.categorySlug, item.categoryName)) {
+    return `Buy any ${EARRINGS_BUNDLE_SIZE} Earrings @ ${formatINR(EARRINGS_BUNDLE_PRICE)}`;
+  }
+  return null;
 }
 
 function bundleDiscountFor(units: number[], size: number, bundlePrice: number) {
