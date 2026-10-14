@@ -2,7 +2,7 @@ import { RotateCcw, ShieldCheck, Truck, Flag, Gem, XCircle } from "lucide-react"
 import DeliveryEstimate from "@/components/DeliveryEstimate";
 
 const BADGES = [
-  { icon: RotateCcw, label: "5 Days Return" },
+  { icon: RotateCcw, label: "3 Days Return" },
   { icon: ShieldCheck, label: "Skin Friendly" },
   { icon: Truck, label: "Free Shipping" },
   { icon: Flag, label: "Made In India" },
@@ -15,7 +15,7 @@ export default function ProductTrustBadges({ isGiftItem }: { isGiftItem?: boolea
       <DeliveryEstimate />
       <div className="grid grid-cols-3 gap-4">
         {BADGES.map(({ icon: Icon, label }) => {
-          if (isGiftItem && label === "5 Days Return") {
+          if (isGiftItem && label === "3 Days Return") {
             return (
               <div key={label} className="flex flex-col items-center gap-1.5 text-center">
                 <XCircle size={20} className="text-red-400" />
