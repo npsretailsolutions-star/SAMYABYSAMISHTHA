@@ -16,7 +16,8 @@ import ProductAccordion from "@/components/ProductAccordion";
 import CareInstructionsBox from "@/components/CareInstructionsBox";
 import PixelEvent from "@/components/PixelEvent";
 import ProductTrustBadges from "@/components/ProductTrustBadges";
-import { getBundleOfferLabel } from "@/lib/discounts";
+import { getBundleOfferLabel } from "@/lib/offers";
+import { getActiveOffers } from "@/lib/offersServer";
 
 export const dynamic = "force-dynamic";
 
@@ -61,11 +62,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
       ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
       : 0;
 
-  const offerLabel = getBundleOfferLabel({
-    sku: product.sku,
-    categorySlug: product.category.slug,
-    categoryName: product.category.name,
-  });
+  const offerLabel = getBundleOfferLabel(
+    {
+      sku: product.sku,
+      categorySlug: product.category.slug,
+      categoryName: product.category.name,
+    },
+    await getActiveOffers()
+  );
 
   const related = await prisma.product.findMany({
     where: {

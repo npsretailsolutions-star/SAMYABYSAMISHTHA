@@ -8,14 +8,11 @@ import { useCart } from "@/components/CartProvider";
 import { useCustomer } from "@/components/CustomerProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
 import {
-  PREPAID_DISCOUNT_PERCENT,
   COD_CHARGE,
-  getAutoDiscountPercent,
-  getAutoDiscountLabel,
 } from "@/lib/constants";
 import { track } from "@/lib/metaPixel";
-import { computeBundleDiscount } from "@/lib/discounts";
-import { useWelcomeEligible } from "@/lib/useWelcomeEligible";
+import { computeAutoPricing } from "@/lib/offers";
+import { useOffers } from "@/components/OffersProvider";
 
 declare global {
   interface Window {
@@ -103,28 +100,28 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
 
-  const welcomeEligible = useWelcomeEligible();
-  const bundleResult = computeBundleDiscount(
+  const { offers, welcomeEligible } = useOffers();
+  const pricing = computeAutoPricing(
     items.map((i) => ({
       price: i.price,
       quantity: i.quantity,
       categorySlug: i.categorySlug,
       categoryName: i.categoryName,
       sku: i.sku,
-    }))
+    })),
+    subtotal,
+    offers,
+    welcomeEligible
   );
-  const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
-
-  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal, welcomeEligible)) / 100);
+  const autoDiscount = pricing.percentDiscount;
   const baseDiscount = Math.max(appliedCoupon?.discount ?? 0, autoDiscount);
   const discountLabel =
     appliedCoupon && appliedCoupon.discount > autoDiscount
       ? `${appliedCoupon.code} applied`
-      : getAutoDiscountLabel(subtotal);
-  const prepaidDiscount =
-    paymentMethod === "RAZORPAY" ? Math.round((remainingSubtotal * PREPAID_DISCOUNT_PERCENT) / 100) : 0;
+      : pricing.percentOffer?.label;
+  const prepaidDiscount = paymentMethod === "RAZORPAY" ? pricing.prepaidDiscount : 0;
   const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
-  const discount = bundleResult.totalDiscount + baseDiscount + prepaidDiscount;
+  const discount = pricing.bundleDiscount + baseDiscount + prepaidDiscount;
   const total = subtotal - discount + codCharge + giftTotal;
 
   const applyCoupon = async () => {
@@ -366,7 +363,7 @@ export default function CheckoutPage() {
                   Pay Online — Cards, UPI, Netbanking
                 </p>
                 <p className="text-xs text-emerald-700 font-medium">
-                  Extra {PREPAID_DISCOUNT_PERCENT}% off — secure payment powered by Razorpay.
+                  {pricing.prepaidOffer ? `Extra ${pricing.prepaidOffer.percent}% off — ` : ""}secure payment powered by Razorpay.
                 </p>
               </div>
             </label>
@@ -487,16 +484,15 @@ export default function CheckoutPage() {
               <span>Subtotal</span>
               <span>{formatINR(subtotal)}</span>
             </div>
-            {bundleResult.totalDiscount > 0 && (
-              <div className="flex items-center justify-between text-emerald-700">
+            {pricing.appliedBundles.map((b) => (
+              <div key={b.offerId} className="flex items-center justify-between text-emerald-700">
                 <span>
-                  Shagun Days Bundle
-                  {bundleResult.earringsBundles > 0 && ` (${bundleResult.earringsBundles}× 3 Earrings @₹599)`}
-                  {bundleResult.bangleBundles > 0 && ` (${bundleResult.bangleBundles}× 3 Bangles @₹699)`}
+                  {b.label}
+                  {b.bundles > 1 && ` (×${b.bundles})`}
                 </span>
-                <span>-{formatINR(bundleResult.totalDiscount)}</span>
+                <span>-{formatINR(b.discount)}</span>
               </div>
-            )}
+            ))}
             {baseDiscount > 0 && (
               <div className="flex items-center justify-between text-emerald-700">
                 <span>{discountLabel}</span>
@@ -505,7 +501,7 @@ export default function CheckoutPage() {
             )}
             {prepaidDiscount > 0 && (
               <div className="flex items-center justify-between text-emerald-700">
-                <span>Prepaid Discount ({PREPAID_DISCOUNT_PERCENT}%)</span>
+                <span>{pricing.prepaidOffer?.label || "Prepaid Discount"}</span>
                 <span>-{formatINR(prepaidDiscount)}</span>
               </div>
             )}

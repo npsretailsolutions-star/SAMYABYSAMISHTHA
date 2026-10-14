@@ -10,7 +10,8 @@ import ProductAccordion from "@/components/ProductAccordion";
 import CareInstructionsBox from "@/components/CareInstructionsBox";
 import ProductTrustBadges from "@/components/ProductTrustBadges";
 import { formatINR } from "@/lib/format";
-import { getBundleOfferLabel } from "@/lib/discounts";
+import { getBundleOfferLabel } from "@/lib/offers";
+import { useOffers } from "@/components/OffersProvider";
 import { parseImages } from "@/lib/types";
 
 type Variant = {
@@ -56,7 +57,8 @@ export default function ProductDetailVariants({
   const selected = variants.find((v) => v.id === selectedId) || variants[0];
   const selectedImages = parseImages(selected.images);
   const attributeName = selected.attributeName;
-  const offerLabel = getBundleOfferLabel({ sku, categorySlug, categoryName });
+  const { offers } = useOffers();
+  const offerLabel = getBundleOfferLabel({ sku, categorySlug, categoryName }, offers);
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">

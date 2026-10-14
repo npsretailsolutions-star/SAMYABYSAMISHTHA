@@ -6,26 +6,27 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
-import { getAutoDiscountPercent, getAutoDiscountLabel } from "@/lib/constants";
-import { computeBundleDiscount } from "@/lib/discounts";
-import { useWelcomeEligible } from "@/lib/useWelcomeEligible";
+import { computeAutoPricing } from "@/lib/offers";
+import { useOffers } from "@/components/OffersProvider";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart } = useCart();
 
-  const welcomeEligible = useWelcomeEligible();
-  const bundleResult = computeBundleDiscount(
+  const { offers, welcomeEligible } = useOffers();
+  const pricing = computeAutoPricing(
     items.map((i) => ({
       price: i.price,
       quantity: i.quantity,
       categorySlug: i.categorySlug,
       categoryName: i.categoryName,
       sku: i.sku,
-    }))
+    })),
+    subtotal,
+    offers,
+    welcomeEligible
   );
-  const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
-  const autoDiscount = Math.round((remainingSubtotal * getAutoDiscountPercent(subtotal, welcomeEligible)) / 100);
-  const totalDiscount = bundleResult.totalDiscount + autoDiscount;
+  const autoDiscount = pricing.percentDiscount;
+  const totalDiscount = pricing.bundleDiscount + autoDiscount;
 
   useEffect(() => {
     closeCart();
@@ -133,19 +134,18 @@ export default function CartPage() {
             <span>Subtotal</span>
             <span>{formatINR(subtotal)}</span>
           </div>
-          {bundleResult.totalDiscount > 0 && (
-            <div className="flex items-center justify-between text-sm text-emerald-700 mb-2">
+          {pricing.appliedBundles.map((b) => (
+            <div key={b.offerId} className="flex items-center justify-between text-sm text-emerald-700 mb-2">
               <span>
-                Shagun Days Bundle
-                {bundleResult.earringsBundles > 0 && ` (${bundleResult.earringsBundles}× 3 Earrings @₹599)`}
-                {bundleResult.bangleBundles > 0 && ` (${bundleResult.bangleBundles}× 3 Bangles @₹699)`}
+                {b.label}
+                {b.bundles > 1 && ` (×${b.bundles})`}
               </span>
-              <span>-{formatINR(bundleResult.totalDiscount)}</span>
+              <span>-{formatINR(b.discount)}</span>
             </div>
-          )}
+          ))}
           {autoDiscount > 0 && (
             <div className="flex items-center justify-between text-sm text-emerald-700 mb-2">
-              <span>{getAutoDiscountLabel(subtotal)}</span>
+              <span>{pricing.percentOffer?.label}</span>
               <span>-{formatINR(autoDiscount)}</span>
             </div>
           )}

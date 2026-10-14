@@ -224,3 +224,31 @@ model Subscriber {
   source    String   @default("welcome_popup")
   createdAt DateTime @default(now())
 }
+
+// Automatic offers: applied on the storefront without any coupon code.
+// kind: BUNDLE (any N matching items at a flat price), PERCENT (% off the cart,
+// optionally above a minimum / only for email subscribers), PREPAID_PERCENT (extra % for online payment).
+model Offer {
+  id                 String    @id @default(cuid())
+  name               String
+  kind               String
+  label              String
+  isActive           Boolean   @default(true)
+  percent            Int       @default(0)
+  minSubtotal        Int       @default(0) // paise
+  requiresSubscriber Boolean   @default(false)
+  bundleSize         Int       @default(3)
+  bundlePrice        Int       @default(0) // paise
+  matchType          String    @default("SKUS") // SKUS or CATEGORY
+  matchValue         String    @default("") // comma-separated SKUs, or category keywords
+  showInPromoBar     Boolean   @default(false)
+  startsAt           DateTime?
+  endsAt             DateTime?
+  sortOrder          Int       @default(0)
+  createdAt          DateTime  @default(now())
+}
+
+model SiteSetting {
+  key   String @id
+  value String
+}

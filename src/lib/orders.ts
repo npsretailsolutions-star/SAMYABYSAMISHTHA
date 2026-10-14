@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { isWelcomeEligible } from "@/lib/welcome";
-import { PREPAID_DISCOUNT_PERCENT, COD_CHARGE, getAutoDiscountPercent } from "@/lib/constants";
-import { computeBundleDiscount } from "@/lib/discounts";
+import { COD_CHARGE } from "@/lib/constants";
+import { computeAutoPricing } from "@/lib/offers";
+import { getActiveOffers } from "@/lib/offersServer";
 import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
 import type { Product, ProductVariant } from "@prisma/client";
 
@@ -87,9 +88,10 @@ export async function quoteOrder(
   }, 0);
   const giftTotal = items.reduce((sum, item) => sum + (item.giftCharge || 0), 0);
 
-  // Shagun Days bundle offers (any 3 earrings / any 3 selected bangles at a flat
-  // price) are final — they don't stack with the sitewide auto-discount below.
-  const bundleResult = computeBundleDiscount(
+  // Automatic offers managed in Admin → Coupons: flat-price bundles are final (they
+  // don't stack with the % offer), and the % offer applies to the rest of the cart.
+  const [offers, welcomeEligible] = await Promise.all([getActiveOffers(), isWelcomeEligible()]);
+  const pricing = computeAutoPricing(
     items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!;
       return {
@@ -99,17 +101,13 @@ export async function quoteOrder(
         categoryName: product.category.name,
         sku: product.sku,
       };
-    })
+    }),
+    subtotal,
+    offers,
+    welcomeEligible
   );
-  const remainingSubtotal = subtotal - bundleResult.totalBundledValue;
-
-  // Visitors who shared their email get the 10% welcome discount automatically; the
-  // 20% Shagun Days tier (cart ≥ ₹1000) applies to everyone. This
-  // only applies to the portion of the cart not already covered by a bundle.
-  const welcomeEligible = await isWelcomeEligible();
-  let autoDiscount = Math.round(
-    (remainingSubtotal * getAutoDiscountPercent(subtotal, welcomeEligible)) / 100
-  );
+  const remainingSubtotal = pricing.remainingSubtotal;
+  let autoDiscount = pricing.percentDiscount;
   let resolvedCouponCode: string | null = null;
   if (couponCode) {
     const code = couponCode.trim().toUpperCase();
@@ -134,9 +132,9 @@ export async function quoteOrder(
 
   // Extra incentive discount for paying online, on top of the base discount above.
   if (paymentMethod === "RAZORPAY") {
-    autoDiscount += Math.round((remainingSubtotal * PREPAID_DISCOUNT_PERCENT) / 100);
+    autoDiscount += pricing.prepaidDiscount;
   }
-  const discount = bundleResult.totalDiscount + autoDiscount;
+  const discount = pricing.bundleDiscount + autoDiscount;
   const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
 
   return {

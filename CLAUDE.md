@@ -26,19 +26,19 @@ NEXT_PUBLIC_META_PIXEL_ID (defaults to the hardcoded ID in `MetaPixel.tsx`), NEX
 INVOICE_GSTIN (optional override; default is `BUSINESS_GSTIN` in `src/lib/constants.ts`).
 
 ## Business rules (all prices stored in paise; `formatINR` in `src/lib/format.ts`)
-Pricing lives in `src/lib/orders.ts` `quoteOrder` (server is the source of truth) and is mirrored in the
-cart/checkout client pages:
-1. Bundle offers (`src/lib/discounts.ts`, constants in `src/lib/constants.ts`): any 3 Earrings (category
-   slug/name contains "earring") @ ₹599; any 3 Bangles @ ₹699 for SKUs in `BANGLE_BUNDLE_SKUS` (KR-172..KR-187).
-   Flat price is final; bundled items are excluded from other discounts. `getBundleOfferLabel` shows the tag
-   on product cards/pages.
-2. Auto discount on the remainder: 20% if cart subtotal ≥ ₹1000 (everyone); otherwise 10% only for visitors who
-   gave their email (welcome popup or footer box → `Subscriber` table + `sbs_welcome_email` cookie, verified
-   in `src/lib/welcome.ts`). A coupon competes with (does not stack on) this discount.
-3. Extra 5% for prepaid (Razorpay) orders. COD adds ₹49.
-4. Gifting category / Build-Your-Own bouquet & hamper items: prepaid only, non-returnable (server + client).
-5. Return window shown on products: 3 days (`ProductTrustBadges.tsx`, policy page).
-6. GST 3% inclusive; invoice HSN 7117; CGST+SGST if customer state contains "delhi", else IGST.
+Pricing lives in `src/lib/orders.ts` `quoteOrder` (server is the source of truth); cart/checkout use the same
+pure function `computeAutoPricing` in `src/lib/offers.ts`. Automatic offers are admin-editable DB rows
+(`Offer` model; Admin → Coupons → "Automatic Offers"), loaded via `getActiveOffers()` (`src/lib/offersServer.ts`,
+which seeds the original offers once) and passed to the client by `OffersProvider` in `(site)/layout.tsx`.
+Offer kinds: BUNDLE (any N matching items at a flat price; match by SKU list or category keyword; final price,
+excluded from other discounts), PERCENT (best single % wins; optional min cart and "subscribers only"),
+PREPAID_PERCENT (extra % for Razorpay). Offers can be switched off or date-scheduled. Seeded defaults:
+3 Earrings @₹599, 3 Bangles (KR-172..KR-187) @₹699, 20% on ₹1000+, 10% for subscribers (email via welcome
+popup/footer → `Subscriber` table + `sbs_welcome_email` cookie, `src/lib/welcome.ts`), extra 5% prepaid.
+Coupon codes (`Coupon` model) compete with the % offer (don't stack). COD adds ₹49.
+Other rules: Gifting category / Build-Your-Own bouquet & hamper items are prepaid only and non-returnable;
+return window shown is 3 days (`ProductTrustBadges.tsx`, policy page); GST 3% inclusive, HSN 7117,
+CGST+SGST if customer state contains "delhi", else IGST.
 
 ## Where things are
 - Storefront: `src/app/(site)/*`; header/footer menus are built from DB categories in `(site)/layout.tsx`.

@@ -7,7 +7,8 @@ import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import WishlistButton from "@/components/WishlistButton";
 import { formatINR } from "@/lib/format";
-import { getBundleOfferLabel } from "@/lib/discounts";
+import { getBundleOfferLabel } from "@/lib/offers";
+import { useOffers } from "@/components/OffersProvider";
 import { parseImages, type ProductWithCategory } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: ProductWithCategory }) {
@@ -23,11 +24,15 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
         )
       : 0;
 
-  const offerLabel = getBundleOfferLabel({
-    sku: product.sku,
-    categorySlug: product.category?.slug,
-    categoryName: product.category?.name,
-  });
+  const { offers } = useOffers();
+  const offerLabel = getBundleOfferLabel(
+    {
+      sku: product.sku,
+      categorySlug: product.category?.slug,
+      categoryName: product.category?.name,
+    },
+    offers
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
 
