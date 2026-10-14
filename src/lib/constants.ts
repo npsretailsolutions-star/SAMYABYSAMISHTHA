@@ -3,6 +3,7 @@ export const CUSTOMER_COOKIE = "sbs_customer_session";
 
 export const AUTO_DISCOUNT_PERCENT = 10;
 export const AUTO_DISCOUNT_LABEL = "10% Welcome Offer";
+export const BUSINESS_GSTIN = "07GQZPS6439G1ZS";
 export const WELCOME_COOKIE = "sbs_welcome_email";
 
 // Shagun Days festive offer: discount steps up to 20% once the cart crosses ₹1000.

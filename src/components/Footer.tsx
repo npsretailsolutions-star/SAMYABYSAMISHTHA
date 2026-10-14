@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
+import { BUSINESS_GSTIN } from "@/lib/constants";
 
 function InstagramIcon() {
   return (
@@ -147,6 +148,9 @@ export default function Footer({ categories }: { categories: { name: string; slu
       <div className="border-t border-brand-cream/10 py-5">
         <p className="text-center text-xs text-brand-cream/60 container-px">
           © {new Date().getFullYear()} Samya By Samishtha. All rights reserved.
+        </p>
+        <p className="mt-1 text-center text-[11px] text-brand-cream/50 container-px">
+          GSTIN: {BUSINESS_GSTIN}
         </p>
       </div>
     </footer>

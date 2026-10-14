@@ -1,14 +1,15 @@
+import { BUSINESS_GSTIN } from "@/lib/constants";
 import { INVOICE_LOGO_BASE64 } from "@/lib/invoiceLogo";
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 
-// Seller details. Set INVOICE_GSTIN in Vercel once the GST number is available.
+// Seller details. INVOICE_GSTIN env var overrides the default GSTIN if ever needed.
 const SELLER = {
   name: "Samya By Samishtha",
   address: "Plot no 10 and 11, Om Vihar Phase 1A, Behind Mata Roop Rani Maggo Hospital",
   city: "Delhi - 110059, India",
   phone: "+91 80766 21656",
   email: "care@samyabysamishtha.com",
-  gstin: process.env.INVOICE_GSTIN || "",
+  gstin: process.env.INVOICE_GSTIN || BUSINESS_GSTIN,
   state: "Delhi",
 };
 
