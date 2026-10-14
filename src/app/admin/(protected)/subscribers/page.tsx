@@ -11,7 +11,7 @@ export default async function AdminSubscribersPage() {
         <div>
           <h1 className="font-serif text-2xl font-semibold text-brand-teal">Subscribers</h1>
           <p className="text-sm text-brand-teal/60">
-            {subscribers.length} emails collected from the welcome offer popup
+            {subscribers.length} emails collected from the welcome popup and the footer subscribe box
           </p>
         </div>
         <a href="/api/admin/subscribers/export" className="btn-gold text-sm">

@@ -6,6 +6,7 @@ import { isWelcomeEligible } from "@/lib/welcome";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email().max(200),
+  source: z.enum(["welcome_popup", "footer"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   await prisma.subscriber.upsert({
     where: { email: parsed.data.email },
     update: {},
-    create: { email: parsed.data.email, source: "welcome_popup" },
+    create: { email: parsed.data.email, source: parsed.data.source || "welcome_popup" },
   });
 
   const res = NextResponse.json({ ok: true });

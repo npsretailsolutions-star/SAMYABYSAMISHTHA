@@ -7,10 +7,35 @@ export default function NewsletterBox() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    setSubmitted(true);
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "footer" }),
+      });
+      if (!res.ok) {
+        setError("Please enter a valid email address");
+        return;
+      }
+      try {
+        localStorage.setItem("sbs_welcome_subscribed", "1");
+      } catch {
+        // ignore
+      }
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,10 +65,13 @@ export default function NewsletterBox() {
               placeholder="Enter your email address"
               className="flex-1 rounded-full border border-brand-cream/20 bg-white px-5 py-3 text-sm text-brand-teal placeholder:text-brand-teal/40 focus:outline-none focus:ring-2 focus:ring-brand-gold"
             />
-            <button type="submit" className="btn-gold">
-              Subscribe
+            <button type="submit" disabled={loading} className="btn-gold">
+              {loading ? "Please wait..." : "Subscribe"}
             </button>
           </form>
+        )}
+        {error && !submitted && (
+          <p className="mt-3 text-xs text-red-300">{error}</p>
         )}
       </div>
     </section>
