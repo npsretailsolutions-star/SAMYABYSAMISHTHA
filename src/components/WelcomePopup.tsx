@@ -32,6 +32,9 @@ function makeConfetti(count: number): ConfettiPiece[] {
 export default function WelcomePopup() {
   const [visible, setVisible] = useState(false);
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     try {
@@ -50,6 +53,33 @@ export default function WelcomePopup() {
       sessionStorage.setItem(SESSION_KEY, "1");
     } catch {
       // ignore
+    }
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        setError("Please enter a valid email address");
+        setStatus("idle");
+        return;
+      }
+      setStatus("done");
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        // ignore
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setStatus("idle");
     }
   };
 
@@ -85,25 +115,51 @@ export default function WelcomePopup() {
 
         <p className="eyebrow mb-1">Welcome to Samya By Samishtha</p>
         <h2 className="font-serif text-xl font-semibold text-brand-teal mb-4">
-          🎉 Your Welcome Offer
+          {status === "done" ? "🎉 You're in!" : "Get 10% OFF"}
         </h2>
 
-        <div className="relative mx-auto mb-5 h-32 w-full overflow-hidden rounded-2xl border-2 border-dashed border-brand-gold/50 bg-white">
+        <div className="relative mx-auto mb-5 h-28 w-full overflow-hidden rounded-2xl border-2 border-dashed border-brand-gold/50 bg-white">
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-3xl font-serif font-bold text-brand-gold-dark">10% OFF</span>
-            <span className="text-xs text-brand-teal/60 mt-1">
-              on your first order, all products
-            </span>
+            <span className="text-xs text-brand-teal/60 mt-1">on all products</span>
           </div>
         </div>
 
-        <p className="text-xs text-brand-teal/60 mb-4">
-          Already applied automatically at checkout — no code needed!
-        </p>
-
-        <button onClick={close} className="btn-gold w-full">
-          Start Shopping
-        </button>
+        {status === "done" ? (
+          <>
+            <p className="text-sm text-brand-teal/70 mb-4">
+              Thank you! Your 10% off is applied automatically at checkout — no code needed.
+            </p>
+            <button onClick={close} className="btn-gold w-full">
+              Start Shopping
+            </button>
+          </>
+        ) : (
+          <form onSubmit={submit}>
+            <p className="text-sm text-brand-teal/70 mb-3">
+              Please provide your email and get 10% off.
+            </p>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="mb-2 w-full rounded-full border border-brand-teal/20 bg-white px-4 py-2.5 text-sm text-brand-teal outline-none focus:border-brand-gold"
+            />
+            {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
+            <button type="submit" disabled={status === "loading"} className="btn-gold w-full">
+              {status === "loading" ? "Please wait..." : "Get 10% Off"}
+            </button>
+            <button
+              type="button"
+              onClick={close}
+              className="mt-3 text-xs text-brand-teal/50 hover:text-brand-teal"
+            >
+              No thanks
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

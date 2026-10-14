@@ -217,3 +217,10 @@ model HeroBanner {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("welcome_popup")
+  createdAt DateTime @default(now())
+}
