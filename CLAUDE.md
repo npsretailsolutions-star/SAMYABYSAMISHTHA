@@ -23,7 +23,7 @@ DATABASE_URL, JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD (only seeds the first admi
 SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY / SUPABASE_SECRET_KEY / SUPABASE_BUCKET, RESEND_API_KEY,
 RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET, NEXT_PUBLIC_TAWKTO_PROPERTY_ID / WIDGET_ID,
 NEXT_PUBLIC_META_PIXEL_ID (defaults to the hardcoded ID in `MetaPixel.tsx`), NEXT_PUBLIC_SITE_URL,
-INVOICE_GSTIN (optional override; default is `BUSINESS_GSTIN` in `src/lib/constants.ts`).
+GOOGLE_PLACES_API_KEY + GOOGLE_PLACE_ID (Google reviews section on the homepage; hidden if unset), INVOICE_GSTIN (optional override; default is `BUSINESS_GSTIN` in `src/lib/constants.ts`).
 
 ## Business rules (all prices stored in paise; `formatINR` in `src/lib/format.ts`)
 Pricing lives in `src/lib/orders.ts` `quoteOrder` (server is the source of truth); cart/checkout use the same

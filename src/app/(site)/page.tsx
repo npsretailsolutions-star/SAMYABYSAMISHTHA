@@ -13,6 +13,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 import NewsletterBox from "@/components/NewsletterBox";
+import GoogleReviews from "@/components/GoogleReviews";
 import HeroBanner from "@/components/HeroBanner";
 import type { ProductWithCategory } from "@/lib/types";
 
@@ -210,6 +211,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <GoogleReviews />
 
       <NewsletterBox />
     </div>
