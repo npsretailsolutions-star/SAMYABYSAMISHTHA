@@ -96,6 +96,13 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
         }}
       />
       <div className="flex flex-1 flex-col gap-0.5 p-3">
+        <div className="mb-1 flex h-5 items-center">
+          {offerLabel && (
+            <span className="inline-block rounded-full bg-brand-gold/15 px-2 py-0.5 text-[10px] font-semibold leading-tight text-brand-gold-dark">
+              {offerLabel}
+            </span>
+          )}
+        </div>
         <Link href={`/product/${product.slug}`}>
           <h3 className="font-serif text-xs sm:text-sm font-medium text-brand-teal line-clamp-2 min-h-[2.3em] hover:text-brand-gold-dark">
             {product.name}
@@ -111,11 +118,6 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
             </span>
           )}
         </div>
-        {offerLabel && (
-          <span className="mt-1 inline-block self-start rounded-full bg-brand-gold/15 px-2 py-0.5 text-[10px] font-semibold text-brand-gold-dark">
-            {offerLabel}
-          </span>
-        )}
         <button
           onClick={() =>
             product.stock > 0 &&

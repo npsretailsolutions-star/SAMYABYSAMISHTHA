@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const OPTIONS = [
@@ -21,16 +22,22 @@ export default function SortBar({ current }: { current: string }) {
   };
 
   return (
-    <select
-      value={current}
-      onChange={(e) => onChange(e.target.value)}
-      className="rounded-full border border-brand-teal/20 bg-white px-4 py-2 text-sm text-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-gold"
-    >
-      {OPTIONS.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <div className="relative inline-block">
+      <select
+        value={current}
+        onChange={(e) => onChange(e.target.value)}
+        className="appearance-none rounded-full border border-brand-teal/20 bg-white py-2 pl-4 pr-10 text-sm text-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-gold"
+      >
+        {OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        size={16}
+        className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-brand-teal"
+      />
+    </div>
   );
 }
