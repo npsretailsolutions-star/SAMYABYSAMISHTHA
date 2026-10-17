@@ -30,7 +30,7 @@ export default async function AdminOrdersPage({
 
   const orders = await prisma.order.findMany({
     where,
-    include: { items: true },
+    include: { items: { include: { product: { select: { sku: true } }, variant: { select: { sku: true } } } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -84,6 +84,11 @@ export default async function AdminOrdersPage({
                 <td className="px-4 py-3 text-brand-teal/70">{o.customerName}</td>
                 <td className="px-4 py-3 text-brand-teal/70">
                   {o.items.reduce((s, i) => s + i.quantity, 0)}
+                  <div className="mt-0.5 text-[11px] text-brand-teal/50">
+                    {o.items
+                      .map((i) => `${i.sku || i.variant?.sku || i.product?.sku || "-"}${i.quantity > 1 ? ` ×${i.quantity}` : ""}`)
+                      .join(", ")}
+                  </div>
                 </td>
                 <td className="px-4 py-3 font-medium text-brand-teal">{formatINR(o.total)}</td>
                 <td className="px-4 py-3">

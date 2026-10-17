@@ -2,26 +2,37 @@ import Link from "next/link";
 import { Package, ShoppingCart, IndianRupee, AlertTriangle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
+import DateRangeFilter from "@/components/admin/DateRangeFilter";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: { from?: string; to?: string };
+}) {
+  const hasFilter = Boolean(searchParams.from || searchParams.to);
+  const createdAt: { gte?: Date; lte?: Date } = {};
+  if (searchParams.from) createdAt.gte = new Date(`${searchParams.from}T00:00:00`);
+  if (searchParams.to) createdAt.lte = new Date(`${searchParams.to}T23:59:59`);
+  const dateWhere = hasFilter ? { createdAt } : {};
+
   const [productCount, orderCount, orders, lowStock] = await Promise.all([
     prisma.product.count(),
-    prisma.order.count(),
-    prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
+    prisma.order.count({ where: dateWhere }),
+    prisma.order.findMany({ where: dateWhere, orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.product.findMany({ where: { stock: { lte: 5 } }, orderBy: { stock: "asc" }, take: 5 }),
   ]);
 
   const revenueAgg = await prisma.order.aggregate({
     _sum: { total: true },
-    where: { status: { not: "CANCELLED" } },
+    where: { status: { not: "CANCELLED" }, ...dateWhere },
   });
   const revenue = revenueAgg._sum.total || 0;
 
   const stats = [
-    { label: "Total Revenue", value: formatINR(revenue), icon: IndianRupee },
-    { label: "Total Orders", value: orderCount, icon: ShoppingCart },
+    { label: hasFilter ? "Revenue (selected dates)" : "Total Revenue", value: formatINR(revenue), icon: IndianRupee },
+    { label: hasFilter ? "Orders (selected dates)" : "Total Orders", value: orderCount, icon: ShoppingCart },
     { label: "Total Products", value: productCount, icon: Package },
     { label: "Low Stock Items", value: lowStock.length, icon: AlertTriangle },
   ];
@@ -29,6 +40,8 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       <h1 className="font-serif text-2xl font-semibold text-brand-teal mb-6">Dashboard</h1>
+
+      <DateRangeFilter />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
         {stats.map(({ label, value, icon: Icon }) => (

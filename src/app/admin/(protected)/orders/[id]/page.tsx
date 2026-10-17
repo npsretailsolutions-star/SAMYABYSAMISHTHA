@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminOrderDetailPage({ params }: { params: { id: string } }) {
   const order = await prisma.order.findUnique({
     where: { id: params.id },
-    include: { items: true },
+    include: { items: { include: { product: { select: { sku: true } }, variant: { select: { sku: true } } } } },
   });
   if (!order) notFound();
 
@@ -99,6 +99,11 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                 {item.name}
                 {item.variantLabel && (
                   <span className="text-brand-teal/50"> ({item.variantLabel})</span>
+                )}{" "}
+                {(item.sku || item.variant?.sku || item.product?.sku) && (
+                  <span className="rounded bg-brand-teal/5 px-1.5 py-0.5 text-xs font-medium text-brand-teal/70">
+                    SKU: {item.sku || item.variant?.sku || item.product?.sku}
+                  </span>
                 )}{" "}
                 × {item.quantity}
                 {item.giftNote && (

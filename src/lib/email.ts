@@ -38,7 +38,7 @@ type OrderForEmail = {
   giftTotal: number;
   total: number;
   paymentMethod: string;
-  items: { name: string; variantLabel?: string | null; price: number; quantity: number }[];
+  items: { name: string; variantLabel?: string | null; sku?: string | null; price: number; quantity: number }[];
 };
 
 export async function sendOrderNotificationEmail(order: OrderForEmail) {
@@ -54,7 +54,7 @@ export async function sendOrderNotificationEmail(order: OrderForEmail) {
     .map(
       (item) =>
         `<tr>
-          <td style="padding:6px 0;">${item.name}${item.variantLabel ? ` (${item.variantLabel})` : ""} × ${item.quantity}</td>
+          <td style="padding:6px 0;">${item.name}${item.variantLabel ? ` (${item.variantLabel})` : ""}${item.sku ? ` <span style="color:#777;">[SKU: ${item.sku}]</span>` : ""} × ${item.quantity}</td>
           <td style="padding:6px 0;text-align:right;">${formatINR(item.price * item.quantity)}</td>
         </tr>`
     )

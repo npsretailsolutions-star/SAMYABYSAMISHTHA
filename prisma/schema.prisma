@@ -121,6 +121,7 @@ model OrderItem {
   variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
   variantId    String?
   variantLabel String?
+  sku          String?
   name         String
   price        Int
   quantity     Int

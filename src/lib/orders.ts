@@ -218,6 +218,7 @@ export async function createOrderRecord(
               productId: product.id,
               variantId: variant?.id || null,
               variantLabel: variant?.label || null,
+              sku: variant?.sku || product.sku || null,
               name: product.name,
               price: product.price,
               quantity: item.quantity,
@@ -274,6 +275,7 @@ export async function createOrderRecord(
     items: order.items.map((i) => ({
       name: i.name,
       variantLabel: i.variantLabel,
+      sku: i.sku,
       price: i.price,
       quantity: i.quantity,
     })),
