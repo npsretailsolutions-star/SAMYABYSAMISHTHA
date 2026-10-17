@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
+import CourierPartnerInput from "@/components/admin/CourierPartnerInput";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,11 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
             <p className="text-sm text-brand-teal/60 mt-2 italic">Note: {order.notes}</p>
           )}
         </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-6 shadow-card mb-6">
+        <h2 className="font-serif text-base font-semibold text-brand-teal mb-3">Courier Partner</h2>
+        <CourierPartnerInput orderId={order.id} value={order.courierPartner || ""} />
       </div>
 
       <div className="rounded-2xl bg-white p-6 shadow-card mb-6">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Package, ShoppingCart, IndianRupee, AlertTriangle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
+import { parseDateRange } from "@/lib/dateRange";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +13,7 @@ export default async function AdminDashboardPage({
   searchParams: { from?: string; to?: string };
 }) {
   const hasFilter = Boolean(searchParams.from || searchParams.to);
-  const createdAt: { gte?: Date; lte?: Date } = {};
-  if (searchParams.from) createdAt.gte = new Date(`${searchParams.from}T00:00:00`);
-  if (searchParams.to) createdAt.lte = new Date(`${searchParams.to}T23:59:59`);
+  const createdAt = parseDateRange(searchParams.from, searchParams.to);
   const dateWhere = hasFilter ? { createdAt } : {};
 
   const [productCount, orderCount, orders, lowStock] = await Promise.all([

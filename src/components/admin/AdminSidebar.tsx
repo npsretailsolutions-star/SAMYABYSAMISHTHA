@@ -13,6 +13,7 @@ import {
   Mail,
   TicketPercent,
   BarChart3,
+  FileSpreadsheet,
   Newspaper,
   ImageIcon,
   Star,
@@ -32,6 +33,7 @@ const LINKS = [
   { href: "/admin/reviews", label: "Reviews", icon: Star },
   { href: "/admin/coupons", label: "Coupons", icon: TicketPercent },
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
+  { href: "/admin/reports", label: "Reports", icon: FileSpreadsheet },
   { href: "/admin/traffic", label: "Traffic", icon: BarChart3 },
 ];
 

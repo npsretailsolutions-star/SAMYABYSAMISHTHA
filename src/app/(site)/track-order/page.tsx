@@ -113,7 +113,11 @@ export default function TrackOrderPage() {
             </div>
           </div>
 
-          {order.status === "CANCELLED" ? (
+          {order.status.startsWith("RETURNED") ? (
+            <div className="flex items-center gap-2 rounded-xl bg-orange-50 p-4 text-sm font-medium text-orange-700 mb-6">
+              <XCircle size={18} /> This order has been returned.
+            </div>
+          ) : order.status === "CANCELLED" ? (
             <div className="flex items-center gap-2 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700 mb-6">
               <XCircle size={18} /> This order has been cancelled.
             </div>

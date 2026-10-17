@@ -79,7 +79,7 @@ model Order {
   giftTotal     Int         @default(0)
   couponCode    String?
   total         Int
-  status        String      @default("PENDING") // PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+  status        String      @default("PENDING") // PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED, RETURNED_CUSTOMER, RETURNED_COURIER
   paymentMethod String      @default("COD") // COD or RAZORPAY
   paymentStatus String      @default("PENDING") // PENDING, PAID, FAILED
   razorpayOrderId   String?
@@ -88,6 +88,7 @@ model Order {
   shippingProvider String? // e.g. "Delhivery"
   shippingStatus   String? // Manifested, Failed, etc.
   shippingError    String? // last error message, if shipment creation failed
+  courierPartner   String? // set by admin per order (shown in reports)
   items         OrderItem[]
   customer      Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
   customerId    String?

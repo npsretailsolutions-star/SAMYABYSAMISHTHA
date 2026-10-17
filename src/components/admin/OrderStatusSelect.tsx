@@ -2,16 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ORDER_STATUSES, statusLabel } from "@/lib/orderStatus";
 
-const STATUSES = [
-  "PENDING",
-  "CONFIRMED",
-  "SHIPPED",
-  "IN_TRANSIT",
-  "OUT_FOR_DELIVERY",
-  "DELIVERED",
-  "CANCELLED",
-];
 
 export default function OrderStatusSelect({
   orderId,
@@ -43,9 +35,9 @@ export default function OrderStatusSelect({
       onChange={(e) => onChange(e.target.value)}
       className="rounded-full border border-brand-teal/20 bg-white px-4 py-2 text-sm text-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-gold disabled:opacity-50"
     >
-      {STATUSES.map((s) => (
+      {ORDER_STATUSES.map((s) => (
         <option key={s} value={s}>
-          {s.replace(/_/g, " ")}
+          {statusLabel(s)}
         </option>
       ))}
     </select>

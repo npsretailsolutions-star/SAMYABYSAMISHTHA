@@ -13,7 +13,7 @@ const SELLER = {
   state: "Delhi",
 };
 
-const GST_RATE = 3; // all prices are inclusive of 3% GST
+export const GST_RATE = 3; // all prices are inclusive of 3% GST
 const HSN = "7117"; // imitation jewellery
 
 const TEAL = rgb(0.043, 0.239, 0.227);
@@ -47,7 +47,7 @@ const rs = (paise: number) =>
 // pdf-lib's standard fonts only support WinAnsi characters.
 const clean = (s: string) => s.replace(/[^\x20-\x7E\xA0-\xFF]/g, "");
 
-const split = (inclusive: number) => {
+export const split = (inclusive: number) => {
   const taxable = Math.round((inclusive * 100) / (100 + GST_RATE));
   return { taxable, tax: inclusive - taxable };
 };

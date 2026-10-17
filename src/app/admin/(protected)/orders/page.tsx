@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
+import { statusLabel } from "@/lib/orderStatus";
+import { parseDateRange } from "@/lib/dateRange";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +16,8 @@ const STATUS_STYLES: Record<string, string> = {
   OUT_FOR_DELIVERY: "bg-teal-100 text-teal-700",
   DELIVERED: "bg-emerald-100 text-emerald-700",
   CANCELLED: "bg-red-100 text-red-700",
+  RETURNED_CUSTOMER: "bg-orange-100 text-orange-700",
+  RETURNED_COURIER: "bg-orange-100 text-orange-700",
 };
 
 export default async function AdminOrdersPage({
@@ -23,9 +27,7 @@ export default async function AdminOrdersPage({
 }) {
   const where: Prisma.OrderWhereInput = {};
   if (searchParams.from || searchParams.to) {
-    where.createdAt = {};
-    if (searchParams.from) where.createdAt.gte = new Date(`${searchParams.from}T00:00:00`);
-    if (searchParams.to) where.createdAt.lte = new Date(`${searchParams.to}T23:59:59`);
+    where.createdAt = parseDateRange(searchParams.from, searchParams.to);
   }
 
   const orders = await prisma.order.findMany({
@@ -117,7 +119,7 @@ export default async function AdminOrdersPage({
                   <span
                     className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${STATUS_STYLES[o.status] || ""}`}
                   >
-                    {o.status.replace(/_/g, " ")}
+                    {statusLabel(o.status)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-brand-teal/60 whitespace-nowrap">

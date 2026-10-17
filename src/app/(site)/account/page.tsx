@@ -24,6 +24,8 @@ const STATUS_STYLES: Record<string, string> = {
   SHIPPED: "bg-purple-100 text-purple-700",
   DELIVERED: "bg-emerald-100 text-emerald-700",
   CANCELLED: "bg-red-100 text-red-700",
+  RETURNED_CUSTOMER: "bg-orange-100 text-orange-700",
+  RETURNED_COURIER: "bg-orange-100 text-orange-700",
 };
 
 export default function AccountPage() {
@@ -154,7 +156,7 @@ export default function AccountPage() {
                     <span
                       className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${STATUS_STYLES[o.status] || ""}`}
                     >
-                      {o.status}
+                      {o.status.startsWith("RETURNED") ? "RETURNED" : o.status}
                     </span>
                   </div>
                   <p className="text-xs text-brand-teal/60 mb-2">
