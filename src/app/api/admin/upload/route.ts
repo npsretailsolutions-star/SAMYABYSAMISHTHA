@@ -43,8 +43,13 @@ export async function POST(req: NextRequest) {
   const settled = await Promise.allSettled(
     files.map(async (file) => {
       const buffer = Buffer.from(await file.arrayBuffer());
-      // Convert to WebP without resizing — pixel dimensions are preserved.
-      const webpBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+      // Compress to save Supabase egress: fix phone rotation (EXIF), fit within 1600px
+      // (never enlarges), convert to WebP. Looks the same on the site, 3-5x smaller.
+      const webpBuffer = await sharp(buffer)
+        .rotate()
+        .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .toBuffer();
 
       const base = slugifyBase(file.name) || "image";
       const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${base}.webp`;
@@ -53,6 +58,8 @@ export async function POST(req: NextRequest) {
         .from(SUPABASE_BUCKET)
         .upload(path, webpBuffer, {
           contentType: "image/webp",
+          // File names are unique, so browsers can cache for a year (fewer re-downloads).
+          cacheControl: "31536000",
           upsert: false,
         });
 
