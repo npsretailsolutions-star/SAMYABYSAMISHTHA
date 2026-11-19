@@ -17,17 +17,16 @@ export default async function AdminDashboardPage({
   const createdAt = parseDateRange(searchParams.from, searchParams.to);
   const dateWhere = hasFilter ? { createdAt } : {};
 
-  const [productCount, orderCount, orders, lowStock] = await Promise.all([
+  const [productCount, orderCount, orders, lowStock, salesOrders] = await Promise.all([
     prisma.product.count(),
     prisma.order.count({ where: dateWhere }),
     prisma.order.findMany({ where: dateWhere, orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.product.findMany({ where: { stock: { lte: 5 } }, orderBy: { stock: "asc" }, take: 5 }),
+    prisma.order.findMany({
+      where: { status: { not: "CANCELLED" }, ...dateWhere },
+      select: { status: true, total: true },
+    }),
   ]);
-
-  const salesOrders = await prisma.order.findMany({
-    where: { status: { not: "CANCELLED" }, ...dateWhere },
-    select: { status: true, total: true },
-  });
   const sales = salesSummary(salesOrders);
   const sel = hasFilter ? " (selected dates)" : "";
 
