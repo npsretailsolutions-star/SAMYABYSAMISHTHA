@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { parseDateRange } from "@/lib/dateRange";
 import { split } from "@/lib/invoice";
-import { statusLabel } from "@/lib/orderStatus";
+import { amountFactor, statusLabel } from "@/lib/orderStatus";
 
 export type ReportType = "sales" | "orders" | "customers";
 export type ReportCell = string | number;
@@ -13,7 +13,7 @@ export const REPORT_TYPES: { key: ReportType; label: string; hint: string }[] = 
   { key: "customers", label: "Customer Report", hint: "Customer name and contact details" },
 ];
 
-const rs = (paise: number) => Math.round(paise) / 100;
+const rs = (paise: number) => Math.round(paise) / 100 || 0;
 
 const fmtDate = (d: Date) =>
   d.toLocaleString("en-IN", {
@@ -40,10 +40,10 @@ export async function buildReport(type: ReportType, from?: string, to?: string):
       const cur = map.get(key);
       if (cur) {
         cur.count += 1;
-        cur.spent += o.total;
+        cur.spent += o.total * amountFactor(o.status);
         cur.first = o.createdAt;
       } else {
-        map.set(key, { o, count: 1, spent: o.total, first: o.createdAt });
+        map.set(key, { o, count: 1, spent: o.total * amountFactor(o.status), first: o.createdAt });
       }
     }
     const rows = Array.from(map.values()).map((c, i) => [
@@ -92,12 +92,13 @@ export async function buildReport(type: ReportType, from?: string, to?: string):
           i.quantity,
           statusLabel(o.status),
           o.courierPartner || "",
+          o.trackingNumber || "",
         ]);
       }
     }
     return {
       title: "Order Report",
-      headers: ["Sr. No.", "Date", "Order ID", "SKU ID", "Qty", "Order Status", "Courier Partner"],
+      headers: ["Sr. No.", "Date", "Order ID", "SKU ID", "Qty", "Order Status", "Courier Partner", "Tracking ID"],
       rows,
     };
   }
@@ -120,9 +121,13 @@ export async function buildReport(type: ReportType, from?: string, to?: string):
     if (o.giftTotal > 0) lines.push({ sku: "GIFT WRAPPING", inclusive: o.giftTotal });
     if (o.codCharge > 0) lines.push({ sku: "COD CHARGE", inclusive: o.codCharge });
 
+    // Courier return => 0, customer return => negative (credit), same as admin screens.
+    const k = amountFactor(o.status);
     for (const l of lines) {
-      const { taxable, tax } = split(l.inclusive);
-      const half = Math.floor(tax / 2);
+      const parts = split(l.inclusive);
+      const taxable = parts.taxable * k;
+      const tax = parts.tax * k;
+      const half = Math.trunc(tax / 2);
       rows.push([
         rows.length + 1,
         fmtDate(o.createdAt),

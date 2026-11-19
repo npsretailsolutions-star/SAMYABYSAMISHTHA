@@ -62,6 +62,13 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
 `/api/products/[id]/variants` for sizes/colours) from their logged-in admin tab. `bulk-import` sets
 `isGiftable` false.
 
+## Returns & shipping (admin)
+- `RETURNED_COURIER` amounts count as 0, `RETURNED_CUSTOMER` as negative — display/report only via `signedAmount`/
+  `amountFactor` in `src/lib/orderStatus.ts`; stored DB amounts are never changed. Dashboard + Orders page show
+  Gross − Courier Returns − Customer Returns = Net Sales (`salesSummary`).
+- Order detail has Courier Partner + Tracking ID (`trackingNumber`). Changing status to SHIPPED sends the customer
+  `sendOrderShippedEmail` (courier + tracking ID).
+
 ## Gotchas learned
 - Earring detection must use category name/slug *contains* "earring"; cart items saved before a deploy may need
   re-adding.

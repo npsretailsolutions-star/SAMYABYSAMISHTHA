@@ -192,3 +192,60 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
     "Password reset email"
   );
 }
+
+const esc = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+export async function sendOrderShippedEmail(order: {
+  orderNumber: string;
+  customerName: string;
+  email: string;
+  courierPartner: string | null;
+  trackingNumber: string | null;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY not set — skipping order shipped email");
+    return false;
+  }
+  const firstName = esc(order.customerName.split(" ")[0] || order.customerName);
+  const courier = order.courierPartner ? esc(order.courierPartner) : "";
+  const tracking = order.trackingNumber ? esc(order.trackingNumber) : "";
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://samyabysamishtha.com").replace(/\/$/, "");
+
+  const html = `
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;color:#0b3d3a;">
+      <h2 style="color:#0b3d3a;">Your order is on its way! 🚚</h2>
+      <p>Hi ${firstName},</p>
+      <p>
+        Your order <strong>${esc(order.orderNumber)}</strong> has been shipped${courier ? ` via <strong>${courier}</strong>` : ""}${
+          tracking ? ` with tracking ID <strong>&quot;${tracking}&quot;</strong>` : ""
+        }.
+      </p>
+      ${
+        tracking
+          ? `<p style="font-size:14px;">You can use this tracking ID on the ${courier || "courier"} website to track your parcel.</p>`
+          : ""
+      }
+      <p style="margin:24px 0;">
+        <a href="${siteUrl}/track-order" style="background:#c9a24a;color:#0b3d3a;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:600;">Track Your Order</a>
+      </p>
+      <p style="font-size:15px;"><strong>Thank you for shopping with Samya By Samishtha!</strong> 💛</p>
+      <p style="font-size:13px;color:#777;margin-top:24px;">
+        Questions? Reply to this email or reach us at ${CUSTOMER_SUPPORT_EMAIL}.
+      </p>
+    </div>
+  `;
+
+  return sendWithRetry(
+    new Resend(apiKey),
+    {
+      from: "Samya By Samishtha <orders@samyabysamishtha.com>",
+      to: order.email,
+      replyTo: CUSTOMER_SUPPORT_EMAIL,
+      subject: `Your order ${order.orderNumber} has been shipped — Samya By Samishtha`,
+      html,
+    },
+    "Order shipped email"
+  );
+}

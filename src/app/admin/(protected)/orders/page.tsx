@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
-import { statusLabel } from "@/lib/orderStatus";
+import { salesSummary, signedAmount, statusLabel } from "@/lib/orderStatus";
 import { parseDateRange } from "@/lib/dateRange";
 import type { Prisma } from "@prisma/client";
 
@@ -36,7 +36,8 @@ export default async function AdminOrdersPage({
     orderBy: { createdAt: "desc" },
   });
 
-  const totalSales = orders.reduce((sum, o) => sum + o.total, 0);
+  const sales = salesSummary(orders);
+  const ranged = Boolean(searchParams.from || searchParams.to);
 
   return (
     <div>
@@ -52,9 +53,13 @@ export default async function AdminOrdersPage({
           </p>
         </div>
         <div className="rounded-2xl bg-white p-5 shadow-card">
-          <p className="text-2xl font-semibold text-brand-teal">{formatINR(totalSales)}</p>
+          <p className="text-2xl font-semibold text-brand-teal">{formatINR(sales.net)}</p>
           <p className="text-sm text-brand-teal/60">
-            {searchParams.from || searchParams.to ? "Sales in Selected Range" : "Total Sales"}
+            {ranged ? "Net Sales in Selected Range" : "Net Sales"}
+          </p>
+          <p className="mt-1 text-xs text-brand-teal/50">
+            Gross {formatINR(sales.gross)} − Courier Returns {formatINR(sales.courierReturns)} − Customer
+            Returns {formatINR(sales.customerReturns)}
           </p>
         </div>
       </div>
@@ -92,7 +97,11 @@ export default async function AdminOrdersPage({
                       .join(", ")}
                   </div>
                 </td>
-                <td className="px-4 py-3 font-medium text-brand-teal">{formatINR(o.total)}</td>
+                <td
+                  className={`px-4 py-3 font-medium ${o.status.startsWith("RETURNED") ? "text-red-600" : "text-brand-teal"}`}
+                >
+                  {formatINR(signedAmount(o.status, o.total))}
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${

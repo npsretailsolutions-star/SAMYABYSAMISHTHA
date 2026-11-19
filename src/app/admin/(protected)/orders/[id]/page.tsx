@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import CourierPartnerInput from "@/components/admin/CourierPartnerInput";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import { signedAmount } from "@/lib/orderStatus";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,15 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
     include: { items: { include: { product: { select: { sku: true } }, variant: { select: { sku: true } } } } },
   });
   if (!order) notFound();
+
+  // Courier return => all amounts 0, customer return => all amounts negative.
+  const amt = (paise: number) => signedAmount(order.status, paise);
+  const returnNote =
+    order.status === "RETURNED_COURIER"
+      ? "Courier Return — all amounts are counted as ₹0."
+      : order.status === "RETURNED_CUSTOMER"
+        ? "Customer Return — all amounts are shown as negative (refund)."
+        : null;
 
   return (
     <div className="max-w-3xl">
@@ -63,8 +73,12 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
       </div>
 
       <div className="rounded-2xl bg-white p-6 shadow-card mb-6">
-        <h2 className="font-serif text-base font-semibold text-brand-teal mb-3">Courier Partner</h2>
-        <CourierPartnerInput orderId={order.id} value={order.courierPartner || ""} />
+        <h2 className="font-serif text-base font-semibold text-brand-teal mb-3">Courier Partner &amp; Tracking ID</h2>
+        <CourierPartnerInput
+          orderId={order.id}
+          value={order.courierPartner || ""}
+          tracking={order.trackingNumber || ""}
+        />
       </div>
 
       <div className="rounded-2xl bg-white p-6 shadow-card mb-6">
@@ -98,6 +112,9 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
 
       <div className="rounded-2xl bg-white p-6 shadow-card">
         <h2 className="font-serif text-base font-semibold text-brand-teal mb-4">Items</h2>
+        {returnNote && (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{returnNote}</p>
+        )}
         <div className="space-y-3 mb-4">
           {order.items.map((item) => (
             <div key={item.id} className="flex items-center justify-between text-sm">
@@ -117,7 +134,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                 )}
               </span>
               <span className="font-medium text-brand-teal">
-                {formatINR(item.price * item.quantity + item.giftCharge)}
+                {formatINR(amt(item.price * item.quantity + item.giftCharge))}
               </span>
             </div>
           ))}
@@ -125,29 +142,29 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
         <div className="border-t border-brand-teal/10 pt-4 space-y-2 text-sm">
           <div className="flex justify-between text-brand-teal/70">
             <span>Subtotal</span>
-            <span>{formatINR(order.subtotal)}</span>
+            <span>{formatINR(amt(order.subtotal))}</span>
           </div>
           {order.discount > 0 && (
             <div className="flex justify-between text-emerald-700">
               <span>Discount {order.couponCode ? `(${order.couponCode})` : ""}</span>
-              <span>-{formatINR(order.discount)}</span>
+              <span>{formatINR(-amt(order.discount) || 0)}</span>
             </div>
           )}
           {order.codCharge > 0 && (
             <div className="flex justify-between text-brand-teal/70">
               <span>COD Charges</span>
-              <span>+{formatINR(order.codCharge)}</span>
+              <span>{formatINR(amt(order.codCharge))}</span>
             </div>
           )}
           {order.giftTotal > 0 && (
             <div className="flex justify-between text-brand-teal/70">
               <span>Gift Wrapping</span>
-              <span>+{formatINR(order.giftTotal)}</span>
+              <span>{formatINR(amt(order.giftTotal))}</span>
             </div>
           )}
           <div className="flex justify-between text-base font-semibold text-brand-teal border-t border-brand-teal/10 pt-2">
             <span>Total</span>
-            <span>{formatINR(order.total)}</span>
+            <span>{formatINR(amt(order.total))}</span>
           </div>
         </div>
       </div>

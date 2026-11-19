@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Package, ShoppingCart, IndianRupee, AlertTriangle } from "lucide-react";
+import { Package, ShoppingCart, IndianRupee, AlertTriangle, Undo2, Truck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import { parseDateRange } from "@/lib/dateRange";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
+import { salesSummary, signedAmount, statusLabel } from "@/lib/orderStatus";
 
 export const dynamic = "force-dynamic";
 
@@ -23,17 +24,35 @@ export default async function AdminDashboardPage({
     prisma.product.findMany({ where: { stock: { lte: 5 } }, orderBy: { stock: "asc" }, take: 5 }),
   ]);
 
-  const revenueAgg = await prisma.order.aggregate({
-    _sum: { total: true },
+  const salesOrders = await prisma.order.findMany({
     where: { status: { not: "CANCELLED" }, ...dateWhere },
+    select: { status: true, total: true },
   });
-  const revenue = revenueAgg._sum.total || 0;
+  const sales = salesSummary(salesOrders);
+  const sel = hasFilter ? " (selected dates)" : "";
 
   const stats = [
-    { label: hasFilter ? "Revenue (selected dates)" : "Total Revenue", value: formatINR(revenue), icon: IndianRupee },
+    { label: `Net Sales${sel}`, value: formatINR(sales.net), icon: IndianRupee },
     { label: hasFilter ? "Orders (selected dates)" : "Total Orders", value: orderCount, icon: ShoppingCart },
     { label: "Total Products", value: productCount, icon: Package },
     { label: "Low Stock Items", value: lowStock.length, icon: AlertTriangle },
+  ];
+
+  const salesBreakup = [
+    { label: `Gross Sales${sel}`, value: formatINR(sales.gross), cls: "text-brand-teal", icon: IndianRupee },
+    {
+      label: `Courier Returns (${sales.courierReturnCount})`,
+      value: `-${formatINR(sales.courierReturns)}`,
+      cls: "text-red-600",
+      icon: Truck,
+    },
+    {
+      label: `Customer Returns (${sales.customerReturnCount})`,
+      value: `-${formatINR(sales.customerReturns)}`,
+      cls: "text-red-600",
+      icon: Undo2,
+    },
+    { label: `Net Sales${sel}`, value: formatINR(sales.net), cls: "text-emerald-700", icon: IndianRupee },
   ];
 
   return (
@@ -42,11 +61,21 @@ export default async function AdminDashboardPage({
 
       <DateRangeFilter />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
         {stats.map(({ label, value, icon: Icon }) => (
           <div key={label} className="rounded-2xl bg-white p-5 shadow-card">
             <Icon size={20} className="text-brand-gold-dark mb-3" />
             <p className="text-2xl font-semibold text-brand-teal">{value}</p>
+            <p className="text-sm text-brand-teal/60">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+        {salesBreakup.map(({ label, value, cls, icon: Icon }) => (
+          <div key={label} className="rounded-2xl bg-white p-5 shadow-card">
+            <Icon size={18} className="text-brand-gold-dark mb-2" />
+            <p className={`text-xl font-semibold ${cls}`}>{value}</p>
             <p className="text-sm text-brand-teal/60">{label}</p>
           </div>
         ))}
@@ -75,9 +104,11 @@ export default async function AdminDashboardPage({
                     <p className="text-xs text-brand-teal/60">{o.customerName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-brand-teal">{formatINR(o.total)}</p>
+                    <p className={`text-sm font-semibold ${o.status.startsWith("RETURNED") ? "text-red-600" : "text-brand-teal"}`}>
+                      {formatINR(signedAmount(o.status, o.total))}
+                    </p>
                     <span className="text-[11px] uppercase tracking-wide text-brand-gold-dark">
-                      {o.status}
+                      {statusLabel(o.status)}
                     </span>
                   </div>
                 </Link>
