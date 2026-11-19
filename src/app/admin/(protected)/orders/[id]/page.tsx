@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import CourierPartnerInput from "@/components/admin/CourierPartnerInput";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
+import DeleteOrderButton from "@/components/admin/DeleteOrderButton";
 import { signedAmount } from "@/lib/orderStatus";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
             })}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <a
             href={`/api/orders/${order.id}/invoice`}
             target="_blank"
@@ -50,6 +51,7 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
           >
             Invoice PDF
           </a>
+          <DeleteOrderButton orderId={order.id} orderNumber={order.orderNumber} />
           <OrderStatusSelect orderId={order.id} status={order.status} />
         </div>
       </div>

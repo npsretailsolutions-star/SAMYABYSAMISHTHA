@@ -57,3 +57,38 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
   return NextResponse.json({ order, shippedEmailSent });
 }
+
+/** Admin-only: permanently delete an order (e.g. a test order). Puts stock and coupon usage back. */
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const admin = getAdminSession();
+  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const order = await prisma.order.findUnique({ where: { id: params.id }, include: { items: true } });
+  if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await prisma.$transaction(async (tx) => {
+    for (const item of order.items) {
+      // updateMany: no error if the product/variant was deleted since.
+      if (item.variantId) {
+        await tx.productVariant.updateMany({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+      } else if (item.productId) {
+        await tx.product.updateMany({
+          where: { id: item.productId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+    }
+    if (order.couponCode) {
+      await tx.coupon.updateMany({
+        where: { code: order.couponCode, usedCount: { gt: 0 } },
+        data: { usedCount: { decrement: 1 } },
+      });
+    }
+    await tx.order.delete({ where: { id: order.id } }); // order items cascade
+  });
+
+  return NextResponse.json({ ok: true });
+}
