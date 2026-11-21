@@ -3,12 +3,18 @@ import { prisma } from "@/lib/prisma";
 
 const BASE_URL = "https://www.samyabysamishtha.com";
 
+// Build at request time, not during `next build` — the build must not depend on the database being up.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, categories, posts] = await Promise.all([
     prisma.product.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
     prisma.category.findMany({ select: { slug: true, updatedAt: true } }),
     prisma.blogPost.findMany({ where: { isPublished: true }, select: { slug: true, updatedAt: true } }),
-  ]);
+  ]).catch((e) => {
+    console.error("sitemap: database unavailable", e);
+    return [[], [], []] as const;
+  });
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE_URL, changeFrequency: "daily", priority: 1 },

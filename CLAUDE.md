@@ -86,7 +86,7 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
 - Earring detection must use category name/slug *contains* "earring"; cart items saved before a deploy may need
   re-adding.
 - Never `pkill -f "next start"` in the same Bash call as other commands (kills the shell).
-- A local `next build` fails at sitemap prerender if Postgres isn't running locally — not a code bug.
+- `sitemap.xml` is force-dynamic (with a DB-failure fallback), so `next build` no longer needs the database.
 - Local Prisma client must be regenerated (`npx prisma generate`) after schema edits before typechecking.
 
 ## Current status (last updated Oct 2026)
