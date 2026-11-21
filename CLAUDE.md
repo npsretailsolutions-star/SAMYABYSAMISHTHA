@@ -69,6 +69,19 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
 - Order detail has Courier Partner + Tracking ID (`trackingNumber`). Changing status to SHIPPED sends the customer
   `sendOrderShippedEmail` (courier + tracking ID).
 
+## Database (Nov 2026)
+- Was Prisma Postgres (db.prisma.io, Vercel Marketplace, Free plan) — got SUSPENDED on 21 Nov 2026 after ~200k
+  operations/month (free limit ~100k). Moving to Supabase Postgres (project in Tokyo, ap-northeast-1; Vercel
+  function region set to Tokyo hnd1).
+- `src/lib/dbUrl.ts` normalises Supabase URLs: tables live in schema `samya` (not `public`, which Supabase's Data
+  API exposes); port 6543 (transaction pooler) gets `pgbouncer=true&connection_limit=3`.
+- Env: `DATABASE_URL` = runtime URL (Supabase transaction pooler after the switch); `SUPABASE_DIRECT_URL` = Supabase
+  session pooler (5432). Build runs `scripts/db-push.mjs`, which pushes the schema to `SUPABASE_DIRECT_URL` if set,
+  else `DATABASE_URL`.
+- One-time copy tool: Admin → `/admin/migrate-db` (`src/lib/migrateDb.ts`), copies Prisma → Supabase in batches
+  (upsert, re-runnable). Remove it once the switch is confirmed.
+- Keep DB operations low: cache layout categories/offers and the Meta feed; PageView tracking writes on every view.
+
 ## Gotchas learned
 - Earring detection must use category name/slug *contains* "earring"; cart items saved before a deploy may need
   re-adding.
