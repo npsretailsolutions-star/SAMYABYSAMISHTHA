@@ -13,10 +13,12 @@ import { parseImages, type ProductWithCategory } from "@/lib/types";
 
 export default function ProductCard({ product }: { product: ProductWithCategory }) {
   const { addItem } = useCart();
-  const hasVariants = (product.variants?.length ?? 0) > 0;
-  const images = hasVariants
-    ? parseImages(product.variants![0].images)
-    : parseImages(product.images);
+  const variants = product.variants ?? [];
+  const hasVariants = variants.length > 0;
+  // With colours/sizes, show the first option that is in stock; the product is sold out only when ALL are.
+  const shownVariant = hasVariants ? variants.find((v) => v.stock > 0) ?? variants[0] : null;
+  const stock = shownVariant ? shownVariant.stock : product.stock;
+  const images = shownVariant ? parseImages(shownVariant.images) : parseImages(product.images);
   const discount =
     product.compareAtPrice && product.compareAtPrice > product.price
       ? Math.round(
@@ -78,7 +80,7 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
             {discount}% OFF
           </span>
         )}
-        {product.stock <= 0 && (
+        {stock <= 0 && (
           <span className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm font-semibold text-brand-teal">
             Sold Out
           </span>
@@ -92,7 +94,7 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
           price: product.price,
           compareAtPrice: product.compareAtPrice,
           image: images[0],
-          stock: product.stock,
+          stock,
         }}
       />
       <div className="flex flex-1 flex-col gap-0.5 p-3">
@@ -120,25 +122,29 @@ export default function ProductCard({ product }: { product: ProductWithCategory 
         </div>
         <button
           onClick={() =>
-            product.stock > 0 &&
+            stock > 0 &&
             addItem({
               productId: product.id,
+              ...(shownVariant && {
+                variantId: shownVariant.id,
+                variantLabel: `${shownVariant.attributeName}: ${shownVariant.label}`,
+              }),
               name: product.name,
               slug: product.slug,
               price: product.price,
               image: images[0],
-              stock: product.stock,
+              stock,
               isGiftItem: product.category?.slug === "gifting" || undefined,
               categorySlug: product.category?.slug,
               categoryName: product.category?.name,
               sku: product.sku,
             })
           }
-          disabled={product.stock <= 0}
+          disabled={stock <= 0}
           className="btn-primary mt-2.5 !py-2 !px-3 text-[11px]"
         >
           <ShoppingBag size={13} />
-          {product.stock > 0 ? "Add to Cart" : "Sold Out"}
+          {stock > 0 ? "Add to Cart" : "Sold Out"}
         </button>
       </div>
     </div>

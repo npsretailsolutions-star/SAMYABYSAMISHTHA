@@ -53,7 +53,7 @@ export default function ProductDetailVariants({
   ratingSummary: ReactNode;
   productUrl: string;
 }) {
-  const [selectedId, setSelectedId] = useState(variants[0].id);
+  const [selectedId, setSelectedId] = useState((variants.find((v) => v.stock > 0) ?? variants[0]).id);
   const selected = variants.find((v) => v.id === selectedId) || variants[0];
   const selectedImages = parseImages(selected.images);
   const attributeName = selected.attributeName;
