@@ -1,0 +1,7 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "claude/gracious-newton-v3d9a4": false
+    }
+  }
+}

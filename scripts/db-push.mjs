@@ -17,9 +17,20 @@ function normalize(raw) {
   }
 }
 
+// Preview deployments share the production database: never change its schema from a preview build.
+if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") {
+  console.log(`db-push: skipped on ${process.env.VERCEL_ENV} deployment`);
+  process.exit(0);
+}
+
 const target = process.env.SUPABASE_DIRECT_URL || process.env.DATABASE_URL;
 if (!target) {
   console.log("db-push: no database URL set, skipping");
+  process.exit(0);
+}
+// The transaction pooler (port 6543) can't run schema changes and may hang — skip instead of blocking the build.
+if (/:6543\//.test(target)) {
+  console.log("db-push: only a transaction-pooler URL is set (SUPABASE_DIRECT_URL missing), skipping");
   process.exit(0);
 }
 console.log(`db-push: pushing schema to ${process.env.SUPABASE_DIRECT_URL ? "SUPABASE_DIRECT_URL" : "DATABASE_URL"}`);

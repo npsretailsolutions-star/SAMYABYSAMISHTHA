@@ -6,6 +6,8 @@ Hinglish, and gives short feature/bug requests. Reply in simple Hinglish, keep a
 
 ## Workflow
 - Production branch is `claude/samya-ecommerce-site-6l4cri`; pushing it auto-deploys to production on Vercel.
+  Vercel Hobby builds one at a time; `vercel.json` disables deploys of the session branch `claude/gracious-newton-v3d9a4`,
+  and `scripts/db-push.mjs` skips schema pushes on preview builds.
 - Before pushing run `npx tsc --noEmit -p .` and `npx next lint` (a lint error breaks the deploy).
 - Build command is `prisma generate && node scripts/db-push.mjs && next build`,
   so Prisma schema changes apply to the live DB on deploy. Be careful with destructive schema changes.
