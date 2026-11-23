@@ -23,7 +23,16 @@ export default async function AdminReportsPage({
 
   return (
     <div>
-      <h1 className="font-serif text-2xl font-semibold text-brand-teal mb-6">Reports</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 className="font-serif text-2xl font-semibold text-brand-teal">Reports</h1>
+        <a
+          href="/api/admin/backup"
+          className="btn-outline !py-2 !px-5 text-sm inline-flex items-center gap-2"
+          title="All products, orders, customers, coupons etc. in one file. Keep it private."
+        >
+          <Download size={15} /> Download Full Backup
+        </a>
+      </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {REPORT_TYPES.map((t) => (

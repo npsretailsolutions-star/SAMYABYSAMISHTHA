@@ -80,6 +80,8 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
 - `src/lib/dbUrl.ts` normalises Supabase URLs: tables live in schema `samya` (not `public`, which Supabase's Data
   API exposes to the browser key); port 6543 gets `pgbouncer=true&connection_limit=3`.
 - Supabase free plan: 500 MB DB, 5 GB egress/month (shared with Storage images), no backups, pauses after 7 idle days.
+- Backup: Admin → Reports → "Download Full Backup" (`/api/admin/backup`) = all tables as one JSON, parents first.
+  No restore tool yet — build one from that file if ever needed.
 
 ## Gotchas learned
 - Products with variants (colours/sizes): stock lives on `ProductVariant`; `ProductCard` and the product page show/
