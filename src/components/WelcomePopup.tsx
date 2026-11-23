@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { useOffers } from "@/components/OffersProvider";
 
 const SESSION_KEY = "sbs_welcome_popup_shown";
 const SUBSCRIBED_KEY = "sbs_welcome_subscribed";
@@ -31,6 +32,12 @@ function makeConfetti(count: number): ConfettiPiece[] {
 }
 
 export default function WelcomePopup() {
+  // The popup promises the active "subscribers only" % offer; with no such offer running it doesn't show.
+  const { offers } = useOffers();
+  const subscriberOffer = offers
+    .filter((o) => o.kind === "PERCENT" && o.requiresSubscriber && o.percent > 0)
+    .sort((a, b) => b.percent - a.percent)[0];
+  const pct = subscriberOffer?.percent ?? 0;
   const [visible, setVisible] = useState(false);
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
   const [email, setEmail] = useState("");
@@ -85,7 +92,7 @@ export default function WelcomePopup() {
     }
   };
 
-  if (!visible) return null;
+  if (!visible || !pct) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 overflow-hidden">
@@ -117,12 +124,12 @@ export default function WelcomePopup() {
 
         <p className="eyebrow mb-1">Welcome to Samya By Samishtha</p>
         <h2 className="font-serif text-xl font-semibold text-brand-teal mb-4">
-          {status === "done" ? "🎉 You're in!" : "Get 10% OFF"}
+          {status === "done" ? "🎉 You're in!" : `Get ${pct}% OFF`}
         </h2>
 
         <div className="relative mx-auto mb-5 h-28 w-full overflow-hidden rounded-2xl border-2 border-dashed border-brand-gold/50 bg-white">
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-serif font-bold text-brand-gold-dark">10% OFF</span>
+            <span className="text-3xl font-serif font-bold text-brand-gold-dark">{pct}% OFF</span>
             <span className="text-xs text-brand-teal/60 mt-1">on all products</span>
           </div>
         </div>
@@ -130,7 +137,7 @@ export default function WelcomePopup() {
         {status === "done" ? (
           <>
             <p className="text-sm text-brand-teal/70 mb-4">
-              Thank you! Your 10% off is applied automatically at checkout — no code needed.
+              Thank you! Your {pct}% off is applied automatically at checkout — no code needed.
             </p>
             <button onClick={close} className="btn-gold w-full">
               Start Shopping
@@ -139,7 +146,7 @@ export default function WelcomePopup() {
         ) : (
           <form onSubmit={submit}>
             <p className="text-sm text-brand-teal/70 mb-3">
-              Please provide your email and get 10% off.
+              Please provide your email and get {pct}% off.
             </p>
             <input
               type="email"
@@ -151,7 +158,7 @@ export default function WelcomePopup() {
             />
             {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
             <button type="submit" disabled={status === "loading"} className="btn-gold w-full">
-              {status === "loading" ? "Please wait..." : "Get 10% Off"}
+              {status === "loading" ? "Please wait..." : `Get ${pct}% Off`}
             </button>
             <button
               type="button"
