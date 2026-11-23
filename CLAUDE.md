@@ -5,9 +5,9 @@ Domain: samyabysamishtha.com (GoDaddy DNS → Vercel). The owner is non-technica
 Hinglish, and gives short feature/bug requests. Reply in simple Hinglish, keep answers brief.
 
 ## Workflow
-- Develop on branch `claude/samya-ecommerce-site-6l4cri`; pushing auto-deploys to production on Vercel.
+- Production branch is `claude/samya-ecommerce-site-6l4cri`; pushing it auto-deploys to production on Vercel.
 - Before pushing run `npx tsc --noEmit -p .` and `npx next lint` (a lint error breaks the deploy).
-- Build command is `prisma generate && prisma db push --accept-data-loss --skip-generate && next build`,
+- Build command is `prisma generate && node scripts/db-push.mjs && next build`,
   so Prisma schema changes apply to the live DB on deploy. Be careful with destructive schema changes.
 - Do not create PRs unless asked. Never put secrets in the repo; env var names only.
 - The sandbox cannot reach the production database or live site. For bulk data changes, generate a
@@ -70,19 +70,20 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
   `sendOrderShippedEmail` (courier + tracking ID).
 
 ## Database (Nov 2026)
-- Was Prisma Postgres (db.prisma.io, Vercel Marketplace, Free plan) — got SUSPENDED on 21 Nov 2026 after ~200k
-  operations/month (free limit ~100k). Moving to Supabase Postgres (project in Tokyo, ap-northeast-1; Vercel
-  function region set to Tokyo hnd1).
+- Production DB is **Supabase Postgres** (project in Tokyo, ap-northeast-1; Vercel function region Tokyo hnd1).
+  Moved from Prisma Postgres (db.prisma.io, Vercel Marketplace Free plan), which was SUSPENDED on 21 Nov 2026 after
+  ~200k operations/month. All data was copied on 22 Nov 2026 with a one-time admin tool (since removed). The old
+  Prisma database still exists in Vercel → Storage; it is no longer used.
+- Env: `DATABASE_URL` = Supabase transaction pooler (port 6543); `SUPABASE_DIRECT_URL` = Supabase session pooler
+  (port 5432). Build runs `scripts/db-push.mjs`, which pushes the schema to `SUPABASE_DIRECT_URL` if set, else
+  `DATABASE_URL` (the transaction pooler can't run schema changes).
 - `src/lib/dbUrl.ts` normalises Supabase URLs: tables live in schema `samya` (not `public`, which Supabase's Data
-  API exposes); port 6543 (transaction pooler) gets `pgbouncer=true&connection_limit=3`.
-- Env: `DATABASE_URL` = runtime URL (Supabase transaction pooler after the switch); `SUPABASE_DIRECT_URL` = Supabase
-  session pooler (5432). Build runs `scripts/db-push.mjs`, which pushes the schema to `SUPABASE_DIRECT_URL` if set,
-  else `DATABASE_URL`.
-- One-time copy tool: Admin → `/admin/migrate-db` (`src/lib/migrateDb.ts`), copies Prisma → Supabase in batches
-  (upsert, re-runnable). Remove it once the switch is confirmed.
-- Keep DB operations low: cache layout categories/offers and the Meta feed; PageView tracking writes on every view.
+  API exposes to the browser key); port 6543 gets `pgbouncer=true&connection_limit=3`.
+- Supabase free plan: 500 MB DB, 5 GB egress/month (shared with Storage images), no backups, pauses after 7 idle days.
 
 ## Gotchas learned
+- Products with variants (colours/sizes): stock lives on `ProductVariant`; `ProductCard` and the product page show/
+  default to the first in-stock variant, and the product is sold out only when every variant is.
 - Earring detection must use category name/slug *contains* "earring"; cart items saved before a deploy may need
   re-adding.
 - Never `pkill -f "next start"` in the same Bash call as other commands (kills the shell).
