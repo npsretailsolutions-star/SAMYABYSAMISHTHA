@@ -1,6 +1,8 @@
 import { Eye, Globe2, MapPin, ShoppingBag } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
+import { formatINR } from "@/lib/format";
+import { parseItems as parseCartItems } from "@/lib/abandonedCart";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +61,12 @@ export default async function AdminTrafficPage({
         take: 8,
       }),
     ]);
+
+  const abandonedCarts = await prisma.abandonedCart.findMany({
+    where: { OR: [{ subtotal: { gt: 0 } }, { recoveredAt: { not: null } }] },
+    orderBy: { updatedAt: "desc" },
+    take: 50,
+  });
 
   const locationMap = new Map<string, { country: string; city: string | null; count: number }>();
   for (const v of rangeRows) {
@@ -208,6 +216,100 @@ export default async function AdminTrafficPage({
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl bg-white p-6 shadow-card">
+        <h2 className="font-serif text-base font-semibold text-brand-teal mb-1">Abandoned Carts</h2>
+        <p className="text-xs text-brand-teal/60 mb-4">
+          Visitors who added items and gave their email (checkout form, login or subscribe) but didn&apos;t order.
+          A reminder email goes automatically ~1 hour after they leave. Latest 50.
+        </p>
+        {abandonedCarts.length === 0 ? (
+          <p className="text-sm text-brand-teal/60">No abandoned carts yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-brand-teal/10 text-left text-brand-teal/60">
+                  <th className="py-2 pr-3 font-medium">Last active</th>
+                  <th className="py-2 pr-3 font-medium">Customer</th>
+                  <th className="py-2 pr-3 font-medium">Items</th>
+                  <th className="py-2 pr-3 font-medium text-right">Value</th>
+                  <th className="py-2 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {abandonedCarts.map((c) => {
+                  const items = parseCartItems(c.items);
+                  const phoneDigits = (c.phone || "").replace(/\D/g, "").slice(-10);
+                  return (
+                    <tr key={c.id} className="border-b border-brand-teal/5 align-top">
+                      <td className="py-3 pr-3 whitespace-nowrap text-brand-teal/70">
+                        {c.updatedAt.toLocaleString("en-IN", {
+                          timeZone: "Asia/Kolkata",
+                          day: "2-digit",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                      <td className="py-3 pr-3">
+                        {c.name && <p className="font-medium text-brand-teal">{c.name}</p>}
+                        <a href={`mailto:${c.email}`} className="block text-brand-teal/80 hover:underline break-all">
+                          {c.email}
+                        </a>
+                        {c.phone && (
+                          <p className="text-brand-teal/80">
+                            <a href={`tel:${c.phone}`} className="hover:underline">{c.phone}</a>
+                            {phoneDigits.length === 10 && (
+                              <a
+                                href={`https://wa.me/91${phoneDigits}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-2 text-emerald-700 hover:underline"
+                              >
+                                WhatsApp
+                              </a>
+                            )}
+                          </p>
+                        )}
+                        {c.city && <p className="text-xs text-brand-teal/50">{c.city}</p>}
+                      </td>
+                      <td className="py-3 pr-3 text-brand-teal/80">
+                        {items.length === 0
+                          ? "—"
+                          : items.map((i, n) => (
+                              <p key={n}>
+                                {i.name}
+                                {i.variantLabel ? ` (${i.variantLabel})` : ""} × {i.quantity}
+                              </p>
+                            ))}
+                      </td>
+                      <td className="py-3 pr-3 text-right whitespace-nowrap font-medium text-brand-teal">
+                        {c.subtotal > 0 ? formatINR(c.subtotal) : "—"}
+                      </td>
+                      <td className="py-3 whitespace-nowrap">
+                        {c.recoveredAt ? (
+                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
+                            Ordered {c.recoveredOrderNumber || ""}
+                          </span>
+                        ) : c.emailSentAt ? (
+                          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
+                            Reminder sent
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-brand-teal/5 px-2 py-0.5 text-xs text-brand-teal/70">
+                            Waiting
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

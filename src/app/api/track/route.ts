@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { processAbandonedCarts } from "@/lib/abandonedCart";
 
 const schema = z.object({
   path: z.string().min(1).max(500),
@@ -33,6 +34,9 @@ export async function POST(req: NextRequest) {
       city,
     },
   });
+
+  // Piggy-back on site traffic to send due abandoned-cart reminders (throttled inside; never breaks tracking).
+  await processAbandonedCarts().catch((e) => console.error("abandoned carts", e));
 
   return NextResponse.json({ ok: true });
 }

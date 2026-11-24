@@ -257,3 +257,23 @@ model SiteSetting {
   key   String @id
   value String
 }
+
+// Cart of a visitor whose email we know (checkout form, logged-in customer or subscriber) but who hasn't ordered.
+// One row per email; `items` is a JSON snapshot of the cart. Used for the reminder email + Admin → Traffic list.
+model AbandonedCart {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  name                 String?
+  phone                String?
+  city                 String?
+  items                String    @default("[]")
+  subtotal             Int       @default(0)
+  source               String    @default("checkout") // checkout, customer, subscriber
+  emailSentAt          DateTime?
+  recoveredAt          DateTime?
+  recoveredOrderNumber String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([updatedAt])
+}

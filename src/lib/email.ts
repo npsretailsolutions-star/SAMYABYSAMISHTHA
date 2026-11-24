@@ -249,3 +249,74 @@ export async function sendOrderShippedEmail(order: {
     "Order shipped email"
   );
 }
+
+/** Reminder for a cart left without ordering (see src/lib/abandonedCart.ts). */
+export async function sendAbandonedCartEmail(cart: {
+  id: string;
+  email: string;
+  name: string | null;
+  items: { name: string; variantLabel?: string | null; price: number; quantity: number; image: string }[];
+  subtotal: number;
+  offerLines: string[];
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY not set — skipping abandoned cart email");
+    return false;
+  }
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://samyabysamishtha.com").replace(/\/$/, "");
+  const abs = (src: string) => (/^https?:\/\//.test(src) ? src : `${siteUrl}${src.startsWith("/") ? "" : "/"}${src}`);
+  const firstName = cart.name ? esc(cart.name.split(" ")[0]) : "";
+  const restoreUrl = `${siteUrl}/cart?restore=${encodeURIComponent(cart.id)}`;
+
+  const rows = cart.items
+    .slice(0, 8)
+    .map(
+      (i) => `
+        <tr>
+          <td style="padding:8px 0;width:64px;"><img src="${esc(abs(i.image))}" width="56" height="56" alt="" style="border-radius:8px;object-fit:cover;display:block;" /></td>
+          <td style="padding:8px 8px;font-size:14px;">${esc(i.name)}${
+            i.variantLabel ? `<br/><span style="color:#777;font-size:12px;">${esc(i.variantLabel)}</span>` : ""
+          }<br/><span style="color:#777;font-size:12px;">Qty ${i.quantity}</span></td>
+          <td style="padding:8px 0;text-align:right;font-size:14px;white-space:nowrap;">${formatINR(i.price * i.quantity)}</td>
+        </tr>`
+    )
+    .join("");
+
+  const offers = cart.offerLines.length
+    ? `<div style="background:#f8f1e3;border-radius:12px;padding:12px 16px;margin:16px 0;font-size:14px;">
+         <strong>Offers running now:</strong><br/>${cart.offerLines.map((l) => `• ${esc(l)}`).join("<br/>")}
+       </div>`
+    : "";
+
+  const html = `
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;color:#0b3d3a;">
+      <h2 style="color:#0b3d3a;">You left something beautiful behind 💛</h2>
+      <p>Hi${firstName ? ` ${firstName}` : ""},</p>
+      <p>Your favourites are still waiting in your cart at Samya By Samishtha. Complete your order before they sell out!</p>
+      <table style="width:100%;border-collapse:collapse;border-top:1px solid #eee;border-bottom:1px solid #eee;">${rows}</table>
+      <p style="text-align:right;font-size:15px;margin:10px 0;"><strong>Cart total: ${formatINR(cart.subtotal)}</strong></p>
+      ${offers}
+      <p style="margin:24px 0;text-align:center;">
+        <a href="${restoreUrl}" style="background:#c9a24a;color:#0b3d3a;padding:12px 28px;border-radius:999px;text-decoration:none;font-weight:600;">Complete My Order</a>
+      </p>
+      <p style="font-size:15px;"><strong>Thank you for shopping with Samya By Samishtha!</strong></p>
+      <p style="font-size:12px;color:#777;margin-top:24px;">
+        You're receiving this because you added items to your cart on samyabysamishtha.com.
+        Questions? Reply to this email or write to ${CUSTOMER_SUPPORT_EMAIL}.
+      </p>
+    </div>
+  `;
+
+  return sendWithRetry(
+    new Resend(apiKey),
+    {
+      from: "Samya By Samishtha <orders@samyabysamishtha.com>",
+      to: cart.email,
+      replyTo: CUSTOMER_SUPPORT_EMAIL,
+      subject: "Your cart is waiting 💛 — Samya By Samishtha",
+      html,
+    },
+    "Abandoned cart email"
+  );
+}

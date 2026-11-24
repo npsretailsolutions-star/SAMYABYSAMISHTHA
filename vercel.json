@@ -3,5 +3,11 @@
     "deploymentEnabled": {
       "claude/gracious-newton-v3d9a4": false
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/abandoned-carts",
+      "schedule": "30 4 * * *"
+    }
+  ]
 }

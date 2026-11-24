@@ -5,6 +5,7 @@ import { computeAutoPricing } from "@/lib/offers";
 import { getActiveOffers } from "@/lib/offersServer";
 import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
 import type { Product, ProductVariant } from "@prisma/client";
+import { markCartRecovered } from "@/lib/abandonedCart";
 
 export class OrderValidationError extends Error {
   status: number;
@@ -280,6 +281,8 @@ export async function createOrderRecord(
       quantity: i.quantity,
     })),
   };
+
+  await markCartRecovered(order.email, order.orderNumber).catch((e) => console.error("Abandoned cart", e));
 
   // Awaited (not fire-and-forget): Vercel stops the function once the response is sent.
   // Emails go one after another to stay under Resend's rate limit.

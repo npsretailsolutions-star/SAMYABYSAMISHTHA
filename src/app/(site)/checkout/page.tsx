@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
+import { saveCartSnapshot } from "@/lib/cartSnapshot";
 import { useCustomer } from "@/components/CustomerProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
 import {
@@ -153,6 +154,22 @@ export default function CheckoutPage() {
     setCouponInput("");
     setCouponError(null);
   };
+
+  // Abandoned-cart: once a valid email is typed, save the cart + contact (debounced) so we can remind them.
+  useEffect(() => {
+    if (items.length === 0 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return;
+    const t = setTimeout(
+      () =>
+        saveCartSnapshot(items, {
+          email: form.email.trim(),
+          name: form.customerName.trim() || undefined,
+          phone: form.phone.trim() || undefined,
+          city: form.city.trim() || undefined,
+        }),
+      1500
+    );
+    return () => clearTimeout(t);
+  }, [items, form.email, form.customerName, form.phone, form.city]);
 
   const onChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

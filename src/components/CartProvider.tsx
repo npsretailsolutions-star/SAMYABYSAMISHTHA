@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { CartItem } from "@/lib/types";
 import { track } from "@/lib/metaPixel";
+import { saveCartSnapshot } from "@/lib/cartSnapshot";
 
 const STORAGE_KEY = "sbs_cart_v1";
 
@@ -19,6 +20,8 @@ type CartContextValue = {
   removeItem: (productId: string, variantId?: string | null) => void;
   updateQuantity: (productId: string, quantity: number, variantId?: string | null) => void;
   clearCart: () => void;
+  /** Adds items saved earlier (abandoned-cart email link) without duplicating ones already in the cart. */
+  restoreItems: (items: CartItem[]) => void;
   subtotal: number;
   giftTotal: number;
   count: number;
@@ -51,6 +54,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+  }, [items, hydrated]);
+
+  // Abandoned-cart tracking: sync the cart (debounced). Stored only if the visitor's email is known.
+  useEffect(() => {
+    if (!hydrated) return;
+    const t = setTimeout(() => saveCartSnapshot(items), 2000);
+    return () => clearTimeout(t);
   }, [items, hydrated]);
 
   const addItem = useCallback(
@@ -115,6 +125,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => setItems([]), []);
 
+  const restoreItems = useCallback((saved: CartItem[]) => {
+    setItems((prev) => {
+      const next = [...prev];
+      for (const item of saved) {
+        const exists = next.some(
+          (i) => i.productId === item.productId && (i.variantId || null) === (item.variantId || null)
+        );
+        if (!exists && item.quantity > 0) next.push(item);
+      }
+      return next;
+    });
+  }, []);
+
   const subtotal = useMemo(
     () => items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     [items]
@@ -134,6 +157,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     removeItem,
     updateQuantity,
     clearCart,
+    restoreItems,
     subtotal,
     giftTotal,
     count,

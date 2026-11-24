@@ -10,7 +10,7 @@ import { computeAutoPricing } from "@/lib/offers";
 import { useOffers } from "@/components/OffersProvider";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart } = useCart();
+  const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart, restoreItems } = useCart();
 
   const { offers, welcomeEligible } = useOffers();
   const pricing = computeAutoPricing(
@@ -30,6 +30,15 @@ export default function CartPage() {
 
   useEffect(() => {
     closeCart();
+    // "Complete My Order" link in the abandoned-cart email: /cart?restore=<id> refills the cart on any device.
+    const restoreId = new URLSearchParams(window.location.search).get("restore");
+    if (restoreId) {
+      fetch(`/api/cart-snapshot?restore=${encodeURIComponent(restoreId)}`)
+        .then((r) => r.json())
+        .then((d) => Array.isArray(d.items) && restoreItems(d.items))
+        .catch(() => {})
+        .finally(() => window.history.replaceState(null, "", "/cart"));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -85,6 +85,16 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
 - Backup: Admin → Reports → "Download Full Backup" (`/api/admin/backup`) = all tables as one JSON, parents first.
   No restore tool yet — build one from that file if ever needed.
 
+## Abandoned carts
+- `AbandonedCart` table (one row per email). Cart is saved only when the email is known: typed at checkout
+  (debounced effect in checkout page, with name/phone/city), logged-in customer, or subscriber cookie
+  (`CartProvider` syncs via `src/lib/cartSnapshot.ts` → `POST /api/cart-snapshot`). Orders mark it recovered.
+- Reminder email (`sendAbandonedCartEmail`) ~1h after last activity, within 3 days, max once per 7 days per email,
+  5 per run. Runs from `/api/track` (throttled 10 min per instance) + daily Vercel cron `/api/cron/abandoned-carts`
+  (uses `CRON_SECRET` if set). Email link `/cart?restore=<id>` refills the cart on any device.
+- Admin → Traffic → "Abandoned Carts" lists latest 50 with contact, items, value, status (+ WhatsApp link).
+- Started 24 Nov 2026; earlier carts were only in visitors' browsers, so there is no history before that.
+
 ## Gotchas learned
 - Products with variants (colours/sizes): stock lives on `ProductVariant`; `ProductCard` and the product page show/
   default to the first in-stock variant, and the product is sold out only when every variant is.
