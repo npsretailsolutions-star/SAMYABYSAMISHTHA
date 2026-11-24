@@ -27,4 +27,4 @@ export const GIFT_CARD_MESSAGES = [
 
 // Google Business "write a review" link (Google → your business → "Ask for reviews"). Empty = button hidden.
 // Used in the "order delivered" email (sent when admin marks an order DELIVERED).
-export const GOOGLE_REVIEW_URL = "";
+export const GOOGLE_REVIEW_URL = "https://g.page/r/CexwPAysqj6iEBM/review";

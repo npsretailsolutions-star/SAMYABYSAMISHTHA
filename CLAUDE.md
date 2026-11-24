@@ -70,7 +70,7 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
   Gross − Courier Returns − Customer Returns = Net Sales (`salesSummary`).
 - Order detail has Courier Partner + Tracking ID (`trackingNumber`). Changing status to SHIPPED sends the customer
   `sendOrderShippedEmail` (courier + tracking ID). Changing status to DELIVERED sends `sendOrderDeliveredEmail`
-  (thank-you + "Rate us on Google" button when `GOOGLE_REVIEW_URL` in `src/lib/constants.ts` is set — still empty).
+  (thank-you + "Rate us on Google" button from `GOOGLE_REVIEW_URL` in `src/lib/constants.ts`).
 
 ## Database (Nov 2026)
 - Production DB is **Supabase Postgres** (project in Tokyo, ap-northeast-1; Vercel function region Tokyo hnd1).
