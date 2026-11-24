@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { formatINR } from "@/lib/format";
+import { GOOGLE_REVIEW_URL } from "@/lib/constants";
 import { generateInvoicePdf, invoiceNumber } from "@/lib/invoice";
 
 
@@ -318,5 +319,48 @@ export async function sendAbandonedCartEmail(cart: {
       html,
     },
     "Abandoned cart email"
+  );
+}
+
+/** Sent when the admin marks an order DELIVERED: thank-you + "Rate us on Google" (if GOOGLE_REVIEW_URL is set). */
+export async function sendOrderDeliveredEmail(order: { orderNumber: string; customerName: string; email: string }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY not set — skipping order delivered email");
+    return false;
+  }
+  const firstName = esc(order.customerName.split(" ")[0] || order.customerName);
+  const reviewUrl = GOOGLE_REVIEW_URL;
+
+  const html = `
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;color:#0b3d3a;">
+      <h2 style="color:#0b3d3a;">Your order has been delivered 🎉</h2>
+      <p>Hi ${firstName},</p>
+      <p>Your order <strong>${esc(order.orderNumber)}</strong> has been delivered. We hope you love your new jewellery!</p>
+      ${
+        reviewUrl
+          ? `<p>It would mean a lot to us if you could share your experience — it takes less than a minute and helps other customers find us.</p>
+             <p style="margin:24px 0;text-align:center;">
+               <a href="${esc(reviewUrl)}" style="background:#c9a24a;color:#0b3d3a;padding:12px 28px;border-radius:999px;text-decoration:none;font-weight:600;">⭐ Rate us on Google</a>
+             </p>`
+          : ""
+      }
+      <p style="font-size:15px;"><strong>Thank you for shopping with Samya By Samishtha!</strong> 💛</p>
+      <p style="font-size:13px;color:#777;margin-top:24px;">
+        Any issue with your order? Reply to this email or write to ${CUSTOMER_SUPPORT_EMAIL} within 3 days of delivery.
+      </p>
+    </div>
+  `;
+
+  return sendWithRetry(
+    new Resend(apiKey),
+    {
+      from: "Samya By Samishtha <orders@samyabysamishtha.com>",
+      to: order.email,
+      replyTo: CUSTOMER_SUPPORT_EMAIL,
+      subject: `Your order ${order.orderNumber} has been delivered — Samya By Samishtha`,
+      html,
+    },
+    "Order delivered email"
   );
 }

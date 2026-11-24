@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 import { ORDER_STATUSES } from "@/lib/orderStatus";
-import { sendOrderShippedEmail } from "@/lib/email";
+import { sendOrderDeliveredEmail, sendOrderShippedEmail } from "@/lib/email";
 
 const schema = z
   .object({
@@ -55,7 +55,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (parsed.data.status === "SHIPPED" && before.status !== "SHIPPED") {
     shippedEmailSent = await sendOrderShippedEmail(order);
   }
-  return NextResponse.json({ order, shippedEmailSent });
+  // Status just changed to DELIVERED -> thank-you + "Rate us on Google" email.
+  let deliveredEmailSent: boolean | undefined;
+  if (parsed.data.status === "DELIVERED" && before.status !== "DELIVERED") {
+    deliveredEmailSent = await sendOrderDeliveredEmail(order);
+  }
+  return NextResponse.json({ order, shippedEmailSent, deliveredEmailSent });
 }
 
 /** Admin-only: permanently delete an order (e.g. a test order). Puts stock and coupon usage back. */

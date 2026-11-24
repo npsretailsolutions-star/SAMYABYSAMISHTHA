@@ -35,6 +35,10 @@ export default function OrderStatusSelect({
       setNote({ ok: true, text: "Shipping email sent to customer" });
     else if (data.shippedEmailSent === false)
       setNote({ ok: false, text: "Shipping email could not be sent" });
+    else if (data.deliveredEmailSent === true)
+      setNote({ ok: true, text: "Delivered email sent to customer" });
+    else if (data.deliveredEmailSent === false)
+      setNote({ ok: false, text: "Delivered email could not be sent" });
     router.refresh();
   };
 

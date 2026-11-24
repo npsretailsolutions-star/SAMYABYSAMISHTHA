@@ -69,7 +69,8 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
   `amountFactor` in `src/lib/orderStatus.ts`; stored DB amounts are never changed. Dashboard + Orders page show
   Gross − Courier Returns − Customer Returns = Net Sales (`salesSummary`).
 - Order detail has Courier Partner + Tracking ID (`trackingNumber`). Changing status to SHIPPED sends the customer
-  `sendOrderShippedEmail` (courier + tracking ID).
+  `sendOrderShippedEmail` (courier + tracking ID). Changing status to DELIVERED sends `sendOrderDeliveredEmail`
+  (thank-you + "Rate us on Google" button when `GOOGLE_REVIEW_URL` in `src/lib/constants.ts` is set — still empty).
 
 ## Database (Nov 2026)
 - Production DB is **Supabase Postgres** (project in Tokyo, ap-northeast-1; Vercel function region Tokyo hnd1).
