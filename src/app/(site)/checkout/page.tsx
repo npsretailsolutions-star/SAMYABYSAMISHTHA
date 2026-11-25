@@ -11,7 +11,7 @@ import { formatINR, formatGiftNote } from "@/lib/format";
 import {
   COD_CHARGE,
 } from "@/lib/constants";
-import { track } from "@/lib/metaPixel";
+import { trackWithServer } from "@/lib/metaPixel";
 import { computeAutoPricing } from "@/lib/offers";
 import { useOffers } from "@/components/OffersProvider";
 
@@ -47,7 +47,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (pixelSent.current || items.length === 0) return;
     pixelSent.current = true;
-    track("InitiateCheckout", {
+    trackWithServer("InitiateCheckout", {
       content_ids: items.map((i) => i.productId),
       content_type: "product",
       num_items: items.reduce((n, i) => n + i.quantity, 0),

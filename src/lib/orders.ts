@@ -6,6 +6,7 @@ import { getActiveOffers } from "@/lib/offersServer";
 import { sendOrderNotificationEmail, sendCustomerOrderConfirmationEmail } from "@/lib/email";
 import type { Product, ProductVariant } from "@prisma/client";
 import { markCartRecovered } from "@/lib/abandonedCart";
+import { sendMetaEvent } from "@/lib/metaCapi";
 
 export class OrderValidationError extends Error {
   status: number;
@@ -283,6 +284,31 @@ export async function createOrderRecord(
   };
 
   await markCartRecovered(order.email, order.orderNumber).catch((e) => console.error("Abandoned cart", e));
+
+  // Meta Conversions API — same event_id as the browser Pixel on the order-confirmation page (deduplicated).
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://samyabysamishtha.com").replace(/\/$/, "");
+  await sendMetaEvent({
+    eventName: "Purchase",
+    eventId: `purchase-${order.orderNumber}`,
+    eventSourceUrl: `${siteUrl}/checkout`,
+    user: {
+      email: order.email,
+      phone: order.phone,
+      name: order.customerName,
+      city: order.city,
+      state: order.state,
+      zip: order.pincode,
+    },
+    customData: {
+      currency: "INR",
+      value: order.total / 100,
+      content_type: "product",
+      content_ids: order.items.map((i) => i.productId).filter(Boolean),
+      contents: order.items.map((i) => ({ id: i.productId, quantity: i.quantity, item_price: i.price / 100 })),
+      num_items: order.items.reduce((n, i) => n + i.quantity, 0),
+      order_id: order.orderNumber,
+    },
+  }).catch(() => {});
 
   // Awaited (not fire-and-forget): Vercel stops the function once the response is sent.
   // Emails go one after another to stay under Resend's rate limit.

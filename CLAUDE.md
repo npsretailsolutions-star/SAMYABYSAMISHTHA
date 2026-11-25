@@ -53,7 +53,11 @@ CGST+SGST if customer state contains "delhi", else IGST.
   (Vercel kills fire-and-forget work). Customer confirmation attaches the invoice PDF (`src/lib/invoice.ts`).
 - Meta: feed at `/feed/meta.xml` (`src/app/feed/meta.xml/route.ts`); Pixel in `src/components/MetaPixel.tsx`,
   events via `src/lib/metaPixel.ts` / `PixelEvent.tsx` (ViewContent, AddToCart, InitiateCheckout, Purchase).
-  Pixel dataset "Samya Website" ID 2108551593087871. Conversions API is NOT implemented.
+  Pixel dataset "Samya Website" ID 2108551593087871.
+- Meta Conversions API (`src/lib/metaCapi.ts`, needs env `META_CAPI_TOKEN`; optional `META_CAPI_TEST_CODE`,
+  `META_GRAPH_VERSION` default v23.0): Purchase sent from `createOrderRecord` (event_id `purchase-<orderNumber>`, same
+  as the Pixel on the order-confirmation page); AddToCart + InitiateCheckout via `trackWithServer` → `/api/meta-event`
+  with a shared event_id. User data is SHA-256 hashed (email, phone with 91, name, city, state, pincode) + IP/UA/_fbp/_fbc.
 - Product images: committed under `public/images/products/<category>/` (webp) or uploaded to Supabase.
 - Delhivery and WhatsApp integrations were built and then removed at the owner's request; the DB columns
   `trackingNumber/shippingProvider/shippingStatus/shippingError` remain.
@@ -119,7 +123,7 @@ Everything below is live on production unless marked otherwise.
   billing; a "Rate us on Google" link needs only the Google Business review URL — offered, not built).
 
 ## Open items / ideas (none are blocking)
-- Conversions API for Meta (not built); Privacy Policy line about collecting emails and the Meta Pixel.
+- Privacy Policy line about collecting emails, cart reminders, the Meta Pixel and Conversions API.
 - About Us page improvements, extra trust badges, review-request email after delivery.
 - Tawk.to live chat: widget code is in place, owner's account setup unconfirmed.
 - Owner-side hygiene: delete the old Delhivery token and the Google API key that were pasted in chat; remove stale

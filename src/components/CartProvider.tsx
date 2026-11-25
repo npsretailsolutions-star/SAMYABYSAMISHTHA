@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import type { CartItem } from "@/lib/types";
-import { track } from "@/lib/metaPixel";
+import { trackWithServer } from "@/lib/metaPixel";
 import { saveCartSnapshot } from "@/lib/cartSnapshot";
 
 const STORAGE_KEY = "sbs_cart_v1";
@@ -77,7 +77,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return [...prev, { ...item, quantity: Math.min(quantity, item.stock) }];
       });
       setIsCartOpen(true);
-      track("AddToCart", {
+      trackWithServer("AddToCart", {
         content_ids: [item.productId],
         content_type: "product",
         content_name: item.name,
