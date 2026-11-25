@@ -157,28 +157,30 @@ export default function CheckoutPage() {
     setCouponError(null);
   };
 
-  // Pincode → autofill City/State (India Post). Only fills fields that are empty or were filled by us before.
+  // Pincode → autofill City/State (India Post). When the customer types a pincode it overwrites City/State
+  // (pincode is what the courier uses); a pincode prefilled from their saved profile only fills empty boxes.
   const [pinNote, setPinNote] = useState<string | null>(null);
-  const autoFilled = useRef<{ city: string; state: string } | null>(null);
+  const pinTypedByUser = useRef(false);
   useEffect(() => {
     const pin = form.pincode.trim();
     if (!/^[1-9][0-9]{5}$/.test(pin)) {
       setPinNote(null);
       return;
     }
+    const overwrite = pinTypedByUser.current;
     let cancelled = false;
     fetch(`/api/pincode/${pin}`)
       .then((r) => r.json())
       .then((d: { found?: boolean; city?: string; state?: string }) => {
         if (cancelled || !d.found || !d.city || !d.state) return;
-        setForm((f) => {
-          const prev = autoFilled.current;
-          const canCity = !f.city.trim() || (prev && f.city === prev.city);
-          const canState = !f.state.trim() || (prev && f.state === prev.state);
-          autoFilled.current = { city: d.city!, state: d.state! };
-          return { ...f, ...(canCity && { city: d.city! }), ...(canState && { state: d.state! }) };
-        });
-        setPinNote(`📍 ${d.city}, ${d.state}`);
+        const city = d.city;
+        const state = d.state;
+        setForm((f) => ({
+          ...f,
+          city: overwrite || !f.city.trim() ? city : f.city,
+          state: overwrite || !f.state.trim() ? state : f.state,
+        }));
+        setPinNote(`📍 ${city}, ${state}`);
       })
       .catch(() => {});
     return () => {
@@ -205,6 +207,7 @@ export default function CheckoutPage() {
   const onChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    if (e.target.name === "pincode") pinTypedByUser.current = true;
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
