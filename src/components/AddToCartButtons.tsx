@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import GiftOptions from "@/components/GiftOptions";
 import type { GiftWrapSelection } from "@/lib/types";
+import { formatINR } from "@/lib/format";
 
 export default function AddToCartButtons({
   productId,
@@ -41,6 +42,20 @@ export default function AddToCartButtons({
   useEffect(() => {
     setQty(1);
   }, [variantId]);
+
+  // Mobile: once the main buttons scroll out of view, show a bar fixed to the bottom of the screen.
+  const buttonsRef = useRef<HTMLDivElement>(null);
+  const [showSticky, setShowSticky] = useState(false);
+  useEffect(() => {
+    const el = buttonsRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(([entry]) => {
+      // Only when the buttons are above the screen (user scrolled past them), not before reaching them.
+      setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   const item = {
     productId,
@@ -91,7 +106,7 @@ export default function AddToCartButtons({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={() => addItem(item, qty)}
           disabled={stock <= 0}
@@ -112,6 +127,31 @@ export default function AddToCartButtons({
           Buy Now
         </button>
       </div>
+
+      {showSticky && stock > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-brand-teal/10 bg-white/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur sm:hidden">
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs text-brand-teal/70">{variantLabel || name}</p>
+              <p className="text-base font-semibold text-brand-teal">{formatINR(price)}</p>
+            </div>
+            <button onClick={() => addItem(item, qty)} className="btn-outline !px-4 !py-2.5 text-xs">
+              <ShoppingBag size={14} />
+              Add
+            </button>
+            <button
+              onClick={() => {
+                addItem(item, qty);
+                router.push("/checkout");
+              }}
+              className="btn-gold !px-4 !py-2.5 text-xs"
+            >
+              <Zap size={14} />
+              Buy Now
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

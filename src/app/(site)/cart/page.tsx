@@ -8,6 +8,7 @@ import { useCart } from "@/components/CartProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
 import { computeAutoPricing } from "@/lib/offers";
 import { useOffers } from "@/components/OffersProvider";
+import OfferProgress from "@/components/OfferProgress";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, subtotal, giftTotal, closeCart, restoreItems } = useCart();
@@ -139,6 +140,9 @@ export default function CartPage() {
           <h2 className="font-serif text-lg font-semibold text-brand-teal mb-4">
             Order Summary
           </h2>
+          <div className="mb-4">
+            <OfferProgress subtotal={subtotal} />
+          </div>
           <div className="flex items-center justify-between text-sm text-brand-teal/70 mb-2">
             <span>Subtotal</span>
             <span>{formatINR(subtotal)}</span>

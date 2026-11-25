@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { formatINR, formatGiftNote } from "@/lib/format";
+import OfferProgress from "@/components/OfferProgress";
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, updateQuantity, removeItem, subtotal, giftTotal } =
@@ -101,6 +102,7 @@ export default function CartDrawer() {
             </div>
 
             <div className="border-t border-brand-teal/10 px-5 py-5 space-y-4">
+              <OfferProgress subtotal={subtotal} />
               <div className="flex items-center justify-between text-base font-semibold text-brand-teal">
                 <span>Subtotal</span>
                 <span>{formatINR(subtotal + giftTotal)}</span>

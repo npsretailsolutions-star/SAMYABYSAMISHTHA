@@ -100,6 +100,12 @@ and give the owner a one-line console script that POSTs to `/api/admin/bulk-impo
 - Admin → Traffic → "Abandoned Carts" lists latest 50 with contact, items, value, status (+ WhatsApp link).
 - Started 24 Nov 2026; earlier carts were only in visitors' browsers, so there is no history before that.
 
+## Conversion features (Nov 2026)
+- `OfferProgress` ("Add ₹X more to unlock N% off") in cart page + cart drawer, from running PERCENT offers.
+- Checkout shows the online-payment saving (prepaid % + no ₹49 COD) and a "switch to online" nudge when COD is chosen.
+- `AddToCartButtons`: mobile-only sticky bottom bar (price + Add + Buy Now) after the main buttons scroll away.
+- Checkout pincode → City/State autofill via `/api/pincode/[pin]` (India Post api.postalpincode.in, cached a week).
+
 ## Gotchas learned
 - Products with variants (colours/sizes): stock lives on `ProductVariant`; `ProductCard` and the product page show/
   default to the first in-stock variant, and the product is sold out only when every variant is.

@@ -124,6 +124,8 @@ export default function CheckoutPage() {
   const codCharge = paymentMethod === "COD" ? COD_CHARGE : 0;
   const discount = pricing.bundleDiscount + baseDiscount + prepaidDiscount;
   const total = subtotal - discount + codCharge + giftTotal;
+  // What paying online saves vs COD (prepaid % offer + the COD handling charge), shown to nudge prepaid.
+  const onlineSaving = pricing.prepaidDiscount + (hasGiftItem ? 0 : COD_CHARGE);
 
   const applyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -154,6 +156,35 @@ export default function CheckoutPage() {
     setCouponInput("");
     setCouponError(null);
   };
+
+  // Pincode → autofill City/State (India Post). Only fills fields that are empty or were filled by us before.
+  const [pinNote, setPinNote] = useState<string | null>(null);
+  const autoFilled = useRef<{ city: string; state: string } | null>(null);
+  useEffect(() => {
+    const pin = form.pincode.trim();
+    if (!/^[1-9][0-9]{5}$/.test(pin)) {
+      setPinNote(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/pincode/${pin}`)
+      .then((r) => r.json())
+      .then((d: { found?: boolean; city?: string; state?: string }) => {
+        if (cancelled || !d.found || !d.city || !d.state) return;
+        setForm((f) => {
+          const prev = autoFilled.current;
+          const canCity = !f.city.trim() || (prev && f.city === prev.city);
+          const canState = !f.state.trim() || (prev && f.state === prev.state);
+          autoFilled.current = { city: d.city!, state: d.state! };
+          return { ...f, ...(canCity && { city: d.city! }), ...(canState && { state: d.state! }) };
+        });
+        setPinNote(`📍 ${d.city}, ${d.state}`);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [form.pincode]);
 
   // Abandoned-cart: once a valid email is typed, save the cart + contact (debounced) so we can remind them.
   useEffect(() => {
@@ -339,10 +370,11 @@ export default function CheckoutPage() {
             <Field label="Email" name="email" value={form.email} onChange={onChange} required type="email" />
             <Field label="Address" name="address" value={form.address} onChange={onChange} required />
             <div className="grid gap-4 sm:grid-cols-3">
+              <Field label="Pincode" name="pincode" value={form.pincode} onChange={onChange} required type="tel" />
               <Field label="City" name="city" value={form.city} onChange={onChange} required />
               <Field label="State" name="state" value={form.state} onChange={onChange} required />
-              <Field label="Pincode" name="pincode" value={form.pincode} onChange={onChange} required />
             </div>
+            {pinNote && <p className="-mt-2 text-xs text-emerald-700">{pinNote}</p>}
             <div>
               <label className="block text-sm font-medium text-brand-teal mb-1">
                 Order Notes (optional)
@@ -380,7 +412,12 @@ export default function CheckoutPage() {
                   Pay Online — Cards, UPI, Netbanking
                 </p>
                 <p className="text-xs text-emerald-700 font-medium">
-                  {pricing.prepaidOffer ? `Extra ${pricing.prepaidOffer.percent}% off — ` : ""}secure payment powered by Razorpay.
+                  {onlineSaving > 0
+                    ? `Save ${formatINR(onlineSaving)} — ${pricing.prepaidOffer ? `extra ${pricing.prepaidOffer.percent}% off` : ""}${
+                        pricing.prepaidOffer && !hasGiftItem ? " + " : ""
+                      }${!hasGiftItem ? "no COD charge" : ""}. `
+                    : ""}
+                  Secure payment powered by Razorpay.
                 </p>
               </div>
             </label>
@@ -414,6 +451,17 @@ export default function CheckoutPage() {
               </label>
             )}
           </div>
+
+          {paymentMethod === "COD" && onlineSaving > 0 && (
+            <button
+              type="button"
+              onClick={() => setPaymentMethod("RAZORPAY")}
+              className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left text-sm text-emerald-800"
+            >
+              💡 Pay online instead and <span className="font-semibold">save {formatINR(onlineSaving)}</span> on
+              this order. <span className="underline">Switch to online payment</span>
+            </button>
+          )}
 
           {error && (
             <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>
