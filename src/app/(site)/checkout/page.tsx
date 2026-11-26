@@ -160,19 +160,42 @@ export default function CheckoutPage() {
   // Pincode → autofill City/State (India Post). When the customer types a pincode it overwrites City/State
   // (pincode is what the courier uses); a pincode prefilled from their saved profile only fills empty boxes.
   const [pinNote, setPinNote] = useState<string | null>(null);
+  const [pinInvalid, setPinInvalid] = useState(false);
   const pinTypedByUser = useRef(false);
+  const autoFilled = useRef<{ city: string; state: string } | null>(null);
   useEffect(() => {
     const pin = form.pincode.trim();
+    setPinNote(null);
+    setPinInvalid(false);
+    if (!pin) return;
+    // Clear City/State we filled for a previous pincode, so a wrong pincode doesn't keep the old place.
+    const clearAuto = () => {
+      const prev = autoFilled.current;
+      if (!prev) return;
+      autoFilled.current = null;
+      setForm((f) => ({
+        ...f,
+        city: f.city === prev.city ? "" : f.city,
+        state: f.state === prev.state ? "" : f.state,
+      }));
+    };
     if (!/^[1-9][0-9]{5}$/.test(pin)) {
-      setPinNote(null);
+      clearAuto();
+      if (pin.length >= 6) setPinInvalid(true);
       return;
     }
     const overwrite = pinTypedByUser.current;
     let cancelled = false;
     fetch(`/api/pincode/${pin}`)
       .then((r) => r.json())
-      .then((d: { found?: boolean; city?: string; state?: string }) => {
-        if (cancelled || !d.found || !d.city || !d.state) return;
+      .then((d: { found?: boolean; invalid?: boolean; city?: string; state?: string }) => {
+        if (cancelled) return;
+        if (!d.found || !d.city || !d.state) {
+          clearAuto();
+          if (d.invalid) setPinInvalid(true); // lookup service down -> don't block, customer fills by hand
+          return;
+        }
+        autoFilled.current = { city: d.city, state: d.state };
         const city = d.city;
         const state = d.state;
         setForm((f) => ({
@@ -317,6 +340,10 @@ export default function CheckoutPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
+    if (pinInvalid) {
+      setError("Please enter a valid 6-digit pincode.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -377,7 +404,13 @@ export default function CheckoutPage() {
               <Field label="City" name="city" value={form.city} onChange={onChange} required />
               <Field label="State" name="state" value={form.state} onChange={onChange} required />
             </div>
-            {pinNote && <p className="-mt-2 text-xs text-emerald-700">{pinNote}</p>}
+            {pinInvalid ? (
+              <p className="-mt-2 text-xs font-medium text-red-600">
+                ❌ Invalid pincode — please check and enter the correct 6-digit pincode.
+              </p>
+            ) : (
+              pinNote && <p className="-mt-2 text-xs text-emerald-700">{pinNote}</p>
+            )}
             <div>
               <label className="block text-sm font-medium text-brand-teal mb-1">
                 Order Notes (optional)
